@@ -18,6 +18,8 @@ ALL_STATS = CORE_STATS + [
 
 RARITIES = ['mundane', 'interesting', 'odd', 'exceptional', 'peerless']
 
+DECK_MINIMUM_SIZE = 10
+
 def raw_to_scaled(raw_val):
     """Converts a raw accumulated stat value into a 0 to 20 integer scale.
     Uses triangular stat scaling: 1:1 for the first level, requiring increasingly

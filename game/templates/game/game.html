@@ -435,7 +435,10 @@
         <!-- CARD INVENTORY SCROLL -->
         <div style="margin-top: 10px;">
             <h4 style="color: var(--text-muted); font-size: 0.95rem;">
-                Inventory (Give to {{ selected_char.name }} or add to Shared Deck)
+                Your Inventory | Give cards to {{ selected_char.name }} or add to your party's deck |
+                <span {% if party_deck_len < deck_minimum_size %} style="color: var(--accent-red);" {% endif %}>
+                    Deck: {{ party_deck_len }} / {{ deck_minimum_size }} Cards
+                </span>
             </h4>
             <div class="cards-row">
                 {% for card in party_inventory_cards %}
@@ -451,7 +454,7 @@
                         </form>
                         <form method="POST" action="{% url 'handle_action' %}">
                             {% csrf_token %}
-                            <input type="hidden" name="action_type" value="toggle_deck">
+                            <input type="hidden" name="action_type" value="add_deck">
                             <input type="hidden" name="card_name" value="{{ card.name }}">
                             <button type="submit" class="btn" style="font-size: 0.7rem; padding: 4px 6px;">+
                                 Deck</button>

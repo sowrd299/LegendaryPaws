@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseBadRequest
 from .engine import (
     create_initial_game_state, Party, Character, CombatEngine,
-    WORLD_MAP, MAP_WIDTH, MAP_HEIGHT, TILE_DESCRIPTIONS, CARDS
+    WORLD_MAP, MAP_WIDTH, MAP_HEIGHT, TILE_DESCRIPTIONS, CARDS, DECK_MINIMUM_SIZE
 )
 
 VOINARA_DIALOGUE = [
@@ -91,7 +91,9 @@ def game_index(request):
         'state': state,
         'screen': screen,
         'party': party,
-        'party_inventory_cards': [ name_to_card(name) for name in party.inventory ]
+        'party_inventory_cards': [ name_to_card(name) for name in party.inventory ],
+        'party_deck_len': len(party.shared_deck),
+        'deck_minimum_size': DECK_MINIMUM_SIZE
     }
 
     if screen == 'voinara_intro':
@@ -225,16 +227,19 @@ def handle_action(request):
                 party.inventory.remove(card_name)
             state['message'] = msg
 
-    elif action_type == 'toggle_deck':
+    elif action_type == 'remove_deck':
         card_name = request.POST.get('card_name')
         if card_name in party.shared_deck:
             party.shared_deck.remove(card_name)
             party.inventory.append(card_name)
-            state['message'] = f"Removed {card_name} from shared deck."
-        elif card_name in party.inventory and len(party.shared_deck) < 10:
+            state['message'] = f"Removed {card_name} from your party's deck."
+
+    elif action_type == 'add_deck':
+        card_name = request.POST.get('card_name')
+        if card_name in party.inventory:
             party.inventory.remove(card_name)
             party.shared_deck.append(card_name)
-            state['message'] = f"Added {card_name} to shared deck."
+            state['message'] = f"Added {card_name} to your party's deck."
 
     elif action_type == 'shop_buy':
         card_name = request.POST.get('card_name')
@@ -257,6 +262,15 @@ def handle_action(request):
             turn_char = engine.get_current_turn_character()
             if turn_char and turn_char in engine.allies:
                 engine.execute_player_turn(turn_char, card_name, target_id)
+
+                # Do this here, where we have direct access to the game state
+                if CARDS[card_name].get("is_consumable", False):
+                    if card_name in party.inventory:
+                        party.inventory.remove(card_name)
+                    else:
+                        party.shared_deck.remove(card_name)
+                        engine.discard_pile.remove(card_name)
+
                 engine.check_combat_end()
 
                 # Process subsequent enemy turns automatically until player turn or combat end
