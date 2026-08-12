@@ -116,12 +116,12 @@ CLASS_DATA = {
     # Enemy specific classes
     'Husk': {
         'bonus_stats': ['melee_damage', 'ranged_resistance', 'star_vulnerability'],
-        'stat_mods': {'melee_damage' : -2.0, 'haleness': -4.0},
+        'stat_mods': {'melee_damage' : -3.0, 'haleness': -4.0},
         'default_cards': []
     },
     'Soul': {
         'bonus_stats': ['void_damage', 'melee_resistance', 'moon_vulnerability'],
-        'stat_mods': {'melee_damage' : -3.0, 'void_damage': -1, 'haleness': -6.0, 'moon_vulnerability': 5},
+        'stat_mods': {'melee_damage' : -4.0, 'void_damage': -1, 'haleness': -6.0, 'moon_vulnerability': 5},
         'default_cards': ['Chill']
     }
 }
@@ -253,7 +253,7 @@ CARDS = {
         'name': 'Chill Breath',
         'type': 'scroll',
         'rarity': 'interesting',
-        'target': 'enemy',
+        'target': 'all_enemies',
         'recovery_cost': 10,
         'damage_type': 'void_intensity',
         'damage_power': 0.5,

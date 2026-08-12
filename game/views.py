@@ -23,13 +23,13 @@ SHOP_ITEMS = [
 
 def generate_random_enemies(terrain, level=1):
     """Generates enemy characters using the exact Character system."""
-    count = 1
+    count = 2
     if terrain == 'R':
-        count = random.randint(2, 4)
+        count = random.randint(2, 5)
     elif terrain == '^':
-        count = random.randint(1, 3)
+        count = random.randint(2, 4)
     elif terrain == '↟':
-        count = random.randint(1, 2)
+        count = random.randint(2, 4)
 
     species_options = ['Badger', 'Cat', 'Fox', 'Rabbit', 'Owl']
     class_options = ['Husk', 'Soul']
@@ -251,7 +251,7 @@ def handle_action(request):
                     if engine.victory:
                         earned_gold = random.randint(5, 10)
                         party.gold += earned_gold
-                        reward_card = random.choice(['Slash', 'First aid', 'Wax', 'Wain', 'Singe', 'Singe Breath', 'Chill', 'Chill Breath'])
+                        reward_card = random.choice(['Slash', 'First aid', 'Wax', 'Wain', 'Singe Breath', 'Chill Breath'])
 
                         if len(party.inventory) < 20:
                             party.inventory.append(reward_card)
