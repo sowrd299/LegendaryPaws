@@ -42,7 +42,7 @@ SPECIES_DATA = {
     'Fox': {'nimbleness': 3.0, 'brute_intensity': 2.0, 'haleness': 2.0, 'brute_resistance': 2.0},
     'Cat': {'nimbleness': 4.0, 'haleness': 3.0, 'brute_intensity': 1.0, 'brute_resistance': 1.0},
     'Badger': {'brute_intensity': 4.0, 'brute_resistance': 4.0, 'nimbleness': 1.0, 'haleness': 3.0},
-    'Rabbit': {'nimbleness': 5.0, 'haleness': 2.0, 'brute_intensity': 1.0, 'brute_resistance': 1.0},
+    'Rabbit': {'nimbleness': 4.0, 'haleness': 2.0, 'brute_intensity': 1.0, 'brute_resistance': 1.0},
     'Owl': {'haleness': 3.0, 'star_intensity': 4.0, 'nimbleness': 2.0, 'brute_intensity': 1.0},
     'Raven': {'void_intensity': 4.0, 'nimbleness': 3.0, 'haleness': 2.0, 'brute_resistance': 1.0},
     'Dragonling': {'brute_intensity': 3.0, 'star_intensity': 3.0, 'haleness': 3.0, 'brute_resistance': 2.0},
@@ -118,12 +118,12 @@ CLASS_DATA = {
     # Enemy specific classes
     'Husk': {
         'bonus_stats': ['melee_damage', 'ranged_resistance', 'star_vulnerability'],
-        'stat_mods': {'melee_damage' : -3.0, 'haleness': -4.0},
+        'stat_mods': {'melee_damage' : -2.0, 'haleness': -4.0},
         'default_cards': []
     },
     'Soul': {
-        'bonus_stats': ['void_damage', 'melee_resistance', 'moon_vulnerability'],
-        'stat_mods': {'melee_damage' : -4.0, 'void_damage': -1, 'haleness': -6.0, 'moon_vulnerability': 5},
+        'bonus_stats': ['void_intensity', 'melee_resistance', 'moon_vulnerability'],
+        'stat_mods': {'melee_damage' : -4.0, 'void_intensity': -1, 'haleness': -6.0, 'moon_vulnerability': 5},
         'default_cards': ['Chill']
     }
 }
