@@ -1,0 +1,712 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legs on Strange Lands</title>
+    <style>
+        :root {
+            --bg-color: #141a24;
+            --panel-bg: #1c2432;
+            --text-color: #f0e6d2;
+            --text-muted: #a09888;
+            --accent-amber: #e5b168;
+            --accent-green: #98c379;
+            --accent-red: #e06c75;
+            --accent-cyan: #56b6c2;
+            --border-color: #2c384e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .terminal-container {
+            width: 860px;
+            background-color: var(--panel-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .header {
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 12px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.3rem;
+            color: var(--accent-amber);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .controls-legend {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .status-bar {
+            background-color: var(--bg-color);
+            padding: 10px 14px;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            color: var(--text-color);
+        }
+
+        /* ASCII MAP STYLING */
+        .map-display {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 16px;
+            font-size: 1.1rem;
+            line-height: 1.3;
+            letter-spacing: 4px;
+            text-align: center;
+            color: var(--text-color);
+        }
+
+        .map-display .player-star {
+            color: var(--accent-amber);
+            font-weight: bold;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        /* CARD UI STYLING */
+        .cards-row {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .card-rect {
+            width: 170px;
+            background-color: var(--bg-color);
+            border: 2px solid var(--text-color);
+            border-radius: 6px;
+            padding: 10px;
+            cursor: pointer;
+            transition: transform 0.15s ease, border-color 0.15s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-size: 0.82rem;
+            height: 150px;
+        }
+
+        .card-rect:hover,
+        .card-rect.selected {
+            transform: translateY(-4px);
+            border-color: var(--accent-green);
+            box-shadow: 0 4px 12px rgba(152, 195, 121, 0.3);
+        }
+
+        .card-title {
+            font-weight: bold;
+            color: var(--text-color);
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 4px;
+        }
+
+        .card-type {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .card-desc {
+            color: var(--text-color);
+            font-size: 0.78rem;
+            margin: 6px 0;
+            line-height: 1.2;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            color: var(--accent-cyan);
+        }
+
+        /* COMBAT UNIT DISPLAY */
+        .combat-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .combat-units-grid {
+            gap: 16px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px;
+        }
+
+        .unit-group {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+        }
+
+        .unit-group-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 4px;
+        }
+
+        .unit-card {
+            padding: 8px;
+            margin-bottom: 24px;
+            margin-right: 6px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            background-color: var(--panel-bg);
+            width: 189px;
+        }
+
+        .unit-card.selectable {
+            border-color: var(--accent-amber);
+        }
+
+        .unit-card.selected {
+            border-color: var(--accent-green);
+            background-color: #233042;
+        }
+
+        .hp-bar {
+            color: var(--accent-green);
+            letter-spacing: 1px;
+        }
+
+        .hp-bar.low {
+            color: var(--accent-red);
+        }
+
+        /* DIALOGUE & MENUS */
+        .dialogue-box {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 6px;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: var(--text-color);
+        }
+
+        .btn {
+            background-color: var(--panel-bg);
+            color: var(--accent-amber);
+            border: 1px solid var(--accent-amber);
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-amber);
+            color: var(--bg-color);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .stats-table td,
+        .stats-table th {
+            padding: 6px 10px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+        }
+
+        .stats-table th {
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="terminal-container">
+        <!-- HEADER -->
+        <div class="header">
+            <h1>Legs on Strange Lands</h1>
+            <div class="controls-legend">
+                [ Arrows = Navigate | Space = Select | C = Character Menu | X = Close ]
+            </div>
+        </div>
+
+        <!-- STATUS MESSAGE -->
+        {% if state.message %}
+        <div class="status-bar">
+            >&nbsp;{{ state.message }}
+        </div>
+        {% endif %}
+
+        <!-- SCREEN: VOINARA INTRO -->
+        {% if screen == 'voinara_intro' %}
+        <div class="dialogue-box">
+            <p>{{ voinara_text }}</p>
+            <form id="voinaraForm" method="POST" action="{% url 'handle_action' %}" style="margin-top: 16px;">
+                {% csrf_token %}
+                <input type="hidden" name="action_type" value="voinara_advance">
+                <button type="submit" class="btn">[ Space ] Next Dialogue</button>
+            </form>
+        </div>
+
+        <!-- SCREEN: OVERWORLD -->
+        {% elif screen == 'overworld' %}
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="color: var(--text-muted); font-size: 1.1rem;">Location: {{ tile_name }}</h2>
+            <div style="font-size: 0.9rem; color: var(--accent-amber);">Gold: {{ party.gold }}g</div>
+        </div>
+
+        <!-- ASCII MAP -->
+        <div class="map-display">
+            {% for row in map_grid %}
+            {% for char in row %}
+            {% if char == '*' %}<span class="player-star">*</span>
+            {% else %}{{ char }}
+            {% endif %}
+            {% endfor %}
+            <br />
+            {% endfor %}
+        </div>
+
+        <div class="dialogue-box" style="font-size: 0.9rem;">
+            <p>{{ tile_desc }}</p>
+        </div>
+
+        <!-- CONTROLS & NAVIGATION -->
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="btn-group">
+                <form method="POST" action="{% url 'handle_action' %}" inline style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action_type" value="move">
+                    <input type="hidden" name="direction" value="up">
+                    <button type="submit" class="btn">▲ Up</button>
+                </form>
+                <form method="POST" action="{% url 'handle_action' %}" inline style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action_type" value="move">
+                    <input type="hidden" name="direction" value="down">
+                    <button type="submit" class="btn">▼ Down</button>
+                </form>
+                <form method="POST" action="{% url 'handle_action' %}" inline style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action_type" value="move">
+                    <input type="hidden" name="direction" value="left">
+                    <button type="submit" class="btn">◄ Left</button>
+                </form>
+                <form method="POST" action="{% url 'handle_action' %}" inline style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action_type" value="move">
+                    <input type="hidden" name="direction" value="right">
+                    <button type="submit" class="btn">► Right</button>
+                </form>
+            </div>
+
+            <form method="POST" action="{% url 'handle_action' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action_type" value="open_menu">
+                <button type="submit" class="btn">[ C ] Character Menu</button>
+            </form>
+        </div>
+
+        <!-- SCREEN: CHARACTER MENU -->
+        {% elif screen == 'character_menu' %}
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="color: var(--text-muted);">Party & Character Status</h2>
+            <form method="POST" action="{% url 'handle_action' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action_type" value="close_menu">
+                <button type="submit" class="btn">[ X ] Close Menu</button>
+            </form>
+        </div>
+
+        <!-- PARTY TABS -->
+        <div class="btn-group">
+            {% for member in party.members %}
+            <form method="POST" action="{% url 'handle_action' %}" style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="action_type" value="select_char">
+                <input type="hidden" name="char_index" value="{{ forloop.counter0 }}">
+                <button type="submit" class="btn {% if forloop.counter0 == char_index %}selected{% endif %}">
+                    {{ member.name }} (Lvl {{ member.level }})
+                </button>
+            </form>
+            {% endfor %}
+        </div>
+
+        {% if selected_char %}
+        <div class="dialogue-box" style="margin-top: 10px;">
+            <h3>{{ selected_char.name }} &mdash; Level {{ selected_char.level }} {{ selected_char.species }}
+                {{ selected_char.current_class }}</h3>
+            <p style="margin-top: 4px; font-size: 0.85rem; color: var(--text-muted);">
+                HP: {{ selected_char.current_hp }}/{{ selected_char.max_hp }}
+            </p>
+
+            <table class="stats-table">
+                <tbody>
+                    {% for stat_name, stat_val in scaled_stats.items %}
+                    {% if stat_name != 'level' %}
+                    <tr>
+                        <td>{{ stat_name }}</td>
+                        <td><strong>{{ stat_val }}</strong></td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <h4 style="margin-top: 14px;">Known Cards</h4>
+            <div style="font-size: 0.85rem; margin-top: 4px;">
+                {% for card in known_cards %}
+                <span
+                    style="background-color: var(--panel-bg); border: 1px solid var(--border-color); padding: 3px 8px; border-radius: 3px; display: inline-block; margin: 2px;">
+                    {{ card }}
+                </span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- CARD INVENTORY SCROLL -->
+        <div style="margin-top: 10px;">
+            <h4 style="color: var(--text-muted); font-size: 0.95rem;">
+                Inventory (Give to {{ selected_char.name }} or add to Shared Deck)
+            </h4>
+            <div class="cards-row">
+                {% for card_name in party.inventory %}
+                <div class="card-rect">
+                    <div>
+                        <div class="card-title">{{ card_name }}</div>
+                        <div class="card-type">Inventory Card</div>
+                    </div>
+                    <div class="btn-group" style="margin-top: 6px;">
+                        <form method="POST" action="{% url 'handle_action' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="action_type" value="give_card">
+                            <input type="hidden" name="card_name" value="{{ card_name }}">
+                            <button type="submit" class="btn" style="font-size: 0.7rem; padding: 4px 6px;">Give
+                                (+Lvl)</button>
+                        </form>
+                        <form method="POST" action="{% url 'handle_action' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="action_type" value="toggle_deck">
+                            <input type="hidden" name="card_name" value="{{ card_name }}">
+                            <button type="submit" class="btn" style="font-size: 0.7rem; padding: 4px 6px;">+
+                                Deck</button>
+                        </form>
+                    </div>
+                </div>
+                {% empty %}
+                <p style="font-size: 0.85rem; color: var(--text-muted);">No cards currently in inventory.</p>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- SCREEN: SHOP -->
+        {% elif screen == 'shop' %}
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="color: var(--text-muted);">Merchant Shop</h2>
+            <div style="color: var(--accent-amber);">Gold: {{ party.gold }}g</div>
+        </div>
+
+        <div class="cards-row" style="margin-top: 14px;">
+            {% for card_name, cost in shop_items %}
+            <div class="card-rect">
+                <div>
+                    <div class="card-title">{{ card_name }}</div>
+                    <div class="card-type">Price: {{ cost }}g</div>
+                </div>
+                <form method="POST" action="{% url 'handle_action' %}" style="margin-top: 8px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action_type" value="shop_buy">
+                    <input type="hidden" name="card_name" value="{{ card_name }}">
+                    <input type="hidden" name="cost" value="{{ cost }}">
+                    <button type="submit" class="btn" style="width: 100%;">Buy Card</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+
+        <form method="POST" action="{% url 'handle_action' %}" style="margin-top: 16px;">
+            {% csrf_token %}
+            <input type="hidden" name="action_type" value="close_menu">
+            <button type="submit" class="btn">[ X ] Exit Shop</button>
+        </form>
+
+        <!-- SCREEN: INN -->
+        {% elif screen == 'inn' %}
+        <div class="dialogue-box">
+            <h2 style="color: var(--accent-amber); margin-bottom: 8px;">Welcome to the Traveler's Rest Inn</h2>
+            <p>Your party rests peacefully under warm blankets. All HP has been restored!</p>
+            <form method="POST" action="{% url 'handle_action' %}" style="margin-top: 16px;">
+                {% csrf_token %}
+                <input type="hidden" name="action_type" value="close_menu">
+                <button type="submit" class="btn">[ X ] Exit Inn</button>
+            </form>
+        </div>
+
+        <!-- SCREEN: COMBAT -->
+        {% elif screen == 'combat' %}
+        <div class="combat-section">
+            <h2 style="color: var(--text-muted); font-size: 1.1rem;">
+                Combat! &mdash; {% if is_player_turn %}<span style="color: var(--accent-amber);">
+                    Your Turn ({{ turn_char.name }})</span>{% else %}Waiting...{% endif %}
+            </h2>
+
+            <div class="combat-units-grid">
+                <!-- ENEMIES (TOP) -->
+                <div class="unit-group-title">Enemies (Select Target)</div>
+                <div class="unit-group">
+                    {% for enemy in combat_engine.enemies %}
+                    <div class="unit-card enemy-unit" data-id="{{ enemy.id }}" onclick="selectTarget('{{ enemy.id }}')">
+                        <div>
+                            <strong>{{ enemy.name }}</strong>
+                        </div>
+                        <div class="hp-bar {% if enemy.current_hp < enemy.max_hp|add:'-3' %}low{% endif %}">
+                            [{{ enemy.current_hp }}/{{ enemy.max_hp }} HP]
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- ALLIES (BOTTOM) -->
+                <div class="unit-group-title">Party Members</div>
+                <div class="unit-group">
+                    {% for ally in combat_engine.allies %}
+                    <div class="unit-card ally-unit" data-id="{{ ally.id }}" onclick="selectTarget('{{ ally.id }}')">
+                        <div>
+                            <strong>{{ ally.name }}</strong>
+                        </div>
+                        <div class="hp-bar">
+                            [{{ ally.current_hp }}/{{ ally.max_hp }} HP]
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- COMBAT LOG -->
+            <div class="dialogue-box" style="font-size: 0.82rem; max-height: 90px;">
+                {% for entry in combat_engine.combat_log %}
+                <div>{{ entry }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- HAND OF CARDS (TWO-PHASE COMBAT FORM) -->
+            {% if is_player_turn %}
+            <h4 style="color: var(--accent-amber); font-size: 0.9rem;">
+                Phase 1: Choose Card | Phase 2: Select Target above
+            </h4>
+
+            <form id="combatActionForm" method="POST" action="{% url 'handle_action' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action_type" value="combat_action">
+                <input type="hidden" id="inputCardName" name="card_name" value="">
+                <input type="hidden" id="inputTargetId" name="target_id" value="">
+
+                <div class="cards-row">
+                    <!-- ALWAYS-AVAILABLE WAIT CARD -->
+                    <div class="card-rect" onclick="selectCard('Wait')">
+                        <div>
+                            <div class="card-title">Wait</div>
+                            <div class="card-type">Action</div>
+                            <div class="card-desc">Do nothing and recover energy (0.5x time).</div>
+                        </div>
+                        <div class="card-footer">
+                            <span>Cost: 5</span>
+                            <span>[Select]</span>
+                        </div>
+                    </div>
+
+                    <!-- DRAWN HAND CARDS -->
+                    {% for card_name in combat_engine.hand %}
+                    <div class="card-rect" onclick="selectCard('{{ card_name }}')">
+                        <div>
+                            <div class="card-title">{{ card_name }}</div>
+                            <div class="card-type">Card</div>
+                        </div>
+                        <div class="card-footer">
+                            <span>Use</span>
+                            <span>[Select]</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </form>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- JS INTERCEPTOR & TWO-PHASE COMBAT SELECTION -->
+    <script>
+        let selectedCardName = null;
+
+        function selectCard(cardName) {
+            selectedCardName = cardName;
+            document.getElementById('inputCardName').value = cardName;
+
+            // Highlight selected card visually
+            const cards = document.querySelectorAll('.card-rect');
+            cards.forEach(c => c.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+
+            // Highlight targets
+            const units = document.querySelectorAll('.unit-card');
+            units.forEach(u => u.classList.add('selectable'));
+        }
+
+        function selectTarget(targetId) {
+            if (!selectedCardName) {
+                // Default to Wait or Slash if clicked directly
+                selectedCardName = 'Wait';
+                const inputCard = document.getElementById('inputCardName');
+                if (inputCard) inputCard.value = 'Wait';
+            }
+
+            const inputTarget = document.getElementById('inputTargetId');
+            if (inputTarget) {
+                inputTarget.value = targetId;
+                document.getElementById('combatActionForm').submit();
+            }
+        }
+
+        // Global Keyboard Handler for Arrow Keys, Space, C, X
+        document.addEventListener('keydown', function (event) {
+            const screen = "{{ screen }}";
+
+            if (screen === 'voinara_intro') {
+                if (event.code === 'Space' || event.key === ' ') {
+                    event.preventDefault();
+                    document.getElementById('voinaraForm').submit();
+                }
+            } else if (screen === 'overworld') {
+                if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.code)) {
+                    event.preventDefault();
+                    const dirMap = {
+                        'ArrowUp': 'up',
+                        'ArrowDown': 'down',
+                        'ArrowLeft': 'left',
+                        'ArrowRight': 'right'
+                    };
+                    submitMove(dirMap[event.code]);
+                } else if (event.key.toLowerCase() === 'c') {
+                    event.preventDefault();
+                    submitAction('open_menu');
+                }
+            } else if (screen === 'character_menu' || screen === 'shop' || screen === 'inn') {
+                if (event.key.toLowerCase() === 'x') {
+                    event.preventDefault();
+                    submitAction('close_menu');
+                }
+            }
+        });
+
+        function submitMove(direction) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = "{% url 'handle_action' %}";
+
+            const csrf = document.createElement('input');
+            csrf.type = 'hidden';
+            csrf.name = 'csrfmiddlewaretoken';
+            csrf.value = '{{ csrf_token }}';
+            form.appendChild(csrf);
+
+            const act = document.createElement('input');
+            act.type = 'hidden';
+            act.name = 'action_type';
+            act.value = 'move';
+            form.appendChild(act);
+
+            const dir = document.createElement('input');
+            dir.type = 'hidden';
+            dir.name = 'direction';
+            dir.value = direction;
+            form.appendChild(dir);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        function submitAction(actionType) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = "{% url 'handle_action' %}";
+
+            const csrf = document.createElement('input');
+            csrf.type = 'hidden';
+            csrf.name = 'csrfmiddlewaretoken';
+            csrf.value = '{{ csrf_token }}';
+            form.appendChild(csrf);
+
+            const act = document.createElement('input');
+            act.type = 'hidden';
+            act.name = 'action_type';
+            act.value = actionType;
+            form.appendChild(act);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
+</body>
+
+</html>

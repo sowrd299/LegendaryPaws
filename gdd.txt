@@ -1,0 +1,199 @@
+"Legs on Strange Lands" is a text-based, turn-based card RPG based on early Final Fantasy, Pokemon, and Wizard 101.
+
+The UI is raw ASCII art, with negligable HTML formatting, rendered on a plane HTML/JS/CSS webpage. The webpage gives a space for the game
+to render the currently relevant text for the current screen, as white on sleak black background.
+Text effects for everything are based on ASCII, bold and italics, and a few rare alternate font colors like half brightness white, red, and yellow/beige.
+Most inputs across screens come from the arrow keys, the space bar (acting as the enter button), and a few rare letter keys for special menus.
+
+The code game loop involves exploring a world map and having encounters of various types. The player has a party of four characters.
+Each character has stats, a species, a currents class, and some move cards. The party also has a number of additional equiped move cards. 
+Some companions are named characters significant to the story, and others are procedurally generated.
+
+Characters will join and leave the party, and new characters will be recruited, as gameplay progresses. The player also has an inventory of cards and gold.
+Cards are key for several purposes:
+- Cards can be put in the party's shared deck
+- Characters level up and gain stats by being given cards (cards are consumed when given to a character), up to a maximum level of 20. "Level" is de-facto just an extra stat,
+which all items increase, as a proxy for tracking the total item/stat increases the character has been given. A cahracter at level 20 cannot be given cards.
+- Cards have a rarity (mundane, interesting, odd, exceptional, pierless) and a type (weapon, armor, scroll, or trinket). Cards can replace whichever move from a card that type 
+the chacter currently knows, as long as the new card is equal or higher rarity. Interesting cards can never be learned (only give stats), and pierless ones can never be replaced
+
+Characters may suddenly change class at the end of an encounter, based on 1) their current stats (almost always level), 2) the terrain they are on on the worlds map, 2) the cards they have,
+4) the monsters they just fought, and 5) their current class. Classes will offer different moves of that character, will contribute differently to the character's
+stats, and will change which special stats the character has access to.
+
+A character's stats are:
+- Brute intensity
+- Brute resistance
+- Nimbleness
+- Haleness
+
+The additional stats, which some classes have access to are:
+- Moon Magic intensity/resistance/vulnerability
+- Star Magic intensity/resistance/vulnerability
+- Void Magic intensity/resistance/vulnerability
+- Melee damage/resistance/vulnerability
+- Ranged damage/resistance/vulnerability
+- Survival intensity/resistance/vulnerability
+- Diplomacy (this is a unique stat, only used for a new very special cards)
+
+A characters stats are always a contribution of (their personal base stats + species modifiers + class modifiers) * (1 + level up card contributions).
+This raw total is then processed to a exponential scale of 0 to 20 and rounded to an integer in that ranger.
+A character is always tracking levels for all stats, but only has access to the ones for their current class plus the four core stats.
+
+Character data should track the character's entire history of level up cards and class changes, and re-derive their current state from there.
+
+
+ADVENTURING:
+- The world is a grid; each space contains a terrain or building represented by an ASCII character. The party's current location is and the
+center of the screen and blinks with a "*". Grid cells are spaced out from eachother by spaces. As soon as a player inputs a direction, the player's location
+updates to the next space in that direction. If there is an encounter there (a building, or terrain rolls a chance for combat), the player is told what that
+is, and then presses enter to begin. Otherwise, the text area just passively tells the player where they are.
+
+The world map is baked-in (up to a certain point). To begin with, it features a shop and an inn in the middle, plus mountains to the left, and forests to the right.
+
+The shops gives the player cards to buy and sell. The inn fully heals the HP of all party members, and gives the player a chance to swap out party 
+members currently staying at that particular inn.
+
+A second shop, on the edge of the map, sells rarer items, such as cards needed to unlock high-level classes. The shops counts as the same terrain as the one in town,
+and follows all the same code, differing only in the per-shop config system.
+
+Ruins in the mountains and forests have particularly dangerous enemies and rare loot. Ruins, mountains, forests, and blank "field" spaces all the share the same code,
+differing only in terrain type/ASCII icon, and config.
+
+
+All of this data (the map, enemies encounterable, shop items, prices, etc.) are easily configurable in baked-in JS objects.
+
+
+COMBAT:
+-Combat is (up to) 4v4, and is turn-based. Each character takes their own turn, one at a time.
+-Each side has a shared deck, shuffled from all that sides characters' cards, plus their shared equipment cards. 
+-Each character has two main pieces of state in combate: their HP (also persisted between combats) and their action timer.
+-The character with the lowest current action timer takes the next turn, and every character's action times decreases by that character's action timer.
+-After a character uses a move, their action timer increases by that moves recovery time * the inverse of their nimbleness stat.
+-On a player character turn, they have access to a 3 card hand, plus the "wait" action (do nothing and 0.5 recover time)
+-Once a move is used, it is discarded and replaced by a different move from the player's deck. Once the player has drawn through their entire deck,
+their discard is reshuffled. A few moves (e.g. "Health Potion"), destroy the item they are from, and thus remove themselves from the deck permanently.
+    -If the user has an identical item in their inventory, it will replace itself with that one instead
+-Moves can damage, deal, or apply stat changes. They can target a single character, all enemies, all allies, or everyone.
+    -Stat changes are in terms of, and applied to, a character's post-scaling, 0-20 integer stat (not their raw underlying experience valu)
+-Damage is based on the move's base damage * the ratio of the attacker's relevant damage stat - the opponent's relevant resistance or vulnerability stat (all rounded to integers)
+-If the user or defender doesn't have the relevant stat, they use their "brute" version instead.
+-Magic intensity stats use 0 instead of brute intensity.
+-Stat buff and debuffs are likewise multiplied from the user's stats, as are their durations (in action timer ticks)
+
+At the end of a successful combat, the user earns items and gold based on the table for where they are.
+
+
+THE CHARACTERS MENU:
+This can always be accessed (while sitting on the map, after an encounter and before moving again) by pressing the 'c' key. The UI reminds the user of this.
+-Allow the users to see the current status of each of their party members, all their stats and current moves (plus where they are getting those moves from - equipment or class)
+-Allow the user to give cards to characters
+-Allow the user to scroll through their inventory and change which cards are equipped to their deck
+
+
+NUMBER SCALING:
+-All presented stats range from 0 to 20, including HP. Most items given "* 0.1" to most stats (based, unprocessed experience value), 0 to brute itensity, and 0.2 to both HP and the two stats that
+card cares about most. This raw experience value per stat (person base + current class base + species base) * (1 + sum of card bonuses, usually 0.1 per card), which is then converted to their actual
+0 to 20 integer stat.
+
+
+THE UI:
+The name of the player's current space and what is happening there, plus reminders for relevent letter keys (c and/or x) are always at the top of the screen regardless of screen
+
+-Overworld/adventuring:
+    -The user sees the grid of locations, with their current location blink "*", the title of their current location at the top of the screen,
+    a small text description of their current location at the bottom of the screen, and have the option to event an arrow to travel in that direction or "c" to open the character
+    menu
+    -After the player travels to a new space, the bottom text box tells them what happens there, and pressing space enters that encounter and the menu there for. The player cannot travel again
+    or open the character menu until finishing that encounter
+    -Pressing space on certain spaces (shops and inns) re-enters the menu for that space.
+
+-The character menu:
+    -Devided into up to five up menus, one per character in the party, plus shared deck. Arrow keys in a central menu select which the character sees. "c" closes the entire menu. "x" goes back on screen
+    (to the central menu or to the overworld screen)
+    -On character menus, the character see that characters up to 8 stats plus level, name, portrait, species, class, and up to six cards (along which what provices those cards). They can scroll through their 
+    inventory of cards on the bottom of the screen with the left and right arrows. Highlighting a card shows the effects that card will have on that character. Pressing space on a card gives it to that character permanently (see above)
+    -In the deck menu, the UI reuses the left-right scroll through cards. "Giving" cards here adds it to the deck (taking the space of the character info) and selecting cards in the deck removes them.
+    By default, the deck has space for 10 cards, and the inventory has space for 20.
+
+-The shop, inn, and dialog menu:
+    -The top of the screen is a menu full of text describing the current situation. At the bottom of the screen, the user users up and down arrows, plus space, to navigate a dialog tree
+    that includes all functionality for that screen.
+
+-The combat menu:
+    -The top of the screen show all eight characters (4 enemies on top, for allies on bottom, their turn order, HP with a bar made of "|"'s, turn order (highlighted character going first, through "7th"))
+    -Bottom of the screen has the player's hand. This is one of the few UI elements using HTML and not pure text; each card is a small hovering rect (white outline, black background), in a fan 
+    left and right arrows select a card to use. Each card shows: Name, action tick cost (normalized 0 to 20), a ASCII art portrait, and effects resolved using actual numbers based on the turn character's 
+    stats.
+    -Selecting a card then leads to a UI in the upper screen for selecting a target
+
+    -at the end of combater, the character gets a brief dialog in the bottom box of the screen telling them how much gold and which cards they earned.
+
+-Character portaits are colored ASCII art, built by lairing a per-species portait with per-cass accessories.
+
+
+The Tech Stack:
+- The game runs naively through HTML pages of a Django website. Each world screen, combat turn, and dialog tree is a new webpage gotten through a new HTTP request to the sever.
+- The sever tracks the player's progress through a "session" dictionary
+- Closing the character menu, traveling on the world, pressing enter to re-open a menu, completing a dialog tree, and finishing making selections for one turn of combat are the options
+that lead to loading to a new page. With the information passed back, the server applies game rules (sever-athoritative logic) and lets the player know what happened.
+
+
+The Species:
+- Fox
+- Cat
+- Badger
+- Rabbit
+- Owl
+- Raven
+- Dragonling
+- Ember sprite (bonuses to star intensity and resistance)
+- Dew sprite (bonuses to moon intensity and resistance)
+- Lost sprite (bonuses to void intensity and resistance)
+- Automaton (bonuses to physical stats, penalties to magic all three magic intensity stats)
+
+The classes:
+- Wandering Spellsword (knows melee damage, moon spell intensity, and Diplomacy as its three bonus stats; learned from any Ranger at any level with Wain, 
+  from Knight at any level with Wax, or from Night Mage at any level with Honed Slash)
+- Student (knows all three magic intensity stats; learned from any class at any level with Study)
+- Day mage (knows star intensity, moon resistence, void vulnerability; learned from Student with Singe and level 4)
+- Night mage (knows moon intensity, void resistence, star vulnerability; learned from Student with Wain and level 4)
+- Hour mage (knows void intensity, star resistence, moon vulnerability; learned from Student with Chill and level 4)
+- Warlock (knows void intensity, star resistence, melee resistence; moon vulnerability; learned from Hour mage at level 12 with Cursed Readings)
+- Scout (knows ranged damage, Survival intensity, melee resistence, and moon resistence; learned from any class at any level with Honed Archery)
+- Ranger (knows ranged damage, Survival intensity, melee resistence, and moon resistence; learned from Scout at level 8)
+- Blackcloak (knows moon intensity, Survival intensity, melee resistence, and void resistance; learned from Scout at level 6 with Wax)
+- Squire (knows melee damage, melee resistence, star vulnerability, moon vulnerability; learned from any class at any level with Train)
+- Knight (knows melee damage, melee resistence, range vulnerability, star vulnerability; learned from Squire at level 8)
+- Dragonslayer (knows melee damage, survival intensity, range resistance, star resistance; learned from Knight at level 15 after killing a dragon)
+- Paladin (knows melee damage, star intensity, melee resistence, moon resistence; learned from Knight at level 12 with Burning Blade)
+
+The cards:
+
+- Health Potion (restores a fixed 5 HP, consumed on use), mundane trinket
+- Slash (a 1x melee attack based on melee damage), mundane weapon, known by squires
+- Light Clothes (a passive mild buff to all resistences for a couple turns based on survival intensity; given to characters to buff all resistences), mundane armor
+- Archery (a 1x ranged attack based on range damage), mundane weapon
+- First aid (restores 1.25x hp based on survival intensity), interesting trinket, known by scouts and rangers
+- Waining (a 0.5x damange spell based on moon intensity), interesting scroll
+- Waxing (a 0.5x single target healing spell based on moon intensity), interesting scroll
+- Singe (a 1x damange spell based on star intensity), interesting scroll
+- Chill (a 1x damange spell based on void intensity), interesting scroll
+- Study (a short buff to the character's magic stats), interesting trinket, known by students
+- Training (a short buff to the character's' physical stats), interesting trinket, known by squires
+- Honed Archery (a 1.25x ranged attack based on range damage), interesting weapon, known by rangers
+- Honed Slash (a 1.25x melee attack based on melee damage), interesting weapon, known by knights
+- Burning Blade, odd weapon
+- Cursed Readings, odd scroll
+- Scorch, signature card of day mages
+- Moonlight, buffs all allies in melee damager, range resistance, and magic resistances, signature of night mages
+- Call to the Void, buffs nimbless of all allies, signature of hour mages
+
+
+The start of the game:
+- The game begings with a unique dialog screen between the player and a character named "Voinara". Voinara tells "you" that, "oh no, somethings has gone very stange...
+...I, have I lost you? That would be bad, who would know where where would be be, oh, I see someone. It is you? Where are they? This little lost travel has found themself somewhere very stange,
+I think you are about to witness quite the adventure. Make good descions please, this little traveler's future depends on it. Tell me what you find... wherever this is."
+
+The character begins with 1 level 1 Fox Wandering Spellsword in their party. They have 5 health potions, 6 slashes, and 3 light clothes.
+They begin in the center of the town area on the map.

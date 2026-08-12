@@ -1,0 +1,815 @@
+import math
+import random
+import uuid
+
+# --- STAT & MATH SCALING ---
+
+CORE_STATS = ['level', 'brute_intensity', 'brute_resistance', 'nimbleness', 'haleness']
+
+ALL_STATS = CORE_STATS + [
+    'moon_intensity', 'moon_resistance', 'moon_vulnerability',
+    'star_intensity', 'star_resistance', 'star_vulnerability',
+    'void_intensity', 'void_resistance', 'void_vulnerability',
+    'melee_damage', 'melee_resistance', 'melee_vulnerability',
+    'ranged_damage', 'ranged_resistance', 'ranged_vulnerability',
+    'survival_intensity', 'survival_resistance', 'survival_vulnerability',
+    'diplomacy'
+]
+
+RARITIES = ['mundane', 'interesting', 'odd', 'exceptional', 'peerless']
+
+def raw_to_scaled(raw_val):
+    """Converts a raw accumulated stat value into a 0 to 20 integer scale.
+    Uses triangular stat scaling: 1:1 for the first level, requiring increasingly
+    more raw stat for each additional scaled level up to max 20.
+    Formula: scaled = (-1 + sqrt(1 + 8 * raw_val)) / 2
+    """
+
+    is_negative = False
+    if raw_val <= 0:
+        is_negative = True
+        raw_val *= -1
+
+    scaled = (-1.0 + math.sqrt(1.0 + 8.0 * raw_val)) / 2.0
+    return min(20, max(0, int(round(scaled)))) * (-1 if is_negative else 1)
+
+
+# --- DATA DEFINITIONS: SPECIES & CLASSES ---
+
+SPECIES_DATA = {
+    'Fox': {'nimbleness': 3.0, 'brute_intensity': 2.0, 'haleness': 2.0, 'brute_resistance': 2.0},
+    'Cat': {'nimbleness': 4.0, 'haleness': 3.0, 'brute_intensity': 1.0, 'brute_resistance': 1.0},
+    'Badger': {'brute_intensity': 4.0, 'brute_resistance': 4.0, 'nimbleness': 1.0, 'haleness': 3.0},
+    'Rabbit': {'nimbleness': 5.0, 'haleness': 2.0, 'brute_intensity': 1.0, 'brute_resistance': 1.0},
+    'Owl': {'haleness': 3.0, 'star_intensity': 4.0, 'nimbleness': 2.0, 'brute_intensity': 1.0},
+    'Raven': {'void_intensity': 4.0, 'nimbleness': 3.0, 'haleness': 2.0, 'brute_resistance': 1.0},
+    'Dragonling': {'brute_intensity': 3.0, 'star_intensity': 3.0, 'haleness': 3.0, 'brute_resistance': 2.0},
+    'Ember sprite': {'star_intensity': 5.0, 'star_resistance': 4.0, 'haleness': 1.0, 'brute_intensity': 1.0},
+    'Dew sprite': {'moon_intensity': 5.0, 'moon_resistance': 4.0, 'haleness': 1.0, 'brute_intensity': 1.0},
+    'Lost sprite': {'void_intensity': 5.0, 'void_resistance': 4.0, 'haleness': 1.0, 'brute_intensity': 1.0},
+    'Automaton': {'brute_intensity': 4.0, 'brute_resistance': 5.0, 'nimbleness': 2.0, 'haleness': 4.0,
+                  'star_intensity': -3.0, 'moon_intensity': -3.0, 'void_intensity': -3.0}
+}
+
+CLASS_DATA = {
+    'Wandering Spellsword': {
+        'bonus_stats': ['melee_damage', 'moon_intensity', 'diplomacy'],
+        'stat_mods': {'melee_damage': 3.0, 'moon_intensity': 3.0, 'diplomacy': 2.0, 'brute_intensity': 2.0},
+        'default_cards': []
+    },
+    'Student': {
+        'bonus_stats': ['star_intensity', 'moon_intensity', 'void_intensity'],
+        'stat_mods': {'star_intensity': 2.0, 'moon_intensity': 2.0, 'void_intensity': 2.0, 'nimbleness': 2.0},
+        'default_cards': ['Study']
+    },
+    'Day mage': {
+        'bonus_stats': ['star_intensity', 'moon_resistance', 'void_vulnerability'],
+        'stat_mods': {'star_intensity': 4.0, 'moon_resistance': 3.0, 'void_vulnerability': 1.0},
+        'default_cards': ['Scorch']
+    },
+    'Night mage': {
+        'bonus_stats': ['moon_intensity', 'void_resistance', 'star_vulnerability'],
+        'stat_mods': {'moon_intensity': 4.0, 'void_resistance': 3.0, 'star_vulnerability': 1.0},
+        'default_cards': ['Moonlight']
+    },
+    'Hour mage': {
+        'bonus_stats': ['void_intensity', 'star_resistance', 'moon_vulnerability'],
+        'stat_mods': {'void_intensity': 4.0, 'star_resistance': 3.0, 'moon_vulnerability': 1.0},
+        'default_cards': ['Call to the Void']
+    },
+    'Warlock': {
+        'bonus_stats': ['void_intensity', 'star_resistance', 'melee_resistance', 'moon_vulnerability'],
+        'stat_mods': {'void_intensity': 4.0, 'star_resistance': 3.0, 'melee_resistance': 2.0},
+        'default_cards': ['Cursed Readings']
+    },
+    'Scout': {
+        'bonus_stats': ['ranged_damage', 'survival_intensity', 'melee_resistance', 'moon_resistance'],
+        'stat_mods': {'ranged_damage': 3.0, 'survival_intensity': 3.0, 'melee_resistance': 2.0},
+        'default_cards': ['Archery', 'First aid']
+    },
+    'Ranger': {
+        'bonus_stats': ['ranged_damage', 'survival_intensity', 'melee_resistance', 'moon_resistance'],
+        'stat_mods': {'ranged_damage': 4.0, 'survival_intensity': 4.0, 'melee_resistance': 2.0},
+        'default_cards': ['Honed Archery', 'First aid']
+    },
+    'Blackcloak': {
+        'bonus_stats': ['moon_intensity', 'survival_intensity', 'melee_resistance', 'void_resistance'],
+        'stat_mods': {'moon_intensity': 3.0, 'survival_intensity': 3.0, 'melee_resistance': 2.0},
+        'default_cards': []
+    },
+    'Squire': {
+        'bonus_stats': ['melee_damage', 'melee_resistance', 'star_vulnerability', 'moon_vulnerability'],
+        'stat_mods': {'melee_damage': 3.0, 'melee_resistance': 3.0},
+        'default_cards': ['Slash', 'Training']
+    },
+    'Knight': {
+        'bonus_stats': ['melee_damage', 'melee_resistance', 'ranged_vulnerability', 'star_vulnerability'],
+        'stat_mods': {'melee_damage': 4.0, 'melee_resistance': 4.0},
+        'default_cards': ['Honed Slash']
+    },
+    'Paladin': {
+        'bonus_stats': ['melee_damage', 'star_intensity', 'melee_resistance', 'moon_resistance'],
+        'stat_mods': {'melee_damage': 4.0, 'star_intensity': 3.0, 'melee_resistance': 3.0},
+        'default_cards': ['Burning Blade']
+    },
+
+    # Enemy specific classes
+    'Husk': {
+        'bonus_stats': ['melee_damage', 'ranged_resistance', 'star_vulnerability'],
+        'stat_mods': {'melee_damage' : -2.0, 'haleness': -4.0},
+        'default_cards': []
+    },
+    'Soul': {
+        'bonus_stats': ['void_damage', 'melee_resistance', 'moon_vulnerability'],
+        'stat_mods': {'melee_damage' : -3.0, 'void_damage': -1, 'haleness': -6.0, 'moon_vulnerability': 5},
+        'default_cards': ['Chill']
+    }
+}
+
+
+# --- CARDS DATABASE ---
+
+CARDS = {
+    'Wait': {
+        'name': 'Wait',
+        'type': 'trinket',
+        'rarity': 'mundane',
+        'target': 'self',
+        'recovery_cost': 5,
+        'description': 'Do nothing and quickly recover energy (0.5x time).',
+        'stat_boosts': {},
+        'is_consumable': False,
+        'is_wait': True
+    },
+    'Health Potion': {
+        'name': 'Health Potion',
+        'type': 'trinket',
+        'rarity': 'mundane',
+        'target': 'ally',
+        'recovery_cost': 8,
+        'heal_power': 5.0,
+        'description': 'Restores 5 HP to an ally. Consumed on use.',
+        'stat_boosts': {'haleness': 0.2},
+        'is_consumable': True
+    },
+    'Slash': {
+        'name': 'Slash',
+        'type': 'weapon',
+        'rarity': 'mundane',
+        'target': 'enemy',
+        'recovery_cost': 10,
+        'damage_type': 'melee_damage',
+        'damage_power': 1.0,
+        'description': 'Standard melee attack dealing 1x damage.',
+        'stat_boosts': {'melee_damage': 0.2}
+    },
+    'Light Clothes': {
+        'name': 'Light Clothes',
+        'type': 'armor',
+        'rarity': 'mundane',
+        'target': 'ally',
+        'recovery_cost': 8,
+        'description': 'Protective garments.',
+        'stat_boosts': {'brute_resistance': 0.15, 'melee_resistance': 0.3, 'ranged_resistance': 0.3}
+    },
+    'Archery': {
+        'name': 'Archery',
+        'type': 'weapon',
+        'rarity': 'mundane',
+        'target': 'enemy',
+        'recovery_cost': 10,
+        'damage_type': 'ranged_damage',
+        'damage_power': 1.0,
+        'description': 'Ranged attack dealing 1x damage.',
+        'stat_boosts': {'ranged_damage': 0.2, 'nimbleness': 0.1}
+    },
+    'First aid': {
+        'name': 'First aid',
+        'type': 'trinket',
+        'rarity': 'interesting',
+        'target': 'ally',
+        'recovery_cost': 10,
+        'heal_power': 6.5,
+        'heal_stat': 'survival_intensity',
+        'description': 'Restores HP based on survival intensity.',
+        'stat_boosts': {'survival_intensity': 0.3, 'haleness': 0.2}
+    },
+    'Wain': {
+        'name': 'Wain',
+        'type': 'scroll',
+        'rarity': 'interesting',
+        'target': 'enemy',
+        'recovery_cost': 10,
+        'damage_type': 'moon_intensity',
+        'damage_power': 0.5,
+        'description': 'Moon magic spell dealing 0.5x moon damage.',
+        'stat_boosts': {'moon_intensity': 0.2, 'moon_resistance': 0.3, 'star_resistance': 0.3}
+    },
+    'Wax': {
+        'name': 'Wax',
+        'type': 'scroll',
+        'rarity': 'interesting',
+        'target': 'ally',
+        'recovery_cost': 10,
+        'heal_power': 5.0,
+        'heal_stat': 'moon_intensity',
+        'description': 'Moon magic healing spell based on moon intensity.',
+        'stat_boosts': {'moon_intensity': 0.2, 'moon_resistance': 0.3, 'start_vulnerability': 0.3}
+    },
+    'Singe': {
+        'name': 'Singe',
+        'type': 'scroll',
+        'rarity': 'interesting',
+        'target': 'enemy',
+        'recovery_cost': 10,
+        'damage_type': 'star_intensity',
+        'damage_power': 1.0,
+        'description': 'Star spell dealing 1x star damage.',
+        'stat_boosts': {'star_intensity': 0.2, 'star_resistance': 0.3, 'void_vulnerability': 0.3}
+    },
+    'Singe Breath': {
+        'name': 'Singe Breath',
+        'type': 'scroll',
+        'rarity': 'interesting',
+        'target': 'all_enemies',
+        'recovery_cost': 10,
+        'damage_type': 'star_intensity',
+        'damage_power': 0.5,
+        'description': 'Star spell dealing 1x star damage.',
+        'stat_boosts': {'star_intensity': 0.2, 'star_resistance': 0.3, 'void_vulnerability': 0.3}
+    },
+    'Chill': {
+        'name': 'Chill',
+        'type': 'scroll',
+        'rarity': 'interesting',
+        'target': 'enemy',
+        'recovery_cost': 10,
+        'damage_type': 'void_intensity',
+        'damage_power': 1.0,
+        'description': 'Void spell dealing 1x void damage.',
+        'stat_boosts': {'void_intensity': 0.2, 'void_resistance': 0.3, 'moon_vulnerability': 0.3}
+    },
+    'Chill Breath': {
+        'name': 'Chill Breath',
+        'type': 'scroll',
+        'rarity': 'interesting',
+        'target': 'enemy',
+        'recovery_cost': 10,
+        'damage_type': 'void_intensity',
+        'damage_power': 0.5,
+        'description': 'Void spell dealing 1x void damage.',
+        'stat_boosts': {'void_intensity': 0.2, 'void_resistance': 0.3, 'moon_vulnerability': 0.3}
+    },
+    'Study': {
+        'name': 'Study',
+        'type': 'trinket',
+        'rarity': 'interesting',
+        'target': 'self',
+        'recovery_cost': 8,
+        'description': 'Focuses mind, boosting magic stats.',
+        'stat_boosts': {'star_intensity': 0.2, 'moon_intensity': 0.2, 'void_intensity': 0.2}
+    },
+    'Training': {
+        'name': 'Training',
+        'type': 'trinket',
+        'rarity': 'interesting',
+        'target': 'self',
+        'recovery_cost': 8,
+        'description': 'Physical training boosting physical stats.',
+        'stat_boosts': {'brute_intensity': 0.2, 'brute_resistance': 0.2, 'nimbleness': 0.1}
+    },
+    'Honed Archery': {
+        'name': 'Honed Archery',
+        'type': 'weapon',
+        'rarity': 'interesting',
+        'target': 'enemy',
+        'recovery_cost': 11,
+        'damage_type': 'ranged_damage',
+        'damage_power': 1.25,
+        'description': 'Precise ranged attack dealing 1.25x damage.',
+        'stat_boosts': {'ranged_damage': 0.5}
+    },
+    'Honed Slash': {
+        'name': 'Honed Slash',
+        'type': 'weapon',
+        'rarity': 'interesting',
+        'target': 'enemy',
+        'recovery_cost': 11,
+        'damage_type': 'melee_damage',
+        'damage_power': 1.25,
+        'description': 'Masterful strike dealing 1.25x melee damage.',
+        'stat_boosts': {'melee_damage': 0.5}
+    },
+    'Burning Blade': {
+        'name': 'Burning Blade',
+        'type': 'weapon',
+        'rarity': 'odd',
+        'target': 'enemy',
+        'recovery_cost': 12,
+        'damage_type': 'melee_damage',
+        'damage_power': 1.5,
+        'description': 'Flaming melee strike dealing 1.5x damage.',
+        'stat_boosts': {'melee_damage': 0.5, 'star_intensity': 0.5}
+    },
+    'Cursed Readings': {
+        'name': 'Cursed Readings',
+        'type': 'scroll',
+        'rarity': 'odd',
+        'target': 'enemy',
+        'recovery_cost': 12,
+        'damage_type': 'void_intensity',
+        'damage_power': 1.5,
+        'description': 'Dark void incantation dealing 1.5x damage.',
+        'stat_boosts': {'void_intensity': 0.8}
+    },
+    'Scorch': {
+        'name': 'Scorch',
+        'type': 'scroll',
+        'rarity': 'exceptional',
+        'target': 'enemy',
+        'recovery_cost': 12,
+        'damage_type': 'star_intensity',
+        'damage_power': 1.6,
+        'description': 'Day Mage signature spell searing enemies.',
+        'stat_boosts': {'star_intensity': 0.6}
+    },
+    'Moonlight': {
+        'name': 'Moonlight',
+        'type': 'scroll',
+        'rarity': 'exceptional',
+        'target': 'all_allies',
+        'recovery_cost': 12,
+        'heal_power': 4.0,
+        'heal_stat': 'moon_intensity',
+        'description': 'Bathes allies in healing moonlight.',
+        'stat_boosts': {'moon_intensity': 0.6, 'moon_resistance': 0.6}
+    },
+    'Call to the Void': {
+        'name': 'Call to the Void',
+        'type': 'scroll',
+        'rarity': 'exceptional',
+        'target': 'all_enemies',
+        'recovery_cost': 14,
+        'damage_type': 'void_intensity',
+        'damage_power': 1.2,
+        'description': 'Strikes all enemies with void energy.',
+        'stat_boosts': {'void_intensity': 0.8}
+    }
+}
+
+
+# --- CHARACTER MODEL ---
+
+class Character:
+    def __init__(self, char_id=None, name="Traveler", species="Fox", current_class="Wandering Spellsword", level=1, level_up_cards=None):
+        self.id = char_id or str(uuid.uuid4())[:8]
+        self.name = name
+        self.species = species if species in SPECIES_DATA else "Fox"
+        self.current_class = current_class if current_class in CLASS_DATA else "Wandering Spellsword"
+        
+        if level_up_cards is not None:
+            self.level_up_cards = list(level_up_cards)
+        elif level > 1:
+            needed_cards = (level * level + level) // 2 - 1
+            self.level_up_cards = ['Slash'] * needed_cards
+        else:
+            self.level_up_cards = []
+        
+        # Calculate max hp & current hp based on stats
+        scaled_stats = self.get_scaled_stats()
+        haleness = scaled_stats.get('haleness', 2)
+        self.update_max_hp()
+        self.current_hp = self.max_hp
+        self.action_timer = 0
+        self.equipped_cards = []  # Specific equipped cards
+
+    @property
+    def level(self):
+        """Returns scaled level (0-20) derived from raw level stat using raw_to_scaled."""
+        return self.get_scaled_stats().get('level', 1)
+
+    def get_accessible_stats(self):
+        """Returns the list of stats this character currently has access to."""
+        class_info = CLASS_DATA.get(self.current_class, {})
+        bonus = class_info.get('bonus_stats', [])
+        return CORE_STATS + bonus
+
+    def get_raw_stats(self):
+        """Calculates raw base stats: (base + species + class) * (1 + card_bonuses).
+        Every card in level_up_cards contributes 1 to raw level value.
+        """
+        raw = {stat: 1.0 for stat in ALL_STATS}
+        raw['level'] = 4
+        
+        # Apply species mods
+        sp_mods = SPECIES_DATA.get(self.species, {})
+        for k, v in sp_mods.items():
+            raw[k] = raw.get(k, 1.0) + v
+
+        # Apply class mods
+        cl_info = CLASS_DATA.get(self.current_class, {})
+        cl_mods = cl_info.get('stat_mods', {})
+        for k, v in cl_mods.items():
+            raw[k] = raw.get(k, 1.0) + v
+
+        # Apply card bonuses from leveling history
+        card_bonuses = {}
+        for card_name in self.level_up_cards:
+            card = CARDS.get(card_name, {})
+            boosts = card.get('stat_boosts', {})
+            for k, v in boosts.items():
+                default_bonus = 0.0 if k == 'brute_intensity' else 0.1
+                card_bonuses[k] = card_bonuses.get(k, default_bonus) + v
+
+        for k, b in card_bonuses.items():
+            if k in raw:
+                raw[k] = raw[k] * (1.0 + b)
+
+        return raw
+
+    def get_scaled_stats(self):
+        """Returns integer 0-20 scaled stats for accessible stats."""
+        raw = self.get_raw_stats()
+        accessible = self.get_accessible_stats()
+        scaled = {}
+        for stat in accessible:
+            scaled[stat] = raw_to_scaled(raw.get(stat, 0.0))
+        return scaled
+
+    def get_known_cards(self):
+        """Returns move cards granted by current class plus equipped cards."""
+        cl_info = CLASS_DATA.get(self.current_class, {})
+        default_cards = list(cl_info.get('default_cards', []))
+        return default_cards + self.equipped_cards
+
+    def give_card(self, card_name):
+        """Gives a card to character to boost stats and raw level."""
+        if self.level >= 20:
+            return False, "Character is already at maximum level."
+        if card_name not in CARDS:
+            return False, f"Unknown card '{card_name}'."
+        
+        card = CARDS[card_name]
+        if card.get('rarity') == 'mundane':
+            # Interesting cards give stats but cannot be learned directly as equipped moves
+            pass
+        else:
+            can_equip = True
+            replaced_card_name = None
+            for equipped_card_name in self.equipped_cards:
+                equipped_card = CARDS[equipped_card_name]
+                if card.get('type') == equipped_card.get('type'):
+                    if equipped_card.get('rarity') == 'peerless':
+                        can_equip = False
+                    elif RARITIES.index(equipped_card.get('rarity')) > RARITIES.index(card.get('rarity')):
+                        can_equip = False
+                    else:
+                        replaced_card_name = equipped_card_name
+
+            if can_equip:
+                if replaced_card_name:
+                    self.equipped_cards.remove(replaced_card_name)
+                self.equipped_cards.append(card_name)
+
+        self.level_up_cards.append(card_name)
+
+        # Re-evaluate max HP
+        old_max = self.max_hp
+        self.update_max_hp()
+        self.current_hp = min(self.max_hp, self.current_hp + (self.max_hp - old_max))
+        return True, f"Gave {card_name} to {self.name}! Level is now {self.level}."
+
+    def update_max_hp(self): 
+        scaled_stats = self.get_scaled_stats()
+        self.max_hp = max(2, 10 + scaled_stats.get('haleness', 2) * 2)
+
+    def is_alive(self):
+        return self.current_hp > 0
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'species': self.species,
+            'current_class': self.current_class,
+            'level_up_cards': self.level_up_cards,
+            'current_hp': self.current_hp,
+            'max_hp': self.max_hp,
+            'action_timer': self.action_timer,
+            'equipped_cards': self.equipped_cards
+        }
+
+    @classmethod
+    def from_dict(cls, d):
+        cards = d.get('level_up_cards', None)
+        c = cls(
+            char_id=d.get('id'),
+            name=d.get('name', 'Traveler'),
+            species=d.get('species', 'Fox'),
+            current_class=d.get('current_class', 'Wandering Spellsword'),
+            level_up_cards=cards
+        )
+        c.equipped_cards = d.get('equipped_cards', [])
+        # Recalculate max_hp based on state
+        scaled_stats = c.get_scaled_stats()
+        c.update_max_hp()
+        c.current_hp = d.get('current_hp', c.max_hp)
+        c.action_timer = d.get('action_timer', 0)
+        return c
+
+
+# --- PARTY & OVERWORLD MAP ---
+
+class Party:
+    def __init__(self):
+        self.members = []
+        self.inventory = []  # list of card names (up to 20)
+        self.shared_deck = []  # list of card names (up to 10)
+        self.gold = 50
+        self.x = 7
+        self.y = 5
+
+    def to_dict(self):
+        return {
+            'members': [m.to_dict() for m in self.members],
+            'inventory': self.inventory,
+            'shared_deck': self.shared_deck,
+            'gold': self.gold,
+            'x': self.x,
+            'y': self.y
+        }
+
+    @classmethod
+    def from_dict(cls, d):
+        p = cls()
+        p.members = [Character.from_dict(m) for m in d.get('members', [])]
+        p.inventory = d.get('inventory', [])
+        p.shared_deck = d.get('shared_deck', [])
+        p.gold = d.get('gold', 50)
+        p.x = d.get('x', 7)
+        p.y = d.get('y', 5)
+        return p
+
+
+WORLD_MAP = [
+    ["^", "^", "^", "^", "^", ".", ".", ".", ".", ".", ".", ".", ".", "↟", "↟"],
+    ["R", "R", "^", "^", ".", ".", ".", ".", ".", ".", ".", ".", "↟", "↟", "↟"],
+    ["^", "^", "^", "^", ".", ".", ".", ".", ".", ".", ".", ".", "↟", "↟", "↟"],
+    ["^", "^", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "↟", "↟"],
+    ["^", ".", ".", ".", ".", ".", "_", "_", "_", ".", ".", ".", ".", "↟", "↟"],
+    ["^", ".", ".", ".", ".", ".", "S", "_", "I", ".", ".", ".", ".", "↟", "↟"],
+    ["^", ".", ".", ".", ".", ".", "_", "_", "_", ".", ".", ".", ".", ".", "↟"],
+    ["^", "^", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "↟", "↟"],
+    ["^", "^", "^", ".", ".", ".", ".", ".", ".", ".", ".", "R", "↟", "↟", "↟"],
+    ["^", "^", "^", "^", ".", ".", ".", ".", ".", ".", ".", "↟", "R", "↟", "↟"],
+    ["^", "^", "^", "^", "^", ".", ".", ".", ".", ".", "↟", "↟", "↟", "↟", "↟"],
+]
+
+MAP_WIDTH = len(WORLD_MAP[0])
+MAP_HEIGHT = len(WORLD_MAP)
+
+TILE_DESCRIPTIONS = {
+    'S': ('Shop', 'A bustling roadside merchant shop selling valuable items and move cards.'),
+    'I': ('Inn', 'A cozy inn offering a place to rest, fully restore party HP, and organize companions.'),
+    'R': ('Ancient Ruins', 'Dangerous crumbling stone ruins. Hostile forces and rare artifacts await!'),
+    '^': ('Mountain Pass', 'Rugged, high-altitude mountain terrain filled with treacherous wild beasts.'),
+    '↟': ('Dense Forest', 'Dark whispering woods where monsters stalk from the shadows.'),
+    '.': ('Open Field', 'Quiet open grasslands along the main adventuring path.'),
+    '_': ('In Town', 'Peaceful, well defended flagstone paths. The Rot won\'t get you here.'),
+}
+
+
+# --- COMBAT ENGINE ---
+
+class CombatEngine:
+    def __init__(self, allies, enemies, shared_deck = []):
+        self.allies = allies  # List of Character objects
+        self.enemies = enemies  # List of Character objects (built using Character class!)
+        self.combat_log = []
+        self.is_over = False
+        self.victory = False
+
+        # Reset action timers
+        for c in self.allies + self.enemies:
+            c.action_timer = 0
+
+        # Build party shared deck
+        deck_pool = list(shared_deck)
+        for a in self.allies:
+            deck_pool.extend(a.get_known_cards())
+        random.shuffle(deck_pool)
+        self.draw_pile = deck_pool
+        self.discard_pile = []
+        self.hand = []
+        self.draw_hand()
+
+    def draw_hand(self):
+        """Draws up to 3 cards for the player turn hand."""
+        needed = 3 - len(self.hand)
+        for _ in range(needed):
+            if not self.draw_pile:
+                if self.discard_pile:
+                    self.draw_pile = self.discard_pile
+                    self.discard_pile = []
+                    random.shuffle(self.draw_pile)
+                else:
+                    break
+            if self.draw_pile:
+                self.hand.append(self.draw_pile.pop(0))
+
+    def get_current_turn_character(self):
+        """Returns the character with the lowest action timer."""
+        active = [c for c in self.allies + self.enemies if c.is_alive()]
+        if not active:
+            return None
+        active.sort(key=lambda c: c.action_timer)
+        return active[0]
+
+    def advance_turn_timers(self):
+        """Fast-forwards action timers until a living character reaches turn execution."""
+        turn_char = self.get_current_turn_character()
+        if not turn_char:
+            return None
+        min_timer = turn_char.action_timer
+        if min_timer > 0:
+            for c in self.allies + self.enemies:
+                if c.is_alive():
+                    c.action_timer = max(0, c.action_timer - min_timer)
+        return turn_char
+
+    def execute_enemy_turn(self, enemy):
+        """AI execution for an enemy character turn."""
+        living_allies = [a for a in self.allies if a.is_alive()]
+        if not living_allies:
+            return
+
+        target = random.choice(living_allies)
+        known = enemy.get_known_cards()
+        card_name = random.choice(known) if known else 'Slash'
+        card = CARDS.get(card_name, CARDS['Slash'])
+
+        self.apply_card_effect(enemy, card, target)
+        
+        # Increase action timer
+        stats = enemy.get_scaled_stats()
+        nimble = stats.get('nimbleness', 2)
+        rec = card.get('recovery_cost', 10) * (1.0 / (0.5 + nimble * 0.1))
+        enemy.action_timer += int(round(rec))
+
+    def apply_card_effect(self, actor, card, target):
+        """Calculates and applies card damage or healing."""
+        actor_stats = actor.get_scaled_stats()
+        card_name = card['name']
+
+        if card.get('is_wait'):
+            self.combat_log.append(f"{actor.name} waited to recover energy.")
+            return
+
+        if 'heal_power' in card:
+            heal_stat_name = card.get('heal_stat', 'haleness')
+            heal_stat = actor_stats.get(heal_stat_name, actor_stats.get('haleness', 2))
+            heal_amount = int(round(card['heal_power'] * (1.0 + heal_stat * 0.1)))
+            
+            if card.get('target') in ['all_allies', 'all_enemies']:
+                targets = self.allies if actor in self.allies else self.enemies
+            else:
+                targets = [target] if target else [actor]
+
+            for t in targets:
+                if t and t.is_alive():
+                    t.current_hp = min(t.max_hp, t.current_hp + heal_amount)
+                    self.combat_log.append(f"{actor.name} used {card_name} on {t.name}, healing {heal_amount} HP!")
+            return
+
+        # Damage calculation
+        dmg_type = card.get('damage_type', 'melee_damage')
+        base_power = card.get('damage_power', 1.0)
+
+        # Attacker stat
+        if dmg_type in actor_stats:
+            atk_val = actor_stats[dmg_type]
+        elif 'brute_intensity' in actor_stats:
+            atk_val = actor_stats['brute_intensity']
+        else:
+            atk_val = 2
+
+        targets = []
+        if card.get('target') in ['all_enemies', 'all_allies']:
+            targets = [e for e in (self.enemies if actor in self.allies else self.allies) if e.is_alive()]
+        elif target:
+            targets = [target]
+
+        for t in targets:
+            if not t or not t.is_alive():
+                continue
+            target_stats = t.get_scaled_stats()
+            # Resistance stat
+            res_stat_name = dmg_type.replace('intensity', 'resistance').replace('damage', 'resistance')
+            def_val = target_stats.get(res_stat_name, target_stats.get('brute_resistance', 2))
+
+            # Damage formula: power * max(1, atk_val - def_val + 5)
+            raw_dmg = base_power * (max(1, atk_val - def_val + 5))
+            dmg = max(1, int(round(raw_dmg)))
+            t.current_hp = max(0, t.current_hp - dmg)
+            self.combat_log.append(f"{actor.name} used {card_name} on {t.name} for {dmg} damage!")
+
+    def execute_player_turn(self, actor, card_name, target_id):
+        """Processes player character turn using card_name and target_id."""
+        self.combat_log = []
+        if card_name == 'Wait':
+            card = CARDS['Wait']
+            target = actor
+        else:
+            if card_name in self.hand:
+                self.hand.remove(card_name)
+                self.discard_pile.append(card_name)
+            card = CARDS.get(card_name, CARDS['Slash'])
+            
+            # Find target
+            all_chars = self.allies + self.enemies
+            target = next((c for c in all_chars if c.id == target_id), None)
+
+        self.apply_card_effect(actor, card, target)
+
+        # Increase action timer
+        stats = actor.get_scaled_stats()
+        nimble = stats.get('nimbleness', 2)
+        rec = card.get('recovery_cost', 10) * (1.0 / (0.5 + nimble * 0.1))
+        actor.action_timer += int(round(rec))
+
+        # Replenish hand
+        self.draw_hand()
+
+    def check_combat_end(self):
+        """Checks victory or loss conditions."""
+        allies_alive = any(a.is_alive() for a in self.allies)
+        enemies_alive = any(e.is_alive() for e in self.enemies)
+
+        if not enemies_alive:
+            self.is_over = True
+            self.victory = True
+            self.combat_log.append("Victory! All enemies were defeated!")
+            return True
+        elif not allies_alive:
+            self.is_over = True
+            self.victory = False
+            self.combat_log.append("Defeat! All party members were downed.")
+            return True
+        return False
+
+    def to_dict(self):
+        return {
+            'allies': [a.to_dict() for a in self.allies],
+            'enemies': [e.to_dict() for e in self.enemies],
+            'combat_log': self.combat_log,
+            'is_over': self.is_over,
+            'victory': self.victory,
+            'draw_pile': self.draw_pile,
+            'discard_pile': self.discard_pile,
+            'hand': self.hand
+        }
+
+    @classmethod
+    def from_dict(cls, d):
+        allies = [Character.from_dict(a) for a in d.get('allies', [])]
+        enemies = [Character.from_dict(e) for e in d.get('enemies', [])]
+        engine = cls(allies, enemies)
+        engine.combat_log = d.get('combat_log', [])
+        engine.is_over = d.get('is_over', False)
+        engine.victory = d.get('victory', False)
+        engine.draw_pile = d.get('draw_pile', [])
+        engine.discard_pile = d.get('discard_pile', [])
+        engine.hand = d.get('hand', [])
+        return engine
+
+
+# --- HELPER: INITIAL GAME STATE CREATION ---
+
+def create_initial_game_state():
+    """Initializes standard starting game state per gdd.txt."""
+    # Starting character: 1 Level 1 Fox Wandering Spellsword
+    hero = Character(name="Yew", species="Fox", current_class="Wandering Spellsword")
+    
+    party = Party()
+    party.members.append(hero)
+    
+    # Starting cards per GDD: 5 health potions, 6 slashes, 3 light clothes
+    starting_inventory = (
+        ['Health Potion'] * 4 +
+        ['Wax'] * 1
+    )
+    party.inventory = starting_inventory
+    party.shared_deck = ( 
+        ['Slash'] * 6 +
+        ['Health Potion'] * 3 +
+        ['Wax'] * 3
+    )
+
+    return {
+        'screen': 'voinara_intro',  # Start at Voinara dialogue screen
+        'voinara_step': 0,
+        'party': party.to_dict(),
+        'active_menu': None,  # None, 'character_menu', 'shop', 'inn', 'combat'
+        'combat': None,
+        'message': "Welcome to Legs on Strange Lands."
+    }
