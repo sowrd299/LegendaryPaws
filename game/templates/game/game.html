@@ -109,6 +109,12 @@
             margin-top: 10px;
         }
 
+        .card-and-button-rect {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
         .card-rect {
             width: 170px;
             background-color: var(--bg-color);
@@ -317,7 +323,7 @@
         {% elif screen == 'overworld' %}
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <h2 style="color: var(--text-muted); font-size: 1.1rem;">Location: {{ tile_name }}</h2>
-            <div style="font-size: 0.9rem; color: var(--accent-amber);">Gold: {{ party.gold }}g</div>
+            <div style="font-size: 0.9rem; color: var(--accent-amber);">Gold: {{ party.gold }}</div>
         </div>
 
         <!-- ASCII MAP -->
@@ -421,10 +427,7 @@
             <h4 style="margin-top: 14px;">Known Cards</h4>
             <div style="font-size: 0.85rem; margin-top: 4px;">
                 {% for card in known_cards %}
-                <span
-                    style="background-color: var(--panel-bg); border: 1px solid var(--border-color); padding: 3px 8px; border-radius: 3px; display: inline-block; margin: 2px;">
-                    {{ card }}
-                </span>
+                {% include "game/card.html" with card=card %}
                 {% endfor %}
             </div>
         </div>
@@ -435,24 +438,21 @@
                 Inventory (Give to {{ selected_char.name }} or add to Shared Deck)
             </h4>
             <div class="cards-row">
-                {% for card_name in party.inventory %}
-                <div class="card-rect">
-                    <div>
-                        <div class="card-title">{{ card_name }}</div>
-                        <div class="card-type">Inventory Card</div>
-                    </div>
+                {% for card in party_inventory_cards %}
+                <div class="card-and-button-rect">
+                    {% include "game/card.html" with card=card %}
                     <div class="btn-group" style="margin-top: 6px;">
                         <form method="POST" action="{% url 'handle_action' %}">
                             {% csrf_token %}
                             <input type="hidden" name="action_type" value="give_card">
-                            <input type="hidden" name="card_name" value="{{ card_name }}">
+                            <input type="hidden" name="card_name" value="{{ card.name }}">
                             <button type="submit" class="btn" style="font-size: 0.7rem; padding: 4px 6px;">Give
                                 (+Lvl)</button>
                         </form>
                         <form method="POST" action="{% url 'handle_action' %}">
                             {% csrf_token %}
                             <input type="hidden" name="action_type" value="toggle_deck">
-                            <input type="hidden" name="card_name" value="{{ card_name }}">
+                            <input type="hidden" name="card_name" value="{{ card.name }}">
                             <button type="submit" class="btn" style="font-size: 0.7rem; padding: 4px 6px;">+
                                 Deck</button>
                         </form>
@@ -469,22 +469,19 @@
         {% elif screen == 'shop' %}
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <h2 style="color: var(--text-muted);">Merchant Shop</h2>
-            <div style="color: var(--accent-amber);">Gold: {{ party.gold }}g</div>
+            <div style="color: var(--accent-amber);">Gold: {{ party.gold }}</div>
         </div>
 
         <div class="cards-row" style="margin-top: 14px;">
-            {% for card_name, cost in shop_items %}
-            <div class="card-rect">
-                <div>
-                    <div class="card-title">{{ card_name }}</div>
-                    <div class="card-type">Price: {{ cost }}g</div>
-                </div>
+            {% for card, cost in shop_items %}
+            <div class="card-and-button-rect">
+                {% include "game/card.html" with card=card %}
                 <form method="POST" action="{% url 'handle_action' %}" style="margin-top: 8px;">
                     {% csrf_token %}
                     <input type="hidden" name="action_type" value="shop_buy">
-                    <input type="hidden" name="card_name" value="{{ card_name }}">
+                    <input type="hidden" name="card_name" value="{{ card.name }}">
                     <input type="hidden" name="cost" value="{{ cost }}">
-                    <button type="submit" class="btn" style="width: 100%;">Buy Card</button>
+                    <button type="submit" class="btn" style="width: 100%;">Buy Card {{cost}}G</button>
                 </form>
             </div>
             {% endfor %}
@@ -570,17 +567,7 @@
                 <div class="cards-row">
                     <!-- DRAWN HAND CARDS -->
                     {% for card in combat_engine_hand_cards %}
-                    <div class="card-rect" onclick="selectCard('{{ card.name }}')">
-                        <div>
-                            <div class="card-title">{{ card.name }}</div>
-                            <div class="card-illust">{{ card.illust }}</div>
-                            <div class="card-type">{{ card.rarity }} {{ card.type }}</div>
-                            <div class="card-desc">
-                                <span style="color: var(--accent-cyan)">{{ card.recovery_cost }}⧗:</span>
-                                {{ card.description }}
-                            </div>
-                        </div>
-                    </div>
+                    {% include "game/card.html" with card=card %}
                     {% endfor %}
                 </div>
             </form>

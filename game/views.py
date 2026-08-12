@@ -38,12 +38,10 @@ def process_illust(illust):
         illust = illust[:-1]
     return illust
 
-
-def list_to_cards(l):
-    cards = [dict(CARDS[name]) for name in l]
-    for card in cards:
-        card["illust"] = process_illust(card.get("illust", DEFAULT_ILLUST))
-    return cards
+def name_to_card(card_name):
+    card = dict(CARDS[card_name])
+    card["illust"] = process_illust(card.get("illust", DEFAULT_ILLUST))
+    return card
 
 def generate_random_enemies(terrain, level=1):
     """Generates enemy characters using the exact Character system."""
@@ -93,7 +91,7 @@ def game_index(request):
         'state': state,
         'screen': screen,
         'party': party,
-        'cards_db': CARDS,
+        'party_inventory_cards': [ name_to_card(name) for name in party.inventory ]
     }
 
     if screen == 'voinara_intro':
@@ -129,10 +127,10 @@ def game_index(request):
         context['selected_char'] = selected_char
         if selected_char:
             context['scaled_stats'] = selected_char.get_scaled_stats()
-            context['known_cards'] = selected_char.get_known_cards()
+            context['known_cards'] = [ name_to_card(name) for name in selected_char.get_known_cards() ]
 
     elif screen == 'shop':
-        context['shop_items'] = SHOP_ITEMS
+        context['shop_items'] = [(name_to_card(name), cost) for name,cost in SHOP_ITEMS]
 
     elif screen == 'combat':
         combat_dict = state.get('combat')
@@ -140,7 +138,7 @@ def game_index(request):
             engine = CombatEngine.from_dict(combat_dict)
             turn_char = engine.advance_turn_timers()
             context['combat_engine'] = engine
-            context['combat_engine_hand_cards'] = list_to_cards(['Wait'] + engine.hand)
+            context['combat_engine_hand_cards'] = [ name_to_card(name) for name in ['Wait'] + engine.hand ]
             context['turn_char'] = turn_char
             context['is_player_turn'] = (turn_char in engine.allies) if turn_char else False
 
