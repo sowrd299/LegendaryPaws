@@ -139,7 +139,16 @@ CARDS = {
         'description': 'Do nothing just yet.',
         'stat_boosts': {},
         'is_consumable': False,
-        'is_wait': True
+        'is_wait': True,
+        'illust': """
++                 +
+    \  \ |   /     
+        \          
+    -    X    -    
+        /          
+    /    |   \     
++                 +
+"""
     },
     'Health Potion': {
         'name': 'Health Potion',
@@ -152,7 +161,7 @@ CARDS = {
         'stat_boosts': {'haleness': 0.2},
         'is_consumable': True,
         'illust': """
-+-----------------+
++------\---/------+
 |      |   |      |
 |     / *   \     |
 |    | o * * |    |
@@ -178,7 +187,7 @@ CARDS = {
 |    -  . ///     |
 |        \//      |
 |       //\.      |
-+-----------------+
++-------*---------+
 """
     },
     'Light Clothes': {
@@ -353,9 +362,9 @@ CARDS = {
         'stat_boosts': {'ranged_damage': 0.5},
         'illust': """
 +-----------------+
-|                 |
+|               >>=
 |   >>======>     |
-|                 |
+=>                |
 |       >>======> |
 |                 |
 +-----------------+
@@ -373,10 +382,10 @@ CARDS = {
         'stat_boosts': {'melee_damage': 0.5},
         'illust': """
 +-----------------+
-|     - -   _.    |
-|      - - / |    |
-|    -  . ///     |
-|        \//      |
+\     - -   _.    |
+\      - - / |    |
+|    -  . ///     \\
+|        \//      \\
 |       //\.      |
 +-----------------+
 """
@@ -883,9 +892,9 @@ def create_initial_game_state():
     )
     party.inventory = starting_inventory
     party.shared_deck = ( 
-        ['Slash'] * 6 +
-        ['Health Potion'] * 3 +
-        ['Wax'] * 3
+        ['Slash'] * 7 +
+        ['Health Potion'] * 2 +
+        ['Wax'] * 1
     )
 
     return {
