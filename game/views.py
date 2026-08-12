@@ -21,6 +21,30 @@ SHOP_ITEMS = [
     ('Health Potion', 5),
 ]
 
+DEFAULT_ILLUST = """
++-----------------+
+|                 |
+|                 |
+|                 |
+|                 |
+|                 |
++-----------------+
+"""
+
+def process_illust(illust):
+    if illust[0] == "\n":
+        illust = illust[1:]
+    if illust[-1] == "\n":
+        illust = illust[:-1]
+    return illust
+
+
+def list_to_cards(l):
+    cards = [dict(CARDS[name]) for name in l]
+    for card in cards:
+        card["illust"] = process_illust(card.get("illust", DEFAULT_ILLUST))
+    return cards
+
 def generate_random_enemies(terrain, level=1):
     """Generates enemy characters using the exact Character system."""
     count = 2
@@ -116,6 +140,7 @@ def game_index(request):
             engine = CombatEngine.from_dict(combat_dict)
             turn_char = engine.advance_turn_timers()
             context['combat_engine'] = engine
+            context['combat_engine_hand_cards'] = list_to_cards(['Wait'] + engine.hand)
             context['turn_char'] = turn_char
             context['is_player_turn'] = (turn_char in engine.allies) if turn_char else False
 

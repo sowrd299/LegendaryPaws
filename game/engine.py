@@ -132,11 +132,11 @@ CLASS_DATA = {
 CARDS = {
     'Wait': {
         'name': 'Wait',
-        'type': 'trinket',
-        'rarity': 'mundane',
+        'type': 'nothingness',
+        'rarity': '',
         'target': 'self',
         'recovery_cost': 5,
-        'description': 'Do nothing and quickly recover energy (0.5x time).',
+        'description': 'Do nothing just yet.',
         'stat_boosts': {},
         'is_consumable': False,
         'is_wait': True
@@ -150,7 +150,16 @@ CARDS = {
         'heal_power': 5.0,
         'description': 'Restores 5 HP to an ally. Consumed on use.',
         'stat_boosts': {'haleness': 0.2},
-        'is_consumable': True
+        'is_consumable': True,
+        'illust': """
++-----------------+
+|      |   |      |
+|     / *   \     |
+|    | o * * |    |
+|    |   * o |    |
+|     \_____/     |
++-----------------+
+"""
     },
     'Slash': {
         'name': 'Slash',
@@ -160,8 +169,17 @@ CARDS = {
         'recovery_cost': 10,
         'damage_type': 'melee_damage',
         'damage_power': 1.0,
-        'description': 'Standard melee attack dealing 1x damage.',
-        'stat_boosts': {'melee_damage': 0.2}
+        'description': 'Standard attack dealing 1× MELEE damage.',
+        'stat_boosts': {'melee_damage': 0.2},
+        'illust': """
++-----------------+
+|     - -   _.    |
+|      - - / |    |
+|    -  . ///     |
+|        \//      |
+|       //\.      |
++-----------------+
+"""
     },
     'Light Clothes': {
         'name': 'Light Clothes',
@@ -180,8 +198,17 @@ CARDS = {
         'recovery_cost': 10,
         'damage_type': 'ranged_damage',
         'damage_power': 1.0,
-        'description': 'Ranged attack dealing 1x damage.',
-        'stat_boosts': {'ranged_damage': 0.2, 'nimbleness': 0.1}
+        'description': 'Standard attack dealing 1× RANGED damage.',
+        'stat_boosts': {'ranged_damage': 0.2, 'nimbleness': 0.1},
+        'illust': """
++-----------------+
+|                 |
+|   >>======>     |
+|                 |
+|       >>======> |
+|                 |
++-----------------+
+"""
     },
     'First aid': {
         'name': 'First aid',
@@ -189,9 +216,9 @@ CARDS = {
         'rarity': 'interesting',
         'target': 'ally',
         'recovery_cost': 10,
-        'heal_power': 6.5,
+        'heal_power': 1.0,
         'heal_stat': 'survival_intensity',
-        'description': 'Restores HP based on survival intensity.',
+        'description': '1× SURVIVAL healing to an ally.',
         'stat_boosts': {'survival_intensity': 0.3, 'haleness': 0.2}
     },
     'Wain': {
@@ -202,8 +229,17 @@ CARDS = {
         'recovery_cost': 10,
         'damage_type': 'moon_intensity',
         'damage_power': 0.5,
-        'description': 'Moon magic spell dealing 0.5x moon damage.',
-        'stat_boosts': {'moon_intensity': 0.2, 'moon_resistance': 0.3, 'star_resistance': 0.3}
+        'description': 'Magic spell dealing 0.5× MOON damage.',
+        'stat_boosts': {'moon_intensity': 0.2, 'moon_resistance': 0.3, 'star_resistance': 0.3},
+        'illust': """
++-----------------+
+| *       \  O \  |
+|         | o  |' |
+|         /  0 /  |
+|        _/'.//   |
+|      ./_//'    *|
++-----------------+
+"""
     },
     'Wax': {
         'name': 'Wax',
@@ -211,10 +247,19 @@ CARDS = {
         'rarity': 'interesting',
         'target': 'ally',
         'recovery_cost': 10,
-        'heal_power': 5.0,
+        'heal_power': 1.0,
         'heal_stat': 'moon_intensity',
-        'description': 'Moon magic healing spell based on moon intensity.',
-        'stat_boosts': {'moon_intensity': 0.2, 'moon_resistance': 0.3, 'start_vulnerability': 0.3}
+        'description': 'Magic spell that gives ½× MOON healing to an ally.',
+        'stat_boosts': {'moon_intensity': 0.2, 'moon_resistance': 0.3, 'start_vulnerability': 0.3},
+        'illust': """
++-----------------+
+| *       \  O \  |
+|         | o  |' |
+|         /  0 /  |
+|        _/'.//   |
+|      ./_//'    *|
++-----------------+
+"""
     },
     'Singe': {
         'name': 'Singe',
@@ -224,7 +269,7 @@ CARDS = {
         'recovery_cost': 10,
         'damage_type': 'star_intensity',
         'damage_power': 1.0,
-        'description': 'Star spell dealing 1x star damage.',
+        'description': 'Magic spell dealing 1× STAR damage.',
         'stat_boosts': {'star_intensity': 0.2, 'star_resistance': 0.3, 'void_vulnerability': 0.3}
     },
     'Singe Breath': {
@@ -235,7 +280,7 @@ CARDS = {
         'recovery_cost': 10,
         'damage_type': 'star_intensity',
         'damage_power': 0.5,
-        'description': 'Star spell dealing 1x star damage.',
+        'description': 'Magic spell dealing ½× STAR damage to all enemies.',
         'stat_boosts': {'star_intensity': 0.2, 'star_resistance': 0.3, 'void_vulnerability': 0.3}
     },
     'Chill': {
@@ -246,8 +291,17 @@ CARDS = {
         'recovery_cost': 10,
         'damage_type': 'void_intensity',
         'damage_power': 1.0,
-        'description': 'Void spell dealing 1x void damage.',
-        'stat_boosts': {'void_intensity': 0.2, 'void_resistance': 0.3, 'moon_vulnerability': 0.3}
+        'description': 'Magic spell dealing 1× VOID damage.',
+        'stat_boosts': {'void_intensity': 0.2, 'void_resistance': 0.3, 'moon_vulnerability': 0.3},
+        'illust': """
++-----------------+
+| ~~~~~ ~~~~~ ~~~ |
+|  ~~~~~~~~~~~~~  |
+| ~~~ ~~~~~ ~~~~~ |
+|~~~~~~~~~~~~~~~~~|
+|#################|
++-----------------+
+"""
     },
     'Chill Breath': {
         'name': 'Chill Breath',
@@ -257,8 +311,17 @@ CARDS = {
         'recovery_cost': 10,
         'damage_type': 'void_intensity',
         'damage_power': 0.5,
-        'description': 'Void spell dealing 1x void damage.',
-        'stat_boosts': {'void_intensity': 0.2, 'void_resistance': 0.3, 'moon_vulnerability': 0.3}
+        'description': 'Magic spell dealing ½× VOID damage to all enemies.',
+        'stat_boosts': {'void_intensity': 0.2, 'void_resistance': 0.3, 'moon_vulnerability': 0.3},
+        'illust': """
++-----------------+
+| ~~~~~ ~~~~~ ~~~ |
+|  ~~~~~~~~~~~~~  |
+| ~~~ ~~~~~ ~~~~~ |
+|~~~~~~~~~~~~~~~~~|
+|#################|
++-----------------+
+"""
     },
     'Study': {
         'name': 'Study',
@@ -275,7 +338,7 @@ CARDS = {
         'rarity': 'interesting',
         'target': 'self',
         'recovery_cost': 8,
-        'description': 'Physical training boosting physical stats.',
+        'description': 'Physical training, boosting physical stats.',
         'stat_boosts': {'brute_intensity': 0.2, 'brute_resistance': 0.2, 'nimbleness': 0.1}
     },
     'Honed Archery': {
@@ -286,8 +349,17 @@ CARDS = {
         'recovery_cost': 11,
         'damage_type': 'ranged_damage',
         'damage_power': 1.25,
-        'description': 'Precise ranged attack dealing 1.25x damage.',
-        'stat_boosts': {'ranged_damage': 0.5}
+        'description': 'Precise attack dealing 1.25× RANGED damage.',
+        'stat_boosts': {'ranged_damage': 0.5},
+        'illust': """
++-----------------+
+|                 |
+|   >>======>     |
+|                 |
+|       >>======> |
+|                 |
++-----------------+
+"""
     },
     'Honed Slash': {
         'name': 'Honed Slash',
@@ -297,8 +369,17 @@ CARDS = {
         'recovery_cost': 11,
         'damage_type': 'melee_damage',
         'damage_power': 1.25,
-        'description': 'Masterful strike dealing 1.25x melee damage.',
-        'stat_boosts': {'melee_damage': 0.5}
+        'description': 'Masterful attack dealing 1.25× MELEE damage.',
+        'stat_boosts': {'melee_damage': 0.5},
+        'illust': """
++-----------------+
+|     - -   _.    |
+|      - - / |    |
+|    -  . ///     |
+|        \//      |
+|       //\.      |
++-----------------+
+"""
     },
     'Burning Blade': {
         'name': 'Burning Blade',
@@ -666,9 +747,11 @@ class CombatEngine:
             return
 
         if 'heal_power' in card:
-            heal_stat_name = card.get('heal_stat', 'haleness')
-            heal_stat = actor_stats.get(heal_stat_name, actor_stats.get('haleness', 2))
-            heal_amount = int(round(card['heal_power'] * (1.0 + heal_stat * 0.1)))
+            heal_stat_name = card.get('heal_stat', '')
+            heal_amount = int(card['heal_power'])
+            if heal_stat_name:
+                heal_stat = actor_stats.get(heal_stat_name, actor_stats.get('brute_intensity', 2))
+                heal_amount = int(round(heal_amount * heal_stat))
             
             if card.get('target') in ['all_allies', 'all_enemies']:
                 targets = self.allies if actor in self.allies else self.enemies
