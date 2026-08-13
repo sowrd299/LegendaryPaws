@@ -7,10 +7,10 @@ from .engine import (
 )
 
 VOINARA_DIALOGUE = [
-    "Voinara: Oh no, somethings has gone very strange...",
-    "Voinara: ...I, have I lost you? That would be bad, who would know where where would be be, oh, I see someone. It is you? Where are they?",
-    "Voinara: This little lost traveler has found themself somewhere very strange, I think you are about to witness quite the adventure.",
-    "Voinara: Make good decisions please, this little traveler's future depends on it. Tell me what you find... wherever this is."
+    "Oh!, oh no, somethings have gone very strange...",
+    "...I, have I lost you? That would be bad, who would know where where would be be... Oh! I see someone. It is you? It is Yew it seems. Where are they? " +
+    "This little lost traveler has found themself somewhere very strange, I think you are about to witness quite the adventure.",
+    "Make good decisions please, this little traveler's future depends on it. Tell me what you find... wherever this is."
 ]
 
 SHOP_ITEMS = [
@@ -108,7 +108,8 @@ def game_index(request):
 
     if screen == 'voinara_intro':
         step = state.get('voinara_step', 0)
-        context['voinara_text'] = VOINARA_DIALOGUE[min(step, len(VOINARA_DIALOGUE) - 1)]
+        context['speaker'] = "Voinara"
+        context['text'] = VOINARA_DIALOGUE[min(step, len(VOINARA_DIALOGUE) - 1)]
         context['voinara_is_last'] = (step >= len(VOINARA_DIALOGUE) - 1)
 
     elif screen == 'overworld':

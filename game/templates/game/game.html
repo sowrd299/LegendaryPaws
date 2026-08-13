@@ -49,7 +49,6 @@
         }
 
         .header {
-            border-bottom: 1px dashed var(--border-color);
             padding-bottom: 12px;
             justify-content: space-between;
             align-items: center;
@@ -302,11 +301,11 @@
         </div>
 
         <div class="dialogue-box">
-            <p>{{ voinara_text }}</p>
+            <p><span style="color: var(--text-muted)">{{ speaker }}:</span> {{ text }}</p>
             <form id="voinaraForm" method="POST" action="{% url 'handle_action' %}" style="margin-top: 16px;">
                 {% csrf_token %}
                 <input type="hidden" name="action_type" value="voinara_advance">
-                <button type="submit" class="btn">[ Space ] Next Dialogue</button>
+                <button type="submit" class="btn">[ Space ] ...</button>
             </form>
         </div>
 

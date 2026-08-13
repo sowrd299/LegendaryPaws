@@ -890,13 +890,13 @@ def create_initial_game_state():
     # Starting cards per GDD: 5 health potions, 6 slashes, 3 light clothes
     starting_inventory = (
         ['Health Potion'] * 4 +
-        ['Wax'] * 1
+        ['Wain'] * 4
     )
     party.inventory = starting_inventory
     party.shared_deck = ( 
-        ['Slash'] * 7 +
+        ['Slash'] * 6 +
         ['Health Potion'] * 2 +
-        ['Wax'] * 1
+        ['Wain'] * 2
     )
 
     return {
