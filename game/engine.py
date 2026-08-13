@@ -21,20 +21,17 @@ RARITIES = ['mundane', 'interesting', 'odd', 'exceptional', 'peerless']
 DECK_MINIMUM_SIZE = 10
 
 def raw_to_scaled(raw_val):
-    """Converts a raw accumulated stat value into a 0 to 20 integer scale.
-    Uses triangular stat scaling: 1:1 for the first level, requiring increasingly
-    more raw stat for each additional scaled level up to max 20.
-    Formula: scaled = (-1 + sqrt(1 + 8 * raw_val)) / 2
-    """
 
     is_negative = False
     if raw_val <= 0:
         is_negative = True
         raw_val *= -1
 
-    scaled = (-1.0 + math.sqrt(1.0 + 8.0 * raw_val)) / 2.0
+    scaled = math.sqrt(raw_val)
     return min(20, max(0, int(round(scaled)))) * (-1 if is_negative else 1)
 
+def scaled_to_raw(scaled_val):
+    return (scaled_val-0.5) ** 2
 
 # --- DATA DEFINITIONS: SPECIES & CLASSES ---
 
@@ -527,6 +524,16 @@ class Character:
         for stat in accessible:
             scaled[stat] = raw_to_scaled(raw.get(stat, 0.0))
         return scaled
+
+    def get_stat_xps(self):
+        raw = self.get_raw_stats()
+        scaled = self.get_scaled_stats() 
+
+        xps = {}
+        for k, stat in scaled.items():
+            xps[k] = (raw[k] - scaled_to_raw(stat)) / (scaled_to_raw(stat + 1) - scaled_to_raw(stat))
+
+        return xps
 
     def get_known_cards(self):
         """Returns move cards granted by current class plus equipped cards."""

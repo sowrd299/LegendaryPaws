@@ -1,4 +1,5 @@
 {% load static %}
+{% load utils %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -271,17 +272,23 @@
             margin-top: 12px;
         }
 
+        .stats-area {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+        }
+
         .stats-table {
-            width: 100%;
+            width: 37%;
             border-collapse: collapse;
             font-size: 0.9rem;
             margin-top: 10px;
+            margin-right: 10px;
         }
 
         .stats-table td,
         .stats-table th {
             padding: 6px 10px;
-            border-bottom: 1px solid var(--border-color);
             text-align: left;
         }
 
@@ -415,23 +422,54 @@
                 HP: {{ selected_char.current_hp }}/{{ selected_char.max_hp }}
             </p>
 
-            <table class="stats-table">
-                <tbody>
-                    {% for stat_name, stat_val in scaled_stats.items %}
-                    {% if stat_name != 'level' %}
-                    <tr>
-                        <td>{{ stat_name }}</td>
-                        <td><strong>{{ stat_val }}</strong></td>
-                    </tr>
-                    {% endif %}
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="stats-area">
+                <table class="stats-table">
+                    <tbody>
+                        {% for stat_name, stat_val, xp in scaled_core_stats %}
+                        {% if stat_name.lower != 'level' %}
+                        <tr>
+                            <td style="font-size: 1.2rem">
+                                <strong>{{ stat_val }}</strong>
+                            </td>
+                            <td>
+                                {{ stat_name }}<br />
+                                <span style="word-spacing: 0; color:var(--text-muted); font-size: 0.7rem;">
+                                    XP {% for pip in xp|percentpips:30 %}{% if pip %}●{% else %}·{% endif %}{% endfor%}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
 
-            <h4 style="margin-top: 14px;">Known Cards</h4>
+                <table class="stats-table">
+                    <tbody>
+                        {% for stat_name, stat_val, xp in scaled_class_stats %}
+                        {% if stat_name.lower != 'level' %}
+                        <tr>
+                            <td style="font-size: 1.2rem">
+                                <strong>{{ stat_val }}</strong>
+                            </td>
+                            <td>
+                                {{ stat_name }}<br />
+                                <span style="word-spacing: 0; color:var(--text-muted); font-size: 0.7rem;">
+                                    XP {% for pip in xp|percentpips:30 %}{% if pip %}●{% else %}·{% endif %}{% endfor%}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <h4 style="margin-top: 14px; width: 100%;">Known Cards</h4>
             <div class="cards-row" style="font-size: 0.85rem; margin-top: 4px;">
                 {% for card in known_cards %}
                 {% include "game/card.html" with card=card %}
+                {% empty %}
+                <p style="color: var(--text-muted)">{{ selected_char.name }} knows no cards yet.</p>
                 {% endfor %}
             </div>
             {% else %}

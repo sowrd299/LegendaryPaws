@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseBadRequest
 from .engine import (
     create_initial_game_state, Party, Character, CombatEngine,
-    WORLD_MAP, MAP_WIDTH, MAP_HEIGHT, TILE_DESCRIPTIONS, CARDS, DECK_MINIMUM_SIZE
+    WORLD_MAP, MAP_WIDTH, MAP_HEIGHT, TILE_DESCRIPTIONS, CARDS, CORE_STATS, DECK_MINIMUM_SIZE
 )
 
 VOINARA_DIALOGUE = [
@@ -37,6 +37,9 @@ def process_illust(illust):
     if illust[-1] == "\n":
         illust = illust[:-1]
     return illust
+
+def process_stat_name(name):
+    return name.replace("_", " ").title()
 
 def name_to_card(card_name):
     card = dict(CARDS[card_name])
@@ -103,7 +106,7 @@ def game_index(request):
         'party_inventory_cards': [ (name_to_card(name), count) for name,count in list_to_unique_counts(party.inventory) ],
         'party_deck_cards': [ (name_to_card(name), count) for name,count in list_to_unique_counts(party.shared_deck) ],
         'party_deck_len': len(party.shared_deck),
-        'deck_minimum_size': DECK_MINIMUM_SIZE
+        'deck_minimum_size': DECK_MINIMUM_SIZE,
     }
 
     if screen == 'voinara_intro':
@@ -140,7 +143,10 @@ def game_index(request):
             context['char_index'] = char_idx
             context['selected_char'] = selected_char
             if selected_char:
-                context['scaled_stats'] = selected_char.get_scaled_stats()
+                scaled_stats = selected_char.get_scaled_stats()
+                stat_xps = selected_char.get_stat_xps()
+                context['scaled_core_stats'] = [ (process_stat_name(name), stat, stat_xps[name]) for name, stat in scaled_stats.items() if name in CORE_STATS ]
+                context['scaled_class_stats'] = [ (process_stat_name(name), stat, stat_xps[name]) for name, stat in scaled_stats.items() if name not in CORE_STATS ]
                 context['known_cards'] = [ name_to_card(name) for name in selected_char.get_known_cards() ]
 
     elif screen == 'shop':
