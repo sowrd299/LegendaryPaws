@@ -294,23 +294,13 @@
 
 <body>
     <div class="terminal-container">
+        <!-- SCREEN: VOINARA INTRO -->
+        {% if screen == 'voinara_intro' %}
         <!-- HEADER -->
         <div class="header">
             <h1>Legs on Strange Lands</h1>
-            <div class="controls-legend">
-                [ Arrows = Navigate | Space = Select | C = Character Menu | X = Close ]
-            </div>
         </div>
 
-        <!-- STATUS MESSAGE -->
-        {% if state.message %}
-        <div class="status-bar">
-            >&nbsp;{{ state.message }}
-        </div>
-        {% endif %}
-
-        <!-- SCREEN: VOINARA INTRO -->
-        {% if screen == 'voinara_intro' %}
         <div class="dialogue-box">
             <p>{{ voinara_text }}</p>
             <form id="voinaraForm" method="POST" action="{% url 'handle_action' %}" style="margin-top: 16px;">
@@ -340,6 +330,11 @@
         </div>
 
         <div class="dialogue-box" style="font-size: 0.9rem;">
+            <!-- STATUS MESSAGE -->
+            {% if state.message %}
+            <p> >&nbsp;{{ state.message }} </p>
+            {% endif %}
+            <!-- MAP DESCRIPTION -->
             <p>{{ tile_desc }}</p>
         </div>
 
