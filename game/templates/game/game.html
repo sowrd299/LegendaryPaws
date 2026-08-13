@@ -259,7 +259,8 @@
             display: inline-block;
         }
 
-        .btn:hover {
+        .btn:hover,
+        .btn.selected {
             background-color: var(--accent-amber);
             color: var(--bg-color);
         }
@@ -389,22 +390,31 @@
             </form>
         </div>
 
-        <!-- PARTY TABS -->
+        <!-- TABS -->
         <div class="btn-group">
+            <!-- DECK TAB -->
+            <form method="POST" action="{% url 'handle_action' %}" style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="action_type" value="select_deck">
+                <button type="submit" class="btn {% if not selected_char %}selected{% endif %}">
+                    DECK
+                </button>
+            </form>
+            <!-- PARTY TABS -->
             {% for member in party.members %}
             <form method="POST" action="{% url 'handle_action' %}" style="display:inline;">
                 {% csrf_token %}
                 <input type="hidden" name="action_type" value="select_char">
                 <input type="hidden" name="char_index" value="{{ forloop.counter0 }}">
                 <button type="submit" class="btn {% if forloop.counter0 == char_index %}selected{% endif %}">
-                    {{ member.name }} (Lvl {{ member.level }})
+                    {{ member.name }}, {{ member.current_class }}
                 </button>
             </form>
             {% endfor %}
         </div>
 
-        {% if selected_char %}
         <div class="dialogue-box" style="margin-top: 10px;">
+            {% if selected_char %}
             <h3>{{ selected_char.name }} &mdash; Level {{ selected_char.level }} {{ selected_char.species }}
                 {{ selected_char.current_class }}</h3>
             <p style="margin-top: 4px; font-size: 0.85rem; color: var(--text-muted);">
@@ -425,33 +435,62 @@
             </table>
 
             <h4 style="margin-top: 14px;">Known Cards</h4>
-            <div style="font-size: 0.85rem; margin-top: 4px;">
+            <div class="cards-row" style="font-size: 0.85rem; margin-top: 4px;">
                 {% for card in known_cards %}
                 {% include "game/card.html" with card=card %}
                 {% endfor %}
             </div>
+            {% else %}
+            <div class="cards-row" style="font-size: 0.85rem; margin-top: 4px;">
+                {% for card, count in party_deck_cards %}
+                <div class="card-and-button-rect">
+                    {% include "game/card.html" with card=card %}
+                    <div class="btn-group" style="margin-top: 6px;">
+                        <h4 style="font-size: 1.5rem; color: var(--text-muted);">×{{ count }}</h4>
+                        <form method="POST" action="{% url 'handle_action' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="action_type" value="remove_deck">
+                            <input type="hidden" name="card_name" value="{{ card.name }}">
+                            <button type="submit" class="btn" style="font-size: 0.7rem; padding: 4px 6px;">-
+                                Deck</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
         </div>
 
         <!-- CARD INVENTORY SCROLL -->
         <div style="margin-top: 10px;">
-            <h4 style="color: var(--text-muted); font-size: 0.95rem;">
-                Your Inventory | Give cards to {{ selected_char.name }} or add to your party's deck |
-                <span {% if party_deck_len < deck_minimum_size %} style="color: var(--accent-red);" {% endif %}>
-                    Deck: {{ party_deck_len }} / {{ deck_minimum_size }} Cards
+            <h4 style="font-size: 0.95rem;">
+                Inventory |
+                <span style="color: var(--text-muted);">
+                    {% if selected_char %}
+                    Give cards to {{ selected_char.name }} for XP
+                    {% else %}
+                    Add cards to your party's deck |
+                    <span {% if party_deck_len < deck_minimum_size %} style="color: var(--accent-red);" {% endif %}>
+                        Deck: {{ party_deck_len }} / {{ deck_minimum_size }} Cards
+                    </span>
+                    {% endif %}
                 </span>
             </h4>
             <div class="cards-row">
-                {% for card in party_inventory_cards %}
+                {% for card, count in party_inventory_cards %}
                 <div class="card-and-button-rect">
                     {% include "game/card.html" with card=card %}
                     <div class="btn-group" style="margin-top: 6px;">
+                        <h4 style="font-size: 1.5rem; color: var(--text-muted);">×{{ count }}</h4>
+                        {% if selected_char %}
                         <form method="POST" action="{% url 'handle_action' %}">
                             {% csrf_token %}
                             <input type="hidden" name="action_type" value="give_card">
                             <input type="hidden" name="card_name" value="{{ card.name }}">
-                            <button type="submit" class="btn" style="font-size: 0.7rem; padding: 4px 6px;">Give
-                                (+Lvl)</button>
+                            <button type="submit" class="btn" style="font-size: 0.7rem; padding: 4px 6px;">+ XP
+                            </button>
                         </form>
+                        {% else %}
                         <form method="POST" action="{% url 'handle_action' %}">
                             {% csrf_token %}
                             <input type="hidden" name="action_type" value="add_deck">
@@ -459,6 +498,7 @@
                             <button type="submit" class="btn" style="font-size: 0.7rem; padding: 4px 6px;">+
                                 Deck</button>
                         </form>
+                        {% endif %}
                     </div>
                 </div>
                 {% empty %}
@@ -466,7 +506,6 @@
                 {% endfor %}
             </div>
         </div>
-        {% endif %}
 
         <!-- SCREEN: SHOP -->
         {% elif screen == 'shop' %}

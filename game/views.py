@@ -43,6 +43,15 @@ def name_to_card(card_name):
     card["illust"] = process_illust(card.get("illust", DEFAULT_ILLUST))
     return card
 
+def list_to_unique_counts(l):
+    d = dict()
+    for i in l:
+        if i in d:
+            d[i] += 1
+        else:
+            d[i] = 1
+    return [(i, d[i]) for i in d]
+
 def generate_random_enemies(terrain, level=1):
     """Generates enemy characters using the exact Character system."""
     count = 2
@@ -91,7 +100,8 @@ def game_index(request):
         'state': state,
         'screen': screen,
         'party': party,
-        'party_inventory_cards': [ name_to_card(name) for name in party.inventory ],
+        'party_inventory_cards': [ (name_to_card(name), count) for name,count in list_to_unique_counts(party.inventory) ],
+        'party_deck_cards': [ (name_to_card(name), count) for name,count in list_to_unique_counts(party.shared_deck) ],
         'party_deck_len': len(party.shared_deck),
         'deck_minimum_size': DECK_MINIMUM_SIZE
     }
@@ -124,12 +134,13 @@ def game_index(request):
 
     elif screen == 'character_menu':
         char_idx = state.get('char_index', 0)
-        selected_char = party.members[char_idx] if party.members else None
-        context['char_index'] = char_idx
-        context['selected_char'] = selected_char
-        if selected_char:
-            context['scaled_stats'] = selected_char.get_scaled_stats()
-            context['known_cards'] = [ name_to_card(name) for name in selected_char.get_known_cards() ]
+        if char_idx >= 0:
+            selected_char = party.members[char_idx] if party.members else None
+            context['char_index'] = char_idx
+            context['selected_char'] = selected_char
+            if selected_char:
+                context['scaled_stats'] = selected_char.get_scaled_stats()
+                context['known_cards'] = [ name_to_card(name) for name in selected_char.get_known_cards() ]
 
     elif screen == 'shop':
         context['shop_items'] = [(name_to_card(name), cost) for name,cost in SHOP_ITEMS]
@@ -216,6 +227,9 @@ def handle_action(request):
         idx = int(request.POST.get('char_index', 0))
         if 0 <= idx < len(party.members):
             state['char_index'] = idx
+
+    elif action_type == 'select_deck':
+        state['char_index'] = -1
 
     elif action_type == 'give_card':
         card_name = request.POST.get('card_name')
