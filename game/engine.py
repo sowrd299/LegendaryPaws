@@ -36,24 +36,24 @@ def scaled_to_raw(scaled_val):
 # --- DATA DEFINITIONS: SPECIES & CLASSES ---
 
 SPECIES_DATA = {
-    'Fox': {'nimbleness': 3.0, 'brute_intensity': 2.0, 'haleness': 2.0, 'brute_resistance': 2.0},
-    'Cat': {'nimbleness': 4.0, 'haleness': 3.0, 'brute_intensity': 1.0, 'brute_resistance': 1.0},
-    'Badger': {'brute_intensity': 4.0, 'brute_resistance': 4.0, 'nimbleness': 1.0, 'haleness': 3.0},
-    'Rabbit': {'nimbleness': 4.0, 'haleness': 2.0, 'brute_intensity': 1.0, 'brute_resistance': 1.0},
-    'Owl': {'haleness': 3.0, 'star_intensity': 4.0, 'nimbleness': 2.0, 'brute_intensity': 1.0},
+    'Fox': {'nimbleness': 3.0, 'brute_intensity': 1.25, 'haleness': 2.0, 'brute_resistance': 2.0},
+    'Cat': {'nimbleness': 4.0, 'haleness': 3.0, 'brute_intensity': 1.25, 'brute_resistance': 1.0},
+    'Badger': {'brute_intensity': 5.25, 'brute_resistance': 4.0, 'nimbleness': 1.0, 'haleness': 3.0},
+    'Rabbit': {'nimbleness': 4.0, 'haleness': 2.0, 'brute_intensity': 1.25, 'brute_resistance': 1.0},
+    'Owl': {'haleness': 3.0, 'star_intensity': 4.0, 'nimbleness': 2.0, 'brute_intensity': 1.25},
     'Raven': {'void_intensity': 4.0, 'nimbleness': 3.0, 'haleness': 2.0, 'brute_resistance': 1.0},
-    'Dragonling': {'brute_intensity': 3.0, 'star_intensity': 3.0, 'haleness': 3.0, 'brute_resistance': 2.0},
-    'Ember sprite': {'star_intensity': 5.0, 'star_resistance': 4.0, 'haleness': 1.0, 'brute_intensity': 1.0},
-    'Dew sprite': {'moon_intensity': 5.0, 'moon_resistance': 4.0, 'haleness': 1.0, 'brute_intensity': 1.0},
-    'Lost sprite': {'void_intensity': 5.0, 'void_resistance': 4.0, 'haleness': 1.0, 'brute_intensity': 1.0},
-    'Automaton': {'brute_intensity': 4.0, 'brute_resistance': 5.0, 'nimbleness': 2.0, 'haleness': 4.0,
+    'Dragonling': {'brute_intensity': 5.25, 'star_intensity': 3.0, 'haleness': 3.0, 'brute_resistance': 2.0},
+    'Ember sprite': {'star_intensity': 5.0, 'star_resistance': 4.0, 'haleness': 1.0, 'brute_intensity': 1.25},
+    'Dew sprite': {'moon_intensity': 5.0, 'moon_resistance': 4.0, 'haleness': 1.0, 'brute_intensity': 1.25},
+    'Lost sprite': {'void_intensity': 5.0, 'void_resistance': 4.0, 'haleness': 1.0, 'brute_intensity': 1.25},
+    'Automaton': {'brute_intensity': 11.25, 'brute_resistance': 5.0, 'nimbleness': 2.0, 'haleness': 4.0,
                   'star_intensity': -3.0, 'moon_intensity': -3.0, 'void_intensity': -3.0}
 }
 
 CLASS_DATA = {
     'Wandering Spellsword': {
         'bonus_stats': ['melee_damage', 'moon_intensity', 'diplomacy'],
-        'stat_mods': {'melee_damage': 3.0, 'moon_intensity': 3.0, 'diplomacy': 2.0, 'brute_intensity': 2.0},
+        'stat_mods': {'melee_damage': 3.0, 'moon_intensity': 3.0, 'diplomacy': 2.0, 'brute_intensity': 4.1},
         'default_cards': []
     },
     'Student': {
@@ -488,7 +488,7 @@ class Character:
         Every card in level_up_cards contributes 1 to raw level value.
         """
         raw = {stat: 1.0 for stat in ALL_STATS}
-        raw['level'] = 4
+        raw['level'] = 2
         
         # Apply species mods
         sp_mods = SPECIES_DATA.get(self.species, {})
@@ -506,9 +506,13 @@ class Character:
         for card_name in self.level_up_cards:
             card = CARDS.get(card_name, {})
             boosts = card.get('stat_boosts', {})
-            for k, v in boosts.items():
-                default_bonus = 0.0 if k == 'brute_intensity' else 0.1
-                card_bonuses[k] = card_bonuses.get(k, default_bonus) + v
+            for k in ALL_STATS:
+                default_bonus = 0.1
+                if k == 'brute_intensity':
+                    default_bonus = 0.0
+                elif k == 'level':
+                    default_bonus = 0.2
+                card_bonuses[k] = card_bonuses.get(k, 0) + boosts.get(k, default_bonus)
 
         for k, b in card_bonuses.items():
             if k in raw:
