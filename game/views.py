@@ -121,6 +121,7 @@ def game_index(request):
             selected_char = party.members[char_idx] if party.members else None
             context['char_index'] = char_idx
             context['selected_char'] = selected_char
+            context['stats_tab'] = state.get('stats_tab', True)
             if selected_char:
                 scaled_stats = selected_char.get_scaled_stats()
                 stat_xps = selected_char.get_stat_xps()
@@ -204,6 +205,7 @@ def handle_action(request):
         if state['screen'] in ['overworld', 'shop', 'inn']:
             state['screen'] = 'character_menu'
             state['char_index'] = 0
+            state['stat_tab'] = True
 
     elif action_type == 'close_menu':
         if state['screen'] in ['character_menu', 'shop', 'inn']:
@@ -216,6 +218,12 @@ def handle_action(request):
 
     elif action_type == 'select_deck':
         state['char_index'] = -1
+
+    elif action_type == 'select_stats_tab':
+        state['stats_tab'] = True
+
+    elif action_type == 'select_card_tab':
+        state['stats_tab'] = False
 
     elif action_type == 'give_card':
         card_name = request.POST.get('card_name')

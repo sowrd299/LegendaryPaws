@@ -32,4 +32,6 @@ def illust(illust):
 
 @register.filter
 def stat_name(name):
-    return name.replace("_", " ").title()
+    format_name = name.replace("_", " ").title()
+    format_name = format_name.replace("Moon", "Moon Magic").replace("Star", "Star Magic").replace("Void", "Void Magic")
+    return format_name

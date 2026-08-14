@@ -408,7 +408,7 @@
                 <input type="hidden" name="action_type" value="select_char">
                 <input type="hidden" name="char_index" value="{{ forloop.counter0 }}">
                 <button type="submit" class="btn {% if forloop.counter0 == char_index %}selected{% endif %}">
-                    {{ member.name }}, {{ member.current_class }}
+                    {{ member.name }}
                 </button>
             </form>
             {% endfor %}
@@ -422,6 +422,24 @@
                 HP: {{ selected_char.current_hp }}/{{ selected_char.max_hp }}
             </p>
 
+            <div class="btn-group">
+                <form method="POST" action="{% url 'handle_action' %}" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action_type" value="select_stats_tab">
+                    <button type="submit" class="btn {% if stats_tab %}selected{% endif %}">
+                        STATS & EXPERIENCE
+                    </button>
+                </form>
+                <form method="POST" action="{% url 'handle_action' %}" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action_type" value="select_card_tab">
+                    <button type="submit" class="btn {% if not stats_tab %}selected{% endif %}">
+                        KNOWN CARDS
+                    </button>
+                </form>
+            </div>
+
+            {% if stats_tab %}
             <div class="stats-area">
                 <table class="stats-table">
                     <tbody>
@@ -463,15 +481,15 @@
                     </tbody>
                 </table>
             </div>
-
-            <h4 style="margin-top: 14px; width: 100%;">Known Cards</h4>
-            <div class="cards-row" style="font-size: 0.85rem; margin-top: 4px;">
+            {% else %}
+            <div class="cards-row" style="font-size: 0.85rem; margin-top: 14px;">
                 {% for card in known_cards %}
                 {% include "game/card.html" with card=card %}
                 {% empty %}
                 <p style="color: var(--text-muted)">{{ selected_char.name }} knows no cards yet.</p>
                 {% endfor %}
             </div>
+            {% endif %}
             {% else %}
             <div class="cards-row" style="font-size: 0.85rem; margin-top: 4px;">
                 {% for card, count in party_deck_cards %}
@@ -630,7 +648,7 @@
             <!-- HAND OF CARDS (TWO-PHASE COMBAT FORM) -->
             {% if is_player_turn %}
             <h4 style="color: var(--accent-amber); font-size: 0.9rem;">
-                Phase 1: Choose Card | Phase 2: Select Target above
+                Pick a Card:
             </h4>
 
             <form id="combatActionForm" method="POST" action="{% url 'handle_action' %}">
