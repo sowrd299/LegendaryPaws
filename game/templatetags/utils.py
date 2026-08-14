@@ -22,6 +22,8 @@ DEFAULT_ILLUST = """
 
 @register.filter
 def illust(illust):
+    if not illust:
+        illust = DEFAULT_ILLUST
     if illust[0] == "\n":
         illust = illust[1:]
     if illust[-1] == "\n":
