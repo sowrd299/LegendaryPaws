@@ -1,6 +1,6 @@
 {% load utils %}
 
-<div class="card-rect" onclick="selectCard('{{ card.name }}')">
+<div class="card-rect" onclick="selectCard('{{ card.name }}', '{{ card.target }}')">
     <div>
         <div class="card-title">{{ card.name }}</div>
         <div class="card-illust">{{ card.illust|illust }}</div>

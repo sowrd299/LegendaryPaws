@@ -655,18 +655,22 @@
     <script>
         let selectedCardName = null;
 
-        function selectCard(cardName) {
+        function selectCard(cardName, target) {
             selectedCardName = cardName;
             document.getElementById('inputCardName').value = cardName;
 
-            // Highlight selected card visually
-            const cards = document.querySelectorAll('.card-rect');
-            cards.forEach(c => c.classList.remove('selected'));
-            event.currentTarget.classList.add('selected');
+            if (target == "ally" || target == "enemy") {
+                // Highlight selected card visually
+                const cards = document.querySelectorAll('.card-rect');
+                cards.forEach(c => c.classList.remove('selected'));
+                event.currentTarget.classList.add('selected');
 
-            // Highlight targets
-            const units = document.querySelectorAll('.unit-card');
-            units.forEach(u => u.classList.add('selectable'));
+                // Highlight targets
+                const units = document.querySelectorAll('.unit-card');
+                units.forEach(u => u.classList.add('selectable'));
+            } else {
+                document.getElementById('combatActionForm').submit();
+            }
         }
 
         function selectTarget(targetId) {

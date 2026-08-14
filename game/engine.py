@@ -152,6 +152,24 @@ CARDS = {
 +                 +
 """
     },
+    'Wallow': {
+        'name': 'Wallow',
+        'type': 'nothingness',
+        'rarity': '',
+        'target': 'self',
+        'recovery_cost': 6,
+        'description': 'You should have been more prepared! Do nothing.',
+        'stat_boosts': {},
+        'illust': """
++                 +
+    \  \ |   /     
+        \          
+    -    X    -    
+        /          
+    /    |   \     
++                 +
+"""
+    },
     'Health Potion': {
         'name': 'Health Potion',
         'type': 'trinket',
@@ -741,6 +759,8 @@ class CombatEngine:
 
         # Build party shared deck
         deck_pool = list(shared_deck)
+        while len(deck_pool) < DECK_MINIMUM_SIZE:
+            deck_pool.append("Wallow")
         for a in self.allies:
             deck_pool.extend(a.get_known_cards())
         random.shuffle(deck_pool)
@@ -836,30 +856,31 @@ class CombatEngine:
             return
 
         # Damage calculation
-        dmg_type = card.get('damage_type', 'melee_damage')
-        base_power = card.get('damage_power', 1.0)
+        if 'damage_power' in card:
+            dmg_type = card.get('damage_type', 'melee_damage')
+            base_power = card.get('damage_power')
 
-        # Attacker stat
-        atk_val = actor.get_combat_scaled_stat(dmg_type)
+            # Attacker stat
+            atk_val = actor.get_combat_scaled_stat(dmg_type)
 
-        targets = []
-        if card.get('target') in ['all_enemies', 'all_allies']:
-            targets = [e for e in (self.enemies if actor in self.allies else self.allies) if e.is_alive()]
-        elif target:
-            targets = [target]
+            targets = []
+            if card.get('target') in ['all_enemies', 'all_allies']:
+                targets = [e for e in (self.enemies if actor in self.allies else self.allies) if e.is_alive()]
+            elif target:
+                targets = [target]
 
-        for t in targets:
-            if not t or not t.is_alive():
-                continue
+            for t in targets:
+                if not t or not t.is_alive():
+                    continue
 
-            # Resistance stat
-            res_val = t.get_combat_scaled_stat(dmg_type, "resistance")
-            vul_val = t.get_combat_scaled_stat(dmg_type, "vulnerability")
+                # Resistance stat
+                res_val = t.get_combat_scaled_stat(dmg_type, "resistance")
+                vul_val = t.get_combat_scaled_stat(dmg_type, "vulnerability")
 
-            raw_dmg = (base_power * atk_val) + vul_val - res_val
-            dmg = max(1, int(round(raw_dmg)))
-            t.current_hp = max(0, t.current_hp - dmg)
-            self.combat_log.append(f"{actor.name} used {card_name} on {t.name} for {dmg} damage!")
+                raw_dmg = (base_power * atk_val) + vul_val - res_val
+                dmg = max(1, int(round(raw_dmg)))
+                t.current_hp = max(0, t.current_hp - dmg)
+                self.combat_log.append(f"{actor.name} used {card_name} on {t.name} for {dmg} damage!")
 
     def execute_player_turn(self, actor, card_name, target_id):
         """Processes player character turn using card_name and target_id."""
