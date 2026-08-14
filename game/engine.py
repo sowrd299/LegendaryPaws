@@ -119,12 +119,12 @@ CLASS_DATA = {
     'Husk': {
         'bonus_stats': ['melee_damage', 'ranged_resistance', 'star_vulnerability'],
         'stat_mods': {'haleness': -5.0, 'nimbleness': -2, 'brute_resistance': -1, 'melee_damage' : -2.0},
-        'default_cards': []
+        'default_cards': ['Slash', 'Heavy Slash']
     },
     'Soul': {
         'bonus_stats': ['melee_damage', 'void_intensity', 'moon_vulnerability'],
-        'stat_mods': {'brute_resistance': -1, 'nimbleness': -3, 'haleness': -8.0, 'melee_damage' : -4.0, 'void_intensity': 1, 'moon_vulnerability': 5},
-        'default_cards': ['Chill']
+        'stat_mods': {'brute_resistance': -1, 'nimbleness': -3, 'haleness': -8.0, 'melee_damage' : -4.0, 'void_intensity': 2, 'moon_vulnerability': 5},
+        'default_cards': ['Chill', 'Chill Breath']
     }
 }
 
@@ -180,6 +180,26 @@ CARDS = {
         'recovery_cost': 10,
         'damage_type': 'melee_damage',
         'damage_power': 2.0,
+        'description': 'Standard attack.',
+        'stat_boosts': {'melee_damage': 0.2},
+        'illust': """
++-----------------+
+|     - -   _.    |
+|      - - / |    |
+|    -  . ///     |
+|        \//      |
+|       //\.      |
++-------*---------+
+"""
+    },
+    'Heavy Slash': {
+        'name': 'Heavy Slash',
+        'type': 'weapon',
+        'rarity': 'mundane',
+        'target': 'enemy',
+        'recovery_cost': 20,
+        'damage_type': 'melee_damage',
+        'damage_power': 3.0,
         'description': 'Standard attack.',
         'stat_boosts': {'melee_damage': 0.2},
         'illust': """
