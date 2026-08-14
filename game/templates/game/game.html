@@ -726,13 +726,17 @@
                     document.getElementById('voinaraForm').submit();
                 }
             } else if (screen === 'overworld') {
-                if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.code)) {
+                if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(event.code)) {
                     event.preventDefault();
                     const dirMap = {
                         'ArrowUp': 'up',
+                        'KeyW': 'up',
                         'ArrowDown': 'down',
+                        'KeyS': 'down',
                         'ArrowLeft': 'left',
-                        'ArrowRight': 'right'
+                        'KeyA': 'left',
+                        'ArrowRight': 'right',
+                        'KeyD': 'right'
                     };
                     submitMove(dirMap[event.code]);
                 } else if (event.key.toLowerCase() === 'c') {
