@@ -285,33 +285,37 @@ def handle_action(request):
                         engine.check_combat_end()
                     else:
                         break  # It's player turn again!
+                
+                state['combat'] = engine.to_dict()
 
-                if engine.is_over:
-                    if engine.victory:
-                        earned_gold = random.randint(5, 10)
-                        party.gold += earned_gold
-                        reward_card = random.choice(['Slash', 'First aid', 'Wax', 'Wain', 'Singe Breath', 'Chill Breath'])
+    elif action_type == "combat_end":
+        combat_dict = state.get('combat')
+        if combat_dict:
+            engine = CombatEngine.from_dict(combat_dict)
+            if engine.is_over:
+                if engine.victory:
+                    earned_gold = random.randint(5, 10)
+                    party.gold += earned_gold
+                    reward_card = random.choice(['Slash', 'First aid', 'Wax', 'Wain', 'Singe Breath', 'Chill Breath'])
 
-                        if len(party.inventory) < 20:
-                            party.inventory.append(reward_card)
+                    if len(party.inventory) < 20:
+                        party.inventory.append(reward_card)
 
-                        # Copy character's HP stat out of combat, since the combat engine is a shallow copy
-                        for m in party.members:
-                            for a in engine.allies:
-                                if a.id == m.id:
-                                    m.current_hp = a.current_hp
+                    # Copy character's HP stat out of combat, since the combat engine is a shallow copy
+                    for m in party.members:
+                        for a in engine.allies:
+                            if a.id == m.id:
+                                m.current_hp = a.current_hp
 
-                        state['screen'] = 'overworld'
-                        state['message'] = f"Victory! Gained {earned_gold} gold and a '{reward_card}' card!"
-                    else:
-                        # Fully restore party on defeat & return to safe town position
-                        for m in party.members:
-                            m.current_hp = m.max_hp
-                        party.x, party.y = 7, 5
-                        state['screen'] = 'overworld'
-                        state['message'] = "The Rot has overwhelmed your party! You safely retreated to town."
+                    state['screen'] = 'overworld'
+                    state['message'] = f"Victory! Gained {earned_gold} gold and a '{reward_card}' card!"
                 else:
-                    state['combat'] = engine.to_dict()
+                    # Fully restore party on defeat & return to safe town position
+                    for m in party.members:
+                        m.current_hp = m.max_hp
+                    party.x, party.y = 7, 5
+                    state['screen'] = 'overworld'
+                    state['message'] = "The Rot has overwhelmed your party! You safely retreated to town."
 
     state['party'] = party.to_dict()
     save_game_state(request, state)

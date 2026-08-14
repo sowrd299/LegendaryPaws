@@ -751,6 +751,11 @@ class CombatEngine:
 
     def draw_hand(self):
         """Draws up to 3 cards for the player turn hand."""
+
+        # Do not draw cards once the combat is over
+        if self.is_over:
+            return
+
         needed = 3 - len(self.hand)
         for _ in range(needed):
             if not self.draw_pile:
@@ -891,12 +896,12 @@ class CombatEngine:
         if not enemies_alive:
             self.is_over = True
             self.victory = True
-            self.combat_log.append("Victory! All enemies were defeated!")
+            self.combat_log.append("> Victory! All enemies were defeated! Take a momment to catch your breath, and venture on.")
             return True
         elif not allies_alive:
             self.is_over = True
             self.victory = False
-            self.combat_log.append("Defeat! All party members were downed.")
+            self.combat_log.append("> Defeat! All party members were downed.")
             return True
         return False
 

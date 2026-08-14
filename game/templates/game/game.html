@@ -582,10 +582,25 @@
         <!-- SCREEN: COMBAT -->
         {% elif screen == 'combat' %}
         <div class="combat-section">
-            <h2 style="color: var(--text-muted); font-size: 1.1rem;">
-                Combat! &mdash; {% if is_player_turn %}<span style="color: var(--accent-amber);">
-                    Your Turn ({{ turn_char.name }})</span>{% else %}Waiting...{% endif %}
-            </h2>
+
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="color: var(--text-muted); size: 1.1rem;">
+                    Combat! |
+                    {% if combat_engine.victory %} <span style="color: var(--accent-amber)">Victory!</span>
+                    {% elif combat_engine.is_over %} <span style="color: var(--accent-red)">Defeat!</span>
+                    {% elif is_player_turn %} {{ turn_char.name }}'s Turn
+                    {% else %}Waiting...
+                    {% endif %}
+                </h2>
+                {% if combat_engine.is_over %}
+                <form method="POST" action="{% url 'handle_action' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action_type" value="combat_end">
+                    <button type="submit" class="btn">[ X ]
+                        {% if combat_engine.victory %}Leave{% else %}Flee{% endif %}</button>
+                </form>
+                {% endif %}
+            </div>
 
             <div class="combat-units-grid">
                 <!-- ENEMIES (TOP) -->
