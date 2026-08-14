@@ -296,7 +296,7 @@ def handle_action(request):
                 if engine.victory:
                     earned_gold = random.randint(5, 10)
                     party.gold += earned_gold
-                    reward_card = random.choice(['Slash', 'First aid', 'Wax', 'Wain', 'Singe Breath', 'Chill Breath'])
+                    reward_card = random.choice(['Slash', 'First Aid', 'Wax', 'Wain', 'Singe Breath', 'Chill Breath'])
 
                     if len(party.inventory) < 20:
                         party.inventory.append(reward_card)

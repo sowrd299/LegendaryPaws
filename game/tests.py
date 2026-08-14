@@ -64,7 +64,7 @@ class EngineTests(TestCase):
 
         # Giving 2 more cards makes raw level = 4.0 -> scaled level is 2
         hero.give_card('Honed Slash')
-        hero.give_card('First aid')
+        hero.give_card('First Aid')
         self.assertEqual(hero.get_raw_stats()['level'], 4.0)
         self.assertEqual(hero.level, 2)
 

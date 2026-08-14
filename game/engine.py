@@ -87,12 +87,12 @@ CLASS_DATA = {
     'Scout': {
         'bonus_stats': ['ranged_damage', 'survival_intensity', 'melee_resistance', 'moon_resistance'],
         'stat_mods': {'ranged_damage': 3.0, 'survival_intensity': 3.0, 'melee_resistance': 2.0},
-        'default_cards': ['Archery', 'First aid']
+        'default_cards': ['Archery', 'First Aid']
     },
     'Ranger': {
         'bonus_stats': ['ranged_damage', 'survival_intensity', 'melee_resistance', 'moon_resistance'],
         'stat_mods': {'ranged_damage': 4.0, 'survival_intensity': 4.0, 'melee_resistance': 2.0},
-        'default_cards': ['Honed Archery', 'First aid']
+        'default_cards': ['Honed Archery', 'First Aid']
     },
     'Blackcloak': {
         'bonus_stats': ['moon_intensity', 'survival_intensity', 'melee_resistance', 'void_resistance'],
@@ -241,15 +241,15 @@ CARDS = {
 +-----------------+
 """
     },
-    'First aid': {
-        'name': 'First aid',
+    'First Aid': {
+        'name': 'First Aid',
         'type': 'trinket',
         'rarity': 'interesting',
         'target': 'ally',
         'recovery_cost': 10,
         'heal_power': 1.0,
         'heal_stat': 'survival_intensity',
-        'description': 'Heals. an ally.',
+        'description': 'Heals an ally.',
         'stat_boosts': {'survival_intensity': 0.3, 'haleness': 0.2}
     },
     'Wain': {
