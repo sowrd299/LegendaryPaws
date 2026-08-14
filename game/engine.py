@@ -28,32 +28,32 @@ def raw_to_scaled(raw_val):
         raw_val *= -1
 
     scaled = math.sqrt(raw_val)
-    return min(20, max(0, int(round(scaled)))) * (-1 if is_negative else 1)
+    return min(20, max(0, int(math.floor(scaled)))) * (-1 if is_negative else 1)
 
 def scaled_to_raw(scaled_val):
-    return (scaled_val-0.5) ** 2
+    return (scaled_val) ** 2
 
 # --- DATA DEFINITIONS: SPECIES & CLASSES ---
 
 SPECIES_DATA = {
-    'Fox': {'nimbleness': 3.0, 'brute_intensity': 1.25, 'haleness': 2.0, 'brute_resistance': 2.0},
-    'Cat': {'nimbleness': 4.0, 'haleness': 3.0, 'brute_intensity': 1.25, 'brute_resistance': 1.0},
-    'Badger': {'brute_intensity': 5.25, 'brute_resistance': 4.0, 'nimbleness': 1.0, 'haleness': 3.0},
-    'Rabbit': {'nimbleness': 4.0, 'haleness': 2.0, 'brute_intensity': 1.25, 'brute_resistance': 1.0},
-    'Owl': {'haleness': 3.0, 'star_intensity': 4.0, 'nimbleness': 2.0, 'brute_intensity': 1.25},
+    'Fox': {'brute_intensity': 3, 'nimbleness': 3.0, 'haleness': 2.0, 'brute_resistance': 2.0},
+    'Cat': {'brute_intensity': 3, 'nimbleness': 4.0, 'haleness': 3.0, 'brute_resistance': 1.0},
+    'Badger': {'brute_intensity': 8, 'brute_resistance': 4.0, 'nimbleness': 1.0, 'haleness': 3.0},
+    'Rabbit': {'brute_intensity': 3, 'nimbleness': 4.0, 'haleness': 2.0, 'brute_resistance': 0},
+    'Owl': {'haleness': 3.0, 'star_intensity': 4.0, 'nimbleness': 2.0, 'brute_intensity': 3},
     'Raven': {'void_intensity': 4.0, 'nimbleness': 3.0, 'haleness': 2.0, 'brute_resistance': 1.0},
-    'Dragonling': {'brute_intensity': 5.25, 'star_intensity': 3.0, 'haleness': 3.0, 'brute_resistance': 2.0},
-    'Ember sprite': {'star_intensity': 5.0, 'star_resistance': 4.0, 'haleness': 1.0, 'brute_intensity': 1.25},
-    'Dew sprite': {'moon_intensity': 5.0, 'moon_resistance': 4.0, 'haleness': 1.0, 'brute_intensity': 1.25},
-    'Lost sprite': {'void_intensity': 5.0, 'void_resistance': 4.0, 'haleness': 1.0, 'brute_intensity': 1.25},
-    'Automaton': {'brute_intensity': 11.25, 'brute_resistance': 5.0, 'nimbleness': 2.0, 'haleness': 4.0,
+    'Dragonling': {'brute_intensity': 8, 'star_intensity': 3.0, 'haleness': 3.0, 'brute_resistance': 2.0},
+    'Ember sprite': {'star_intensity': 5.0, 'star_resistance': 4.0, 'haleness': 1.0, 'brute_intensity': 0},
+    'Dew sprite': {'moon_intensity': 5.0, 'moon_resistance': 4.0, 'haleness': 1.0, 'brute_intensity': 0},
+    'Lost sprite': {'void_intensity': 5.0, 'void_resistance': 4.0, 'haleness': 1.0, 'brute_intensity': 0},
+    'Automaton': {'brute_intensity': 15, 'brute_resistance': 5.0, 'nimbleness': 2.0, 'haleness': 4.0,
                   'star_intensity': -3.0, 'moon_intensity': -3.0, 'void_intensity': -3.0}
 }
 
 CLASS_DATA = {
     'Wandering Spellsword': {
         'bonus_stats': ['melee_damage', 'moon_intensity', 'diplomacy'],
-        'stat_mods': {'melee_damage': 3.0, 'moon_intensity': 3.0, 'diplomacy': 2.0, 'brute_intensity': 4.1},
+        'stat_mods': {'melee_damage': 3.0, 'moon_intensity': 3.0, 'diplomacy': 2.0, 'brute_intensity': 5},
         'default_cards': []
     },
     'Student': {
