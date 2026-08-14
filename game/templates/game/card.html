@@ -1,10 +1,23 @@
+{% load utils %}
+
 <div class="card-rect" onclick="selectCard('{{ card.name }}')">
     <div>
         <div class="card-title">{{ card.name }}</div>
         <div class="card-illust">{{ card.illust }}</div>
         <div class="card-type">{{ card.rarity }} {{ card.type }}</div>
         <div class="card-desc">
-            <span style="color: var(--accent-cyan)">{{ card.recovery_cost }}⧗:</span>
+            <span style="color: var(--accent-cyan)">{{ card.recovery_cost }}⧗</span>
+            {% if card.damage_power %}
+            | <span style="color: var(--accent-red)">{{ card.damage_power|floatformat }}×
+                {{ card.damage_type|damage_type }}
+            </span>
+            {% elif card.heal_power %}
+            | <span style="color: var(--accent-green)">{{ card.heal_power|floatformat }}×
+                {{ card.heal_stat|damage_type }}
+            </span>
+            {% endif %}
+        </div>
+        <div class="card-desc">
             {{ card.description }}
         </div>
     </div>

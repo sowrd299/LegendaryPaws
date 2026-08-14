@@ -7,7 +7,7 @@
         <span style="color: var(--accent-cyan)">
             {% if char == turn_char %}
             TURN!
-            {% else %}
+            {% elif char.current_hp > 0 %}
             {{ char.action_timer }}⧗
             {% endif %}
         </span>

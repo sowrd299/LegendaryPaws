@@ -6,10 +6,13 @@ import uuid
 
 CORE_STATS = ['level', 'brute_intensity', 'brute_resistance', 'nimbleness', 'haleness']
 
-ALL_STATS = CORE_STATS + [
+MAGIC_STATS = [
     'moon_intensity', 'moon_resistance', 'moon_vulnerability',
     'star_intensity', 'star_resistance', 'star_vulnerability',
     'void_intensity', 'void_resistance', 'void_vulnerability',
+]
+
+ALL_STATS = CORE_STATS + MAGIC_STATS + [
     'melee_damage', 'melee_resistance', 'melee_vulnerability',
     'ranged_damage', 'ranged_resistance', 'ranged_vulnerability',
     'survival_intensity', 'survival_resistance', 'survival_vulnerability',
@@ -115,12 +118,12 @@ CLASS_DATA = {
     # Enemy specific classes
     'Husk': {
         'bonus_stats': ['melee_damage', 'ranged_resistance', 'star_vulnerability'],
-        'stat_mods': {'melee_damage' : -2.0, 'haleness': -4.0, 'nimbleness': -2},
+        'stat_mods': {'haleness': -5.0, 'nimbleness': -2, 'brute_resistance': -1, 'melee_damage' : -2.0},
         'default_cards': []
     },
     'Soul': {
-        'bonus_stats': ['void_intensity', 'melee_resistance', 'moon_vulnerability'],
-        'stat_mods': {'melee_damage' : -4.0, 'void_intensity': -1, 'haleness': -6.0, 'moon_vulnerability': 5, 'nimbleness': -3},
+        'bonus_stats': ['melee_damage', 'void_intensity', 'moon_vulnerability'],
+        'stat_mods': {'brute_resistance': -1, 'nimbleness': -3, 'haleness': -8.0, 'melee_damage' : -4.0, 'void_intensity': 1, 'moon_vulnerability': 5},
         'default_cards': ['Chill']
     }
 }
@@ -154,9 +157,9 @@ CARDS = {
         'type': 'trinket',
         'rarity': 'mundane',
         'target': 'ally',
-        'recovery_cost': 8,
-        'heal_power': 5.0,
-        'description': 'Restores 5 HP to an ally. Consumed on use.',
+        'recovery_cost': 15,
+        'heal_power': 6.0,
+        'description': 'Heals an ally. Consumed on use.',
         'stat_boosts': {},
         'is_consumable': True,
         'illust': """
@@ -176,8 +179,8 @@ CARDS = {
         'target': 'enemy',
         'recovery_cost': 10,
         'damage_type': 'melee_damage',
-        'damage_power': 1.0,
-        'description': 'Standard attack dealing 1× MELEE damage.',
+        'damage_power': 2.0,
+        'description': 'Standard attack.',
         'stat_boosts': {'melee_damage': 0.2},
         'illust': """
 +-----------------+
@@ -194,7 +197,7 @@ CARDS = {
         'type': 'armor',
         'rarity': 'mundane',
         'target': 'ally',
-        'recovery_cost': 8,
+        'recovery_cost': 5,
         'description': 'Protective garments.',
         'stat_boosts': {'brute_resistance': 0.15, 'melee_resistance': 0.3, 'ranged_resistance': 0.3}
     },
@@ -205,8 +208,8 @@ CARDS = {
         'target': 'enemy',
         'recovery_cost': 10,
         'damage_type': 'ranged_damage',
-        'damage_power': 1.0,
-        'description': 'Standard attack dealing 1× RANGED damage.',
+        'damage_power': 2.0,
+        'description': 'Standard attack.',
         'stat_boosts': {'ranged_damage': 0.2, 'nimbleness': 0.1},
         'illust': """
 +-----------------+
@@ -226,7 +229,7 @@ CARDS = {
         'recovery_cost': 10,
         'heal_power': 1.0,
         'heal_stat': 'survival_intensity',
-        'description': '1× SURVIVAL healing to an ally.',
+        'description': 'Heals. an ally.',
         'stat_boosts': {'survival_intensity': 0.3, 'haleness': 0.2}
     },
     'Wain': {
@@ -236,8 +239,8 @@ CARDS = {
         'target': 'enemy',
         'recovery_cost': 10,
         'damage_type': 'moon_intensity',
-        'damage_power': 0.5,
-        'description': 'Magic spell dealing 0.5× MOON damage.',
+        'damage_power': 1.0,
+        'description': 'Magic spell dealing damage.',
         'stat_boosts': {'moon_intensity': 0.2, 'moon_resistance': 0.3, 'star_resistance': 0.3},
         'illust': """
 +-----------------+
@@ -257,7 +260,7 @@ CARDS = {
         'recovery_cost': 10,
         'heal_power': 1.0,
         'heal_stat': 'moon_intensity',
-        'description': 'Magic spell that gives ½× MOON healing to an ally.',
+        'description': 'Magic spell healing an ally.',
         'stat_boosts': {'moon_intensity': 0.2, 'moon_resistance': 0.3, 'start_vulnerability': 0.3},
         'illust': """
 +-----------------+
@@ -274,10 +277,10 @@ CARDS = {
         'type': 'scroll',
         'rarity': 'interesting',
         'target': 'enemy',
-        'recovery_cost': 10,
+        'recovery_cost': 12,
         'damage_type': 'star_intensity',
-        'damage_power': 1.0,
-        'description': 'Magic spell dealing 1× STAR damage.',
+        'damage_power': 2.0,
+        'description': 'Magic spell dealing damage.',
         'stat_boosts': {'star_intensity': 0.2, 'star_resistance': 0.3, 'void_vulnerability': 0.3}
     },
     'Singe Breath': {
@@ -285,10 +288,10 @@ CARDS = {
         'type': 'scroll',
         'rarity': 'interesting',
         'target': 'all_enemies',
-        'recovery_cost': 10,
+        'recovery_cost': 12,
         'damage_type': 'star_intensity',
-        'damage_power': 0.5,
-        'description': 'Magic spell dealing ½× STAR damage to all enemies.',
+        'damage_power': 1,
+        'description': 'Magic spell dealing damage to all enemies.',
         'stat_boosts': {'star_intensity': 0.2, 'star_resistance': 0.3, 'void_vulnerability': 0.3}
     },
     'Chill': {
@@ -298,8 +301,8 @@ CARDS = {
         'target': 'enemy',
         'recovery_cost': 10,
         'damage_type': 'void_intensity',
-        'damage_power': 1.0,
-        'description': 'Magic spell dealing 1× VOID damage.',
+        'damage_power': 2.0,
+        'description': 'Magic spell dealing damage.',
         'stat_boosts': {'void_intensity': 0.2, 'void_resistance': 0.3, 'moon_vulnerability': 0.3},
         'illust': """
 +-----------------+
@@ -316,10 +319,10 @@ CARDS = {
         'type': 'scroll',
         'rarity': 'interesting',
         'target': 'all_enemies',
-        'recovery_cost': 10,
+        'recovery_cost': 12,
         'damage_type': 'void_intensity',
-        'damage_power': 0.5,
-        'description': 'Magic spell dealing ½× VOID damage to all enemies.',
+        'damage_power': 1.0,
+        'description': 'Magic spell dealing damage to all enemies.',
         'stat_boosts': {'void_intensity': 0.2, 'void_resistance': 0.3, 'moon_vulnerability': 0.3},
         'illust': """
 +-----------------+
@@ -354,10 +357,10 @@ CARDS = {
         'type': 'weapon',
         'rarity': 'interesting',
         'target': 'enemy',
-        'recovery_cost': 11,
+        'recovery_cost': 14,
         'damage_type': 'ranged_damage',
-        'damage_power': 1.25,
-        'description': 'Precise attack dealing 1.25× RANGED damage.',
+        'damage_power': 3,
+        'description': 'Precise attack.',
         'stat_boosts': {'ranged_damage': 0.5},
         'illust': """
 +-----------------+
@@ -374,10 +377,10 @@ CARDS = {
         'type': 'weapon',
         'rarity': 'interesting',
         'target': 'enemy',
-        'recovery_cost': 11,
+        'recovery_cost': 14,
         'damage_type': 'melee_damage',
-        'damage_power': 1.25,
-        'description': 'Masterful attack dealing 1.25× MELEE damage.',
+        'damage_power': 3,
+        'description': 'Powerful attack.',
         'stat_boosts': {'melee_damage': 0.5},
         'illust': """
 +-----------------+
@@ -396,8 +399,8 @@ CARDS = {
         'target': 'enemy',
         'recovery_cost': 12,
         'damage_type': 'melee_damage',
-        'damage_power': 1.5,
-        'description': 'Flaming melee strike dealing 1.5x damage.',
+        'damage_power': 3,
+        'description': 'Flaming melee strike dealing damage.',
         'stat_boosts': {'melee_damage': 0.5, 'star_intensity': 0.5}
     },
     'Cursed Readings': {
@@ -407,8 +410,8 @@ CARDS = {
         'target': 'enemy',
         'recovery_cost': 12,
         'damage_type': 'void_intensity',
-        'damage_power': 1.5,
-        'description': 'Dark void incantation dealing 1.5x damage.',
+        'damage_power': 3,
+        'description': 'Dark void incantation dealing damage.',
         'stat_boosts': {'void_intensity': 0.8}
     },
     'Scorch': {
@@ -418,7 +421,7 @@ CARDS = {
         'target': 'enemy',
         'recovery_cost': 12,
         'damage_type': 'star_intensity',
-        'damage_power': 1.6,
+        'damage_power': 3,
         'description': 'Day Mage signature spell searing enemies.',
         'stat_boosts': {'star_intensity': 0.6}
     },
@@ -528,6 +531,26 @@ class Character:
         for stat in accessible:
             scaled[stat] = raw_to_scaled(raw.get(stat, 0.0))
         return scaled
+
+    def get_combat_scaled_stat(self, damage_stat_name, stat = ""):
+        """A ulity of getting the value we should use for a stat mid-combat"""
+
+        scaled_stats = self.get_scaled_stats()
+        stat_name = damage_stat_name
+        
+        if stat:
+            stat_name = stat_name.replace('intensity', stat).replace('damage', stat)
+
+        if stat_name in scaled_stats:
+            return scaled_stats[stat_name]
+        if stat_name in MAGIC_STATS:
+            return 0
+        elif stat in damage_stat_name and 'brute_intensity' in scaled_stats:
+            return scaled_stats['brute_intensity']
+        elif "resistance" and 'brute_resistance' in scaled_stats:
+            return scaled_stats['brute_resistance']
+        else:
+            return 0
 
     def get_stat_xps(self):
         raw = self.get_raw_stats()
@@ -792,12 +815,7 @@ class CombatEngine:
         base_power = card.get('damage_power', 1.0)
 
         # Attacker stat
-        if dmg_type in actor_stats:
-            atk_val = actor_stats[dmg_type]
-        elif 'brute_intensity' in actor_stats:
-            atk_val = actor_stats['brute_intensity']
-        else:
-            atk_val = 2
+        atk_val = actor.get_combat_scaled_stat(dmg_type)
 
         targets = []
         if card.get('target') in ['all_enemies', 'all_allies']:
@@ -808,13 +826,12 @@ class CombatEngine:
         for t in targets:
             if not t or not t.is_alive():
                 continue
-            target_stats = t.get_scaled_stats()
-            # Resistance stat
-            res_stat_name = dmg_type.replace('intensity', 'resistance').replace('damage', 'resistance')
-            def_val = target_stats.get(res_stat_name, target_stats.get('brute_resistance', 2))
 
-            # Damage formula: power * max(1, atk_val - def_val + 5)
-            raw_dmg = base_power * (max(1, atk_val - def_val + 5))
+            # Resistance stat
+            res_val = t.get_combat_scaled_stat(dmg_type, "resistance")
+            vul_val = t.get_combat_scaled_stat(dmg_type, "vulnerability")
+
+            raw_dmg = (base_power * atk_val) + vul_val - res_val
             dmg = max(1, int(round(raw_dmg)))
             t.current_hp = max(0, t.current_hp - dmg)
             self.combat_log.append(f"{actor.name} used {card_name} on {t.name} for {dmg} damage!")
