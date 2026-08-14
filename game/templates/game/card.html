@@ -3,7 +3,7 @@
 <div class="card-rect" onclick="selectCard('{{ card.name }}')">
     <div>
         <div class="card-title">{{ card.name }}</div>
-        <div class="card-illust">{{ card.illust }}</div>
+        <div class="card-illust">{{ card.illust|illust }}</div>
         <div class="card-type">{{ card.rarity }} {{ card.type }}</div>
         <div class="card-desc">
             <span style="color: var(--accent-cyan)">{{ card.recovery_cost }}⧗</span>

@@ -21,29 +21,8 @@ SHOP_ITEMS = [
     ('Health Potion', 5),
 ]
 
-DEFAULT_ILLUST = """
-+-----------------+
-|                 |
-|                 |
-|                 |
-|                 |
-|                 |
-+-----------------+
-"""
-
-def process_illust(illust):
-    if illust[0] == "\n":
-        illust = illust[1:]
-    if illust[-1] == "\n":
-        illust = illust[:-1]
-    return illust
-
-def process_stat_name(name):
-    return name.replace("_", " ").title()
-
 def name_to_card(card_name):
     card = dict(CARDS[card_name])
-    card["illust"] = process_illust(card.get("illust", DEFAULT_ILLUST))
     return card
 
 def list_to_unique_counts(l):
@@ -145,8 +124,8 @@ def game_index(request):
             if selected_char:
                 scaled_stats = selected_char.get_scaled_stats()
                 stat_xps = selected_char.get_stat_xps()
-                context['scaled_core_stats'] = [ (process_stat_name(name), stat, stat_xps[name]) for name, stat in scaled_stats.items() if name in CORE_STATS ]
-                context['scaled_class_stats'] = [ (process_stat_name(name), stat, stat_xps[name]) for name, stat in scaled_stats.items() if name not in CORE_STATS ]
+                context['scaled_core_stats'] = [ (name, stat, stat_xps[name]) for name, stat in scaled_stats.items() if name in CORE_STATS ]
+                context['scaled_class_stats'] = [ (name, stat, stat_xps[name]) for name, stat in scaled_stats.items() if name not in CORE_STATS ]
                 context['known_cards'] = [ name_to_card(name) for name in selected_char.get_known_cards() ]
 
     elif screen == 'shop':

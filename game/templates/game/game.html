@@ -432,7 +432,7 @@
                                 <strong>{{ stat_val }}</strong>
                             </td>
                             <td>
-                                {{ stat_name }}<br />
+                                {{ stat_name|stat_name }}<br />
                                 <span style="word-spacing: 0; color:var(--text-muted); font-size: 0.7rem;">
                                     XP {% for pip in xp|percent_pips:30 %}{% if pip %}●{% else %}·{% endif %}{% endfor%}
                                 </span>
@@ -452,7 +452,7 @@
                                 <strong>{{ stat_val }}</strong>
                             </td>
                             <td>
-                                {{ stat_name }}<br />
+                                {{ stat_name|stat_name }}<br />
                                 <span style="word-spacing: 0; color:var(--text-muted); font-size: 0.7rem;">
                                     XP {% for pip in xp|percent_pips:30 %}{% if pip %}●{% else %}·{% endif %}{% endfor%}
                                 </span>
