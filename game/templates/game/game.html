@@ -592,14 +592,7 @@
                 <div class="unit-group-title">Enemies (Select Target)</div>
                 <div class="unit-group">
                     {% for enemy in combat_engine.enemies %}
-                    <div class="unit-card enemy-unit" data-id="{{ enemy.id }}" onclick="selectTarget('{{ enemy.id }}')">
-                        <div>
-                            <strong>{{ enemy.name }}</strong>
-                        </div>
-                        <div class="hp-bar {% if enemy.current_hp < enemy.max_hp|add:'-3' %}low{% endif %}">
-                            [{{ enemy.current_hp }}/{{ enemy.max_hp }} HP]
-                        </div>
-                    </div>
+                    {% include "game/character.html" with char=enemy char_class="enemy_unit" turn_char=turn_char %}
                     {% endfor %}
                 </div>
 
@@ -607,14 +600,7 @@
                 <div class="unit-group-title">Party Members</div>
                 <div class="unit-group">
                     {% for ally in combat_engine.allies %}
-                    <div class="unit-card ally-unit" data-id="{{ ally.id }}" onclick="selectTarget('{{ ally.id }}')">
-                        <div>
-                            <strong>{{ ally.name }}</strong>
-                        </div>
-                        <div class="hp-bar">
-                            [{{ ally.current_hp }}/{{ ally.max_hp }} HP]
-                        </div>
-                    </div>
+                    {% include "game/character.html" with char=ally char_class="ally_unit" turn_char=turn_char %}
                     {% endfor %}
                 </div>
             </div>

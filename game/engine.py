@@ -115,12 +115,12 @@ CLASS_DATA = {
     # Enemy specific classes
     'Husk': {
         'bonus_stats': ['melee_damage', 'ranged_resistance', 'star_vulnerability'],
-        'stat_mods': {'melee_damage' : -2.0, 'haleness': -4.0},
+        'stat_mods': {'melee_damage' : -2.0, 'haleness': -4.0, 'nimbleness': -2},
         'default_cards': []
     },
     'Soul': {
         'bonus_stats': ['void_intensity', 'melee_resistance', 'moon_vulnerability'],
-        'stat_mods': {'melee_damage' : -4.0, 'void_intensity': -1, 'haleness': -6.0, 'moon_vulnerability': 5},
+        'stat_mods': {'melee_damage' : -4.0, 'void_intensity': -1, 'haleness': -6.0, 'moon_vulnerability': 5, 'nimbleness': -3},
         'default_cards': ['Chill']
     }
 }
@@ -157,7 +157,7 @@ CARDS = {
         'recovery_cost': 8,
         'heal_power': 5.0,
         'description': 'Restores 5 HP to an ally. Consumed on use.',
-        'stat_boosts': {'haleness': 0.2},
+        'stat_boosts': {},
         'is_consumable': True,
         'illust': """
 +------\---/------+
@@ -694,7 +694,7 @@ class CombatEngine:
 
         # Reset action timers
         for c in self.allies + self.enemies:
-            c.action_timer = 0
+            c.action_timer = 20 - c.get_scaled_stats().get("nimbleness", 0)
 
         # Build party shared deck
         deck_pool = list(shared_deck)
@@ -755,8 +755,9 @@ class CombatEngine:
         
         # Increase action timer
         stats = enemy.get_scaled_stats()
-        nimble = stats.get('nimbleness', 2)
-        rec = card.get('recovery_cost', 10) * (1.0 / (0.5 + nimble * 0.1))
+        nimble = stats.get('nimbleness', 0)
+        # 4* ... /4 messes with the round, to help nimbleness stats not divisible by 4
+        rec = ((4 * card.get('recovery_cost', 10)) - nimble) / 4
         enemy.action_timer += int(round(rec))
 
     def apply_card_effect(self, actor, card, target):

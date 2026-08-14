@@ -1,0 +1,15 @@
+<div class="unit-card {{ unit_class }}" data-id="{{ char.id }}" onclick="selectTarget('{{ char.id }}')">
+    <div>
+        <strong>{{ char.name }}</strong>
+    </div>
+    <div class="hp-bar {% if char.current_hp < char.max_hp|add:'-3' %}low{% endif %}">
+        [{{ char.current_hp }}/{{ char.max_hp }} HP]
+        <span style="color: var(--accent-cyan)">
+            {% if char == turn_char %}
+            TURN!
+            {% else %}
+            {{ char.action_timer }}⧗
+            {% endif %}
+        </span>
+    </div>
+</div>
