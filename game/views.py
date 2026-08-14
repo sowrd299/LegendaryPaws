@@ -16,9 +16,8 @@ VOINARA_DIALOGUE = [
 SHOP_ITEMS = [
     ('Honed Slash', 40),
     ('Honed Archery', 40),
-    ('Singe', 15),
-    ('Chill', 15),
-    ('Health Potion', 5),
+    ('Wax', 15),
+    ('Potion', 5),
 ]
 
 def name_to_card(card_name):
@@ -304,7 +303,7 @@ def handle_action(request):
                 if engine.victory:
                     earned_gold = random.randint(5, 10)
                     party.gold += earned_gold
-                    reward_card = random.choice(['Slash', 'First Aid', 'Wax', 'Wain', 'Singe Breath', 'Chill Breath'])
+                    reward_card = random.choice(['Slash', 'Light Slash', 'First Aid', 'Wax', 'Wain', 'Pull of Tides', 'Singe', 'Singe Breath', 'Chill', 'Chill Breath'])
 
                     if len(party.inventory) < 20:
                         party.inventory.append(reward_card)

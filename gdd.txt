@@ -72,7 +72,7 @@ COMBAT:
 -After a character uses a move, their action timer increases by that moves recovery time * the inverse of their nimbleness stat.
 -On a player character turn, they have access to a 3 card hand, plus the "wait" action (do nothing and 0.5 recover time)
 -Once a move is used, it is discarded and replaced by a different move from the player's deck. Once the player has drawn through their entire deck,
-their discard is reshuffled. A few moves (e.g. "Health Potion"), destroy the item they are from, and thus remove themselves from the deck permanently.
+their discard is reshuffled. A few moves (e.g. "Potion"), destroy the item they are from, and thus remove themselves from the deck permanently.
     -If the user has an identical item in their inventory, it will replace itself with that one instead
 -Moves can damage, deal, or apply stat changes. They can target a single character, all enemies, all allies, or everyone.
     -Stat changes are in terms of, and applied to, a character's post-scaling, 0-20 integer stat (not their raw underlying experience valu)
@@ -170,7 +170,7 @@ The classes:
 
 The cards:
 
-- Health Potion (restores a fixed 5 HP, consumed on use), mundane trinket
+- Potion (restores a fixed 5 HP, consumed on use), mundane trinket
 - Slash (a 1x melee attack based on melee damage), mundane weapon, known by squires
 - Light Clothes (a passive mild buff to all resistences for a couple turns based on survival intensity; given to characters to buff all resistences), mundane armor
 - Archery (a 1x ranged attack based on range damage), mundane weapon

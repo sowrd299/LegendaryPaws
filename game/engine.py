@@ -170,8 +170,8 @@ CARDS = {
 +                 +
 """
     },
-    'Health Potion': {
-        'name': 'Health Potion',
+    'Potion': {
+        'name': 'Potion',
         'type': 'trinket',
         'rarity': 'mundane',
         'target': 'ally',
@@ -219,6 +219,26 @@ CARDS = {
         'recovery_cost': 20,
         'damage_type': 'melee_damage',
         'damage_power': 3.0,
+        'description': 'Standard attack.',
+        'stat_boosts': {'melee_damage': 0.2},
+        'illust': """
++-----------------+
+|     - -   _.    |
+|      - - / |    |
+|    -  . ///     |
+|        \//      |
+|       //\.      |
++-------*---------+
+"""
+    },
+    'Light Slash': {
+        'name': 'Light Slash',
+        'type': 'weapon',
+        'rarity': 'mundane',
+        'target': 'enemy',
+        'recovery_cost': 5,
+        'damage_type': 'melee_damage',
+        'damage_power': 1.0,
         'description': 'Standard attack.',
         'stat_boosts': {'melee_damage': 0.2},
         'illust': """
@@ -280,7 +300,7 @@ CARDS = {
         'damage_type': 'moon_intensity',
         'damage_power': 1.0,
         'description': 'Magic spell dealing damage.',
-        'stat_boosts': {'moon_intensity': 0.2, 'moon_resistance': 0.3, 'star_resistance': 0.3},
+        'stat_boosts': {'moon_intensity': 0.2, 'moon_resistance': 0.3, 'star_vulnerability': 0.3},
         'illust': """
 +-----------------+
 | *       \  O \  |
@@ -300,7 +320,7 @@ CARDS = {
         'heal_power': 1.0,
         'heal_stat': 'moon_intensity',
         'description': 'Magic spell healing an ally.',
-        'stat_boosts': {'moon_intensity': 0.2, 'moon_resistance': 0.3, 'start_vulnerability': 0.3},
+        'stat_boosts': {'moon_intensity': 0.2, 'moon_resistance': 0.3, 'star_vulnerability': 0.3},
         'illust': """
 +-----------------+
 | *       \  O \  |
@@ -308,6 +328,26 @@ CARDS = {
 |         /  0 /  |
 |        _/'.//   |
 |      ./_//'    *|
++-----------------+
+"""
+    },
+    'Pull of Tides': {
+        'name': 'Pull of Tides',
+        'type': 'scroll',
+        'rarity': 'interesting',
+        'target': 'all_enemies',
+        'recovery_cost': 25,
+        'damage_type': 'moon_intensity',
+        'damage_power': 2.0,
+        'description': 'Magic spell dealing damage to all enemies.',
+        'stat_boosts': {'moon_intensity': 0.4, 'moon_resistance': 0.3, 'star_vulnerability': 0.3},
+        'illust': """
++-----------------+
+| ~  ~     ~    ~ |
+|@@~ ~@~@~  ~@@~  |
+|uu@~@uuu@~~@uu@@~|
+| ~uuu~ ~uuuu~ uuu|
+|    .    .    .  |
 +-----------------+
 """
     },
@@ -968,14 +1008,15 @@ def create_initial_game_state():
     
     # Starting cards per GDD: 5 health potions, 6 slashes, 3 light clothes
     starting_inventory = (
-        ['Health Potion'] * 4 +
-        ['Wain'] * 4
+        ['Potion'] * 4 +
+        ['Wain'] * 1
     )
     party.inventory = starting_inventory
     party.shared_deck = ( 
-        ['Slash'] * 6 +
-        ['Health Potion'] * 2 +
-        ['Wain'] * 2
+        ['Slash'] * 5 +
+        ['Light Slash', 'Heavy Slash'] +
+        ['Potion'] * 2 +
+        ['Wain'] * 1
     )
 
     return {
