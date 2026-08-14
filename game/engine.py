@@ -177,6 +177,7 @@ CARDS = {
         'target': 'ally',
         'recovery_cost': 15,
         'heal_power': 6.0,
+        'give_heal_power': 6.0,
         'description': 'Heals an ally. Consumed on use.',
         'stat_boosts': {},
         'is_consumable': True,
@@ -641,6 +642,9 @@ class Character:
         old_max = self.max_hp
         self.update_max_hp()
         self.current_hp = min(self.max_hp, self.current_hp + (self.max_hp - old_max))
+
+        self.current_hp = min(self.max_hp, self.current_hp + int(card.get('give_heal_power', 0)))
+
         return True, f"Gave {card_name} to {self.name}! Level is now {self.level}."
 
     def update_max_hp(self): 

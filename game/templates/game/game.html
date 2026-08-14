@@ -415,12 +415,16 @@
         </div>
 
         <div class="dialogue-box" style="margin-top: 10px;">
+            <!-- CHARACTER HEADER -->
             {% if selected_char %}
-            <h3>{{ selected_char.name }} &mdash; Level {{ selected_char.level }} {{ selected_char.species }}
-                {{ selected_char.current_class }}</h3>
-            <p style="margin-top: 4px; font-size: 0.85rem; color: var(--text-muted);">
-                HP: {{ selected_char.current_hp }}/{{ selected_char.max_hp }}
-            </p>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3>{{ selected_char.name }} &mdash; Level {{ selected_char.level }} {{ selected_char.species }}
+                    {{ selected_char.current_class }}</h3>
+                <p
+                    style="{% if selected_char.current_hp < selected_char.max_hp|add:'-3' %}color: var(--accent-red);{% else %}color: var(--text-muted);{% endif %}">
+                    [{{ selected_char.current_hp }}/{{ selected_char.max_hp }} HP]
+                </p>
+            </div>
 
             <div class="btn-group">
                 <form method="POST" action="{% url 'handle_action' %}" style="display:inline;">
@@ -439,6 +443,7 @@
                 </form>
             </div>
 
+            <!-- STATS VIEW -->
             {% if stats_tab %}
             <div class="stats-area">
                 <table class="stats-table">
@@ -481,6 +486,8 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- KNWON CARDS VIEW -->
             {% else %}
             <div class="cards-row" style="font-size: 0.85rem; margin-top: 14px;">
                 {% for card in known_cards %}
@@ -490,6 +497,8 @@
                 {% endfor %}
             </div>
             {% endif %}
+
+            <!-- DECK VIEW -->
             {% else %}
             <div class="cards-row" style="font-size: 0.85rem; margin-top: 4px;">
                 {% for card, count in party_deck_cards %}
@@ -538,6 +547,7 @@
                             <input type="hidden" name="action_type" value="give_card">
                             <input type="hidden" name="card_name" value="{{ card.name }}">
                             <button type="submit" class="btn" style="font-size: 0.7rem; padding: 4px 6px;">+ XP
+                                {% if card.give_heal_power %}& HP{% endif %}
                             </button>
                         </form>
                         {% else %}
