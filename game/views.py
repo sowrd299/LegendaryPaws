@@ -290,7 +290,9 @@ def handle_action(request):
                         party.inventory.remove(card_name)
                     else:
                         party.shared_deck.remove(card_name)
-                        engine.discard_pile.remove(card_name)
+
+                        if card_name in engine.discard_pile:
+                            engine.discard_pile.remove(card_name)
 
                 engine.check_combat_end()
 
