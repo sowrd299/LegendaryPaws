@@ -28,6 +28,10 @@
         color: var(--text-muted)
     }
 
+    .enemy-unit .char-illust {
+        transform: scalex(-1);
+    }
+
     .unit-card.dead .char-illust {
         visibility: hidden;
     }
@@ -58,8 +62,7 @@
     }
 </style>
 
-<div class="unit-card {{ unit_class }} {%if not char.is_alive %}dead{% endif %}" data-id="{{ char.id }}"
-    onclick="selectTarget('{{ char.id }}')">
+<div class="unit-card {{ char_class }} {%if not char.is_alive %}dead{% endif %}" data-id="{{ char.id }}" onclick="selectTarget('{{ char.id }}')">
     <img class="char-illust" src="{% static char.illust %}" style="width: 100%; margin-top: -40px;" />
     <p class="card-illust dead-illust">{{ dead_illust|illust }}</p>
     <div class="name">

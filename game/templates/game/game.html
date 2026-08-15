@@ -610,7 +610,7 @@
                 <div class="unit-group-title">Enemies</div>
                 <div class="unit-group">
                     {% for enemy in combat_engine.enemies %}
-                    {% include "game/character.html" with char=enemy char_class="enemy_unit" turn_char=turn_char %}
+                    {% include "game/character.html" with char=enemy char_class="enemy-unit" turn_char=turn_char %}
                     {% endfor %}
                 </div>
 
@@ -618,7 +618,7 @@
                 <div class="unit-group-title">Party Members</div>
                 <div class="unit-group">
                     {% for ally in combat_engine.allies %}
-                    {% include "game/character.html" with char=ally char_class="ally_unit" turn_char=turn_char %}
+                    {% include "game/character.html" with char=ally char_class="ally-unit" turn_char=turn_char %}
                     {% endfor %}
                 </div>
             </div>
