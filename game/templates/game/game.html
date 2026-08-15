@@ -223,26 +223,6 @@
             color: var(--text-color);
         }
 
-        .btn {
-            background-color: var(--panel-bg);
-            color: var(--accent-amber);
-            border: 1px solid var(--accent-amber);
-            padding: 8px 16px;
-            border-radius: 4px;
-            font-family: inherit;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn:hover,
-        .btn.selected {
-            background-color: var(--accent-amber);
-            color: var(--bg-color);
-        }
-
         .btn-group {
             display: flex;
             gap: 10px;
@@ -291,7 +271,7 @@
             <form id="voinaraForm" method="POST" action="{% url 'handle_action' %}" style="margin-top: 16px;">
                 {% csrf_token %}
                 <input type="hidden" name="action_type" value="voinara_advance">
-                <button type="submit" class="btn">[ Space ] ...</button>
+                {% include "game/button.html" with key="_" label="..." %}
             </form>
         </div>
 
@@ -330,32 +310,32 @@
                     {% csrf_token %}
                     <input type="hidden" name="action_type" value="move">
                     <input type="hidden" name="direction" value="up">
-                    <button type="submit" class="btn">▲ Up</button>
+                    {% include "game/button.html" with key="▲" label="Up" %}
                 </form>
                 <form method="POST" action="{% url 'handle_action' %}" inline style="display:inline;">
                     {% csrf_token %}
                     <input type="hidden" name="action_type" value="move">
                     <input type="hidden" name="direction" value="down">
-                    <button type="submit" class="btn">▼ Down</button>
+                    {% include "game/button.html" with key="▼" label="Down" %}
                 </form>
                 <form method="POST" action="{% url 'handle_action' %}" inline style="display:inline;">
                     {% csrf_token %}
                     <input type="hidden" name="action_type" value="move">
                     <input type="hidden" name="direction" value="left">
-                    <button type="submit" class="btn">◄ Left</button>
+                    {% include "game/button.html" with key="◄" label="Left" %}
                 </form>
                 <form method="POST" action="{% url 'handle_action' %}" inline style="display:inline;">
                     {% csrf_token %}
                     <input type="hidden" name="action_type" value="move">
                     <input type="hidden" name="direction" value="right">
-                    <button type="submit" class="btn">► Right</button>
+                    {% include "game/button.html" with key="►" label="Right" %}
                 </form>
             </div>
 
             <form method="POST" action="{% url 'handle_action' %}">
                 {% csrf_token %}
                 <input type="hidden" name="action_type" value="open_menu">
-                <button type="submit" class="btn">[ C ] Character Menu</button>
+                {% include "game/button.html" with key="C" label="Character Menu" %}
             </form>
         </div>
 
@@ -366,7 +346,7 @@
             <form method="POST" action="{% url 'handle_action' %}">
                 {% csrf_token %}
                 <input type="hidden" name="action_type" value="close_menu">
-                <button type="submit" class="btn">[ X ] Close Menu</button>
+                {% include "game/button.html" with key="X" label="Close Menu" %}
             </form>
         </div>
 
@@ -376,9 +356,11 @@
             <form method="POST" action="{% url 'handle_action' %}" style="display:inline;">
                 {% csrf_token %}
                 <input type="hidden" name="action_type" value="select_deck">
-                <button type="submit" class="btn {% if not selected_char %}selected{% endif %}">
-                    DECK
-                </button>
+                {% if selected_char %}
+                {% include "game/button.html" with label="DECK" selected=False %}
+                {% else %}
+                {% include "game/button.html" with label="DECK" selected=True %}
+                {% endif %}
             </form>
             <!-- PARTY TABS -->
             {% for member in party.members %}
@@ -386,9 +368,11 @@
                 {% csrf_token %}
                 <input type="hidden" name="action_type" value="select_char">
                 <input type="hidden" name="char_index" value="{{ forloop.counter0 }}">
-                <button type="submit" class="btn {% if forloop.counter0 == char_index %}selected{% endif %}">
-                    {{ member.name }}
-                </button>
+                {% if selected_char.id == member.id %}
+                {% include "game/button.html" with label=member.name selected=True %}
+                {% else %}
+                {% include "game/button.html" with label=member.name selected=False %}
+                {% endif %}
             </form>
             {% endfor %}
         </div>
@@ -409,16 +393,20 @@
                 <form method="POST" action="{% url 'handle_action' %}" style="display:inline;">
                     {% csrf_token %}
                     <input type="hidden" name="action_type" value="select_stats_tab">
-                    <button type="submit" class="btn {% if stats_tab %}selected{% endif %}">
-                        STATS & EXPERIENCE
-                    </button>
+                    {% if stats_tab %}
+                    {% include "game/button.html" with label="STATS & EXPERIENCE" selected=True %}
+                    {% else %}
+                    {% include "game/button.html" with label="STATS & EXPERIENCE" selected=False %}
+                    {% endif %}
                 </form>
                 <form method="POST" action="{% url 'handle_action' %}" style="display:inline;">
                     {% csrf_token %}
                     <input type="hidden" name="action_type" value="select_card_tab">
-                    <button type="submit" class="btn {% if not stats_tab %}selected{% endif %}">
-                        KNOWN CARDS
-                    </button>
+                    {% if not stats_tab %}
+                    {% include "game/button.html" with label="KNOWN CARDS" selected=True %}
+                    {% else %}
+                    {% include "game/button.html" with label="KNOWN CARDS" selected=False %}
+                    {% endif %}
                 </form>
             </div>
 
@@ -493,8 +481,7 @@
                                 {% csrf_token %}
                                 <input type="hidden" name="action_type" value="remove_deck">
                                 <input type="hidden" name="card_name" value="{{ card.name }}">
-                                <button type="submit" class="btn" style="font-size: 0.7rem; padding: 4px 6px;">-
-                                    Deck</button>
+                                {% include "game/button.html" with label="- Deck" %}
                             </form>
                         </div>
                     </div>
@@ -531,17 +518,18 @@
                                 {% csrf_token %}
                                 <input type="hidden" name="action_type" value="give_card">
                                 <input type="hidden" name="card_name" value="{{ card.name }}">
-                                <button type="submit" class="btn" style="font-size: 0.7rem; padding: 4px 6px;">+ XP
-                                    {% if card.give_heal_power %}& HP{% endif %}
-                                </button>
+                                {% if card.give_heal_power %}
+                                {% include "game/button.html" with label="+ XP & HP" %}
+                                {% else %}
+                                {% include "game/button.html" with label="+ XP" %}
+                                {% endif %}
                             </form>
                             {% else %}
                             <form method="POST" action="{% url 'handle_action' %}">
                                 {% csrf_token %}
                                 <input type="hidden" name="action_type" value="add_deck">
                                 <input type="hidden" name="card_name" value="{{ card.name }}">
-                                <button type="submit" class="btn" style="font-size: 0.7rem; padding: 4px 6px;">+
-                                    Deck</button>
+                                {% include "game/button.html" with label="+ Deck" %}
                             </form>
                             {% endif %}
                         </div>
@@ -573,7 +561,7 @@
                             <input type="hidden" name="action_type" value="shop_buy">
                             <input type="hidden" name="card_name" value="{{ card.name }}">
                             <input type="hidden" name="cost" value="{{ cost }}">
-                            <button type="submit" class="btn" style="width: 100%;">Buy Card {{cost}}G</button>
+                            {% include "game/button.html" with label="Buy Card " cost=cost %}
                         </form>
                     </div>
                     {% endfor %}
@@ -584,7 +572,7 @@
         <form method="POST" action="{% url 'handle_action' %}" style="margin-top: 16px;">
             {% csrf_token %}
             <input type="hidden" name="action_type" value="close_menu">
-            <button type="submit" class="btn">[ X ] Exit Shop</button>
+            {% include "game/button.html" with key="X" label="Exit Shop" %}
         </form>
 
         <!-- SCREEN: INN -->
@@ -595,7 +583,7 @@
             <form method="POST" action="{% url 'handle_action' %}" style="margin-top: 16px;">
                 {% csrf_token %}
                 <input type="hidden" name="action_type" value="close_menu">
-                <button type="submit" class="btn">[ X ] Exit Inn</button>
+                {% include "game/button.html" with key="X" label="Exit Inn" %}
             </form>
         </div>
 
@@ -616,8 +604,11 @@
                 <form method="POST" action="{% url 'handle_action' %}">
                     {% csrf_token %}
                     <input type="hidden" name="action_type" value="combat_end">
-                    <button type="submit" class="btn">[ X ]
-                        {% if combat_engine.victory %}Leave{% else %}Flee{% endif %}</button>
+                    {% if combat_engine.victory %}
+                    {% include "game/button.html" with key="X" label="Leave" %}
+                    {% else %}
+                    {% include "game/button.html" with key="X" label="Flea" %}
+                    {% endif %}
                 </form>
                 {% endif %}
             </div>

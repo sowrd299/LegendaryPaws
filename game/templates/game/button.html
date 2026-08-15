@@ -1,0 +1,31 @@
+<style>
+    .btn {
+        background: none;
+        color: var(--accent-amber);
+        border: none;
+        font-family: inherit;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn:hover,
+    .btn.selected {
+        color: var(--text-color);
+    }
+
+    .btn .selected-mark {
+        display: none;
+    }
+
+    .btn.selected .selected-mark {
+        display: inline;
+    }
+</style>
+
+<button type="submit" class="btn {% if selected %}selected{% endif %}">
+    [{% if key %}⟨ {{key}} ⟩ {% endif %} <span class="selected-mark">● </span>{{label}}
+    {% if cost %}{{cost}}G {% endif %}]
+</button>
