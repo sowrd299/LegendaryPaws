@@ -579,12 +579,7 @@
                         <span>
                             {%endif%}
                             {{ party_inventory_len }} / {{ inventory_max_size }} Cards
-                        </span> |
-                        {% if selected_char %}
-                        Give cards to {{ selected_char.name }} for XP
-                        {% else %}
-                        Add cards to your party's deck
-                        {% endif %}
+                        </span>
                     </span>
             </h4>
             <form method="POST" action="{% url 'handle_action' %}" style="margin-top: 16px;">
