@@ -133,7 +133,7 @@
         .card-rect:hover,
         .card-rect.selected {
             transform: translateY(-4px);
-            border-color: var(--accent-green);
+            border-color: var(--accent-amber);
             box-shadow: 0 4px 12px rgba(152, 195, 121, 0.3);
         }
 
@@ -420,8 +420,8 @@
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <h3>{{ selected_char.name }} &mdash; Level {{ selected_char.level }} {{ selected_char.species }}
                     {{ selected_char.current_class }}</h3>
-                <p
-                    style="{% if selected_char.current_hp < selected_char.max_hp|add:'-3' %}color: var(--accent-red);{% else %}color: var(--text-muted);{% endif %}">
+                <p {% if selected_char.current_hp < selected_char.max_hp|add:'-3' %} style="color: var(--accent-red);"
+                    {% else %}style="color: var(--text-muted);" {% endif %}>
                     [{{ selected_char.current_hp }}/{{ selected_char.max_hp }} HP]
                 </p>
             </div>

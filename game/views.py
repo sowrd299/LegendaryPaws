@@ -8,9 +8,11 @@ from .engine import (
 
 VOINARA_DIALOGUE = [
     "Oh!, oh no, somethings have gone very strange...",
-    "...I, have I lost you? That would be bad, who would know where where would be be... Oh! I see someone. It is you? It is Yew it seems. Where are they? " +
-    "This little lost traveler has found themself somewhere very strange, I think you are about to witness quite the adventure.",
-    "Make good decisions please, this little traveler's future depends on it. Tell me what you find... wherever this is."
+    "...I, have I lost you? That would be bad, who would know where that would be be... Oh! I see someone. It is you? It is Yew it seems. Where are they? " +
+    "This little lost traveler has found themself somewhere very strange. I think you are about to witness quite the adventure.",
+    "Something seems.... rotten, I think, in this place. It sounds like the locals call it the \"Death Rot\" whatever it is... " +
+    "I just can't tell what it is that is rotting in the first place.",
+    "Make good decisions please, this little traveler's future depends on it. Tell me what Yew finds... wherever this is."
 ]
 
 SHOP_ITEMS = [
@@ -157,7 +159,7 @@ def handle_action(request):
         step = state.get('voinara_step', 0) + 1
         if step >= len(VOINARA_DIALOGUE):
             state['screen'] = 'overworld'
-            state['message'] = "You have entered the overworld."
+            state['message'] = "You look upon the strange lands Voinara spoke of."
         else:
             state['voinara_step'] = step
 
