@@ -106,7 +106,7 @@ CLASS_DATA = {
         'default_cards': ['Slash', 'Training']
     },
     'Knight': {
-        'bonus_stats': ['melee_damage', 'melee_resistance', 'ranged_vulnerability', 'star_vulnerability'],
+        'bonus_stats': ['melee_damage', 'melee_resistance', 'ranged_resistance', 'star_vulnerability'],
         'stat_mods': {'melee_damage': 4.0, 'melee_resistance': 4.0},
         'default_cards': ['Honed Slash']
     },
@@ -118,14 +118,19 @@ CLASS_DATA = {
 
     # Enemy specific classes
     'Husk': {
-        'bonus_stats': ['melee_damage', 'ranged_resistance', 'star_vulnerability'],
-        'stat_mods': {'haleness': -5.0, 'nimbleness': -2, 'brute_resistance': -1, 'melee_damage' : -2.0},
+        'bonus_stats': ['ranged_damage', 'star_vulnerability'],
+        'stat_mods': {'brute_intensity' : -2, 'brute_resistance': -1, 'nimbleness': -3, 'haleness': -5.0,},
         'default_cards': ['Slash', 'Heavy Slash']
     },
     'Soul': {
-        'bonus_stats': ['melee_damage', 'void_intensity', 'moon_vulnerability'],
-        'stat_mods': {'brute_resistance': -1, 'nimbleness': -3, 'haleness': -8.0, 'melee_damage' : -4.0, 'void_intensity': 2, 'moon_vulnerability': 5},
-        'default_cards': ['Chill', 'Chill Breath']
+        'bonus_stats': ['void_intensity', 'moon_vulnerability'],
+        'stat_mods': {'brute_intensity' : -4, 'brute_resistance': -1, 'nimbleness': -3, 'haleness': -8.0, 'void_intensity': 2, 'moon_vulnerability': 5},
+        'default_cards': ['Light Slash', 'Chill', 'Chill Breath']
+    },
+    'Rotmonger': {
+        'bonus_stats': ['moon_intensity', 'star_vulnerability'],
+        'stat_mods': {'brute_intensity' : 0, 'brute_resistance': 3, 'nimbleness': -9, 'haleness': 3.0, 'moon_intensity': 3, 'star_vulnerability': 3},
+        'default_cards': ['Heavy Slash', 'Wax']
     }
 }
 
