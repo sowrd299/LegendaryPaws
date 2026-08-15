@@ -7,7 +7,7 @@ ILLUSTRATION_DATA = [
     {
         'name': 'cat_husk',
         'species': ['Cat'],
-        'classes': ['Husk'],
+        'classes': ['Husk', 'Rotmonger'],
     },
     {
         'name': 'badger_soul',
@@ -17,7 +17,7 @@ ILLUSTRATION_DATA = [
     {
         'name': 'badger_husk',
         'species': ['Badger'],
-        'classes': ['Husk'],
+        'classes': ['Husk', 'Rotmonger'],
     },
     {
         'name': 'fox_soul',
@@ -27,7 +27,7 @@ ILLUSTRATION_DATA = [
     {
         'name': 'fox_husk',
         'species': ['Fox'],
-        'classes': ['Husk'],
+        'classes': ['Husk', 'Rotmonger'],
     },
     {
         'name': 'rabbit_soul',
@@ -37,7 +37,7 @@ ILLUSTRATION_DATA = [
     {
         'name': 'rabbit_husk',
         'species': ['Rabbit'],
-        'classes': ['Husk'],
+        'classes': ['Husk', 'Rotmonger'],
     },
     {
         'name': 'owl_soul',
@@ -47,7 +47,7 @@ ILLUSTRATION_DATA = [
     {
         'name': 'owl_husk',
         'species': ['Owl'],
-        'classes': ['Husk'],
+        'classes': ['Husk', 'Rotmonger'],
     },
     {
         'name': 'fox',
