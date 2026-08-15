@@ -35,3 +35,7 @@ def stat_name(name):
     format_name = name.replace("_", " ").title()
     format_name = format_name.replace("Moon", "Moon Magic").replace("Star", "Star Magic").replace("Void", "Void Magic")
     return format_name
+
+@register.filter
+def negate(val):
+    return not val

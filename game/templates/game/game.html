@@ -356,11 +356,7 @@
             <form method="POST" action="{% url 'handle_action' %}" style="display:inline;">
                 {% csrf_token %}
                 <input type="hidden" name="action_type" value="select_deck">
-                {% if selected_char %}
-                {% include "game/button.html" with label="DECK" selected=False %}
-                {% else %}
-                {% include "game/button.html" with label="DECK" selected=True %}
-                {% endif %}
+                {% include "game/button.html" with label="DECK" selected=selected_char|negate count=party_deck_len min_count=deck_minimum_size count_label="Cards" %}
             </form>
             <!-- PARTY TABS -->
             {% for member in party.members %}
@@ -383,8 +379,7 @@
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <h3>{{ selected_char.name }} &mdash; Level {{ selected_char.level }} {{ selected_char.species }}
                     {{ selected_char.current_class }}</h3>
-                <p {% if selected_char.current_hp < selected_char.max_hp|add:'-3' %} style="color: var(--accent-red);"
-                    {% else %}style="color: var(--text-muted);" {% endif %}>
+                <p {% if selected_char.current_hp < selected_char.max_hp|add:'-3' %} style="color: var(--accent-red);" {% else %}style="color: var(--text-muted);" {% endif %}>
                     [{{ selected_char.current_hp }}/{{ selected_char.max_hp }} HP]
                 </p>
             </div>
@@ -499,10 +494,7 @@
                     {% if selected_char %}
                     Give cards to {{ selected_char.name }} for XP
                     {% else %}
-                    Add cards to your party's deck |
-                    <span {% if party_deck_len < deck_minimum_size %} style="color: var(--accent-red);" {% endif %}>
-                        Deck: {{ party_deck_len }} / {{ deck_minimum_size }} Cards
-                    </span>
+                    Add cards to your party's deck
                     {% endif %}
                 </span>
             </h4>

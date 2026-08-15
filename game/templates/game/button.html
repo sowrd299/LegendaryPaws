@@ -27,5 +27,10 @@
 
 <button type="submit" class="btn {% if selected %}selected{% endif %}">
     [{% if key %}⟨ {{key}} ⟩ {% endif %} <span class="selected-mark">● </span>{{label}}
-    {% if cost %}{{cost}}G {% endif %}]
+    {% if cost %}{{cost}}G {% endif %}
+    {% if count and min_count %}
+    <span {% if count < min_count %} style="color: var(--accent-red);" {% else %} style="color: var(--text-muted);" {% endif %}>
+        {{count}} / {{min_count}} {{count_label}}
+    </span>
+    {% endif %}]
 </button>
