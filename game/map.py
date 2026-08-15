@@ -1,3 +1,6 @@
+import random
+from .engine import Character
+
 WORLD_MAP = [
     ["^", "S", "^", "^", "^", ".", ".", ".", ".", ".", ".", ".", ".", "↟", "↟"],
     ["R", "R", "^", "^", ".", ".", ".", ".", ".", ".", ".", ".", "↟", "↟", "↟"],
@@ -82,6 +85,53 @@ SHOP_DATA = [
     }
 ]
 
+ENCOUNTER_DATA = {
+    '.': [
+        {
+            'chance': 0.2,
+            'min_enemies': 2,
+            'max_enemies': 2,
+            'species': ['Badger', 'Cat', 'Fox', 'Rabbit', 'Owl'],
+            'classes': ['Husk']
+        },
+        {
+            'chance': 0.1,
+            'min_enemies': 2,
+            'max_enemies': 2,
+            'species': ['Badger', 'Cat', 'Fox', 'Owl'],
+            'classes': ['Husk', 'Soul']
+        },
+    ],
+    'R': [
+        {
+            'chance': 1,
+            'min_enemies': 3,
+            'max_enemies': 4,
+            'species': ['Badger', 'Cat', 'Fox', 'Rabbit', 'Owl'],
+            'classes': ['Husk', 'Soul', 'Rotmonger']
+        },
+    ],
+    '^': [
+        {
+            'chance': 0.6,
+            'min_enemies': 2,
+            'max_enemies': 4,
+            'species': ['Badger', 'Cat', 'Fox', 'Rabbit', 'Owl'],
+            'classes': ['Husk', 'Soul', 'Rotmonger']
+        }
+    ],
+    '↟': [
+        {
+            'chance': 0.5,
+            'min_enemies': 2,
+            'max_enemies': 4,
+            'species': ['Badger', 'Cat', 'Fox', 'Rabbit', 'Owl'],
+            'classes': ['Husk', 'Soul', 'Rotmonger']
+        }
+    ],
+    '_': [ ]
+}
+
 def get_shop(shop_x, shop_y):
 
     map = WORLD_MAP
@@ -93,3 +143,29 @@ def get_shop(shop_x, shop_y):
                 return SHOP_DATA[min(idx, len(SHOP_DATA))]
             elif map[y][x] == 'S': 
                 idx += 1
+
+def generate_random_enemies(encounter_data, level=1):
+    """Generates enemy characters using the exact Character system."""
+    count = random.randint(encounter_data['min_enemies'], encounter_data['max_enemies'])
+    
+    species_options = encounter_data['species']
+    class_options = encounter_data['classes']
+
+    enemies = []
+    for i in range(count):
+        sp = random.choice(species_options)
+        cl = random.choice(class_options)
+        name = f"{sp} {cl}"
+        enemy = Character(name=name, species=sp, current_class=cl, level=level)
+        enemies.append(enemy)
+    return enemies
+
+def get_random_encounter(encounter_x, encounter_y, level=1):
+    terrain = WORLD_MAP[encounter_y][encounter_x]
+    encounter_data = ENCOUNTER_DATA[terrain]
+    r = random.random()
+    for encounter in encounter_data:
+        if r < encounter['chance']:
+            return generate_random_enemies(encounter, level)
+        r -= encounter['chance']
+    return []

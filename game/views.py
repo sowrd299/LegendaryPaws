@@ -5,7 +5,7 @@ from .engine import (
     create_initial_game_state, Party, Character, CombatEngine,
     CARD_DATA, CARDS, CORE_STATS, DECK_MINIMUM_SIZE
 )
-from .map import WORLD_MAP, MAP_WIDTH, MAP_HEIGHT, TILE_DESCRIPTIONS, get_shop
+from .map import WORLD_MAP, MAP_WIDTH, MAP_HEIGHT, TILE_DESCRIPTIONS, get_shop, get_random_encounter
 
 VOINARA_DIALOGUE = [
     "Oh!, oh no, somethings have gone very strange...",
@@ -38,29 +38,6 @@ def list_to_unique_counts(l):
         else:
             d[i] = 1
     return [(i, d[i]) for i in d]
-
-def generate_random_enemies(terrain, level=1):
-    """Generates enemy characters using the exact Character system."""
-    count = 2
-    if terrain == 'R':
-        count = random.randint(2, 4)
-    elif terrain == '^':
-        count = random.randint(3, 3)
-    elif terrain == '↟':
-        count = random.randint(2, 3)
-
-    species_options = ['Badger', 'Cat', 'Fox', 'Rabbit', 'Owl']
-    class_options = ['Husk', 'Soul']
-
-    enemies = []
-    for i in range(count):
-        sp = random.choice(species_options)
-        cl = random.choice(class_options)
-        name = f"{sp} {cl}"
-        enemy = Character(name=name, species=sp, current_class=cl, level=level)
-        enemies.append(enemy)
-    return enemies
-
 
 def get_game_state(request):
     """Loads game state from session or initializes a new one."""
@@ -209,10 +186,8 @@ def handle_action(request):
             state['message'] = "You rest at the inn. Party HP fully restored!"
         else:
             # Chance for wild combat encounter based on terrain
-            chances = {'R': 0.8, '^': 0.5, '↟': 0.4, '.': 0.2, '_': 0}
-            prob = chances.get(current_tile, 0.2)
-            if random.random() < prob:
-                enemies = generate_random_enemies(current_tile, level=party.members[0].level if party.members else 1)
+            enemies = get_random_encounter(new_x, new_y, level=party.members[0].level if party.members else 1)
+            if enemies:
                 engine = CombatEngine(party.members, enemies, party.shared_deck)
                 state['combat'] = engine.to_dict()
                 state['screen'] = 'combat'

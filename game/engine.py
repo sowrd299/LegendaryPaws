@@ -884,13 +884,20 @@ class CombatEngine:
     def execute_enemy_turn(self, enemy):
         """AI execution for an enemy character turn."""
         living_allies = [a for a in self.allies if a.is_alive()]
+        living_enemies = [e for e in self.enemies if e.is_alive()]
         if not living_allies:
             return
 
-        target = random.choice(living_allies)
         known = enemy.get_known_cards()
         card_name = random.choice(known) if known else 'Slash'
         card = CARDS.get(card_name, CARDS['Slash'])
+
+        target = random.choice(living_allies)
+        if card.get('target') == 'ally':
+            if card.get('heal_power') > 0:
+                target = random.choice([e for e in living_enemies if e.current_hp < e.max_hp])
+            else:
+                target = random.choice(living_enemies)
 
         self.apply_card_effect(enemy, card, target)
         
