@@ -105,8 +105,17 @@
             display: flex;
             gap: 12px;
             justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 10px;
+            margin-top: 0;
+            padding-top: 10px;
+            flex-wrap: nowrap;
+            overflow-x: hidden;
+        }
+
+        .cards-row .x-scrollable {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            width: min-content;
         }
 
         .card-and-button-rect {
@@ -460,33 +469,37 @@
 
             <!-- KNWON CARDS VIEW -->
             {% else %}
-            <div class="cards-row" style="font-size: 0.85rem; margin-top: 14px;">
-                {% for card in known_cards %}
-                {% include "game/card.html" with card=card %}
-                {% empty %}
-                <p style="color: var(--text-muted)">{{ selected_char.name }} knows no cards yet.</p>
-                {% endfor %}
+            <div class="cards-row">
+                <div class="x-scrollable">
+                    {% for card in known_cards %}
+                    {% include "game/card.html" with card=card %}
+                    {% empty %}
+                    <p style="color: var(--text-muted)">{{ selected_char.name }} knows no cards yet.</p>
+                    {% endfor %}
+                </div>
             </div>
             {% endif %}
 
             <!-- DECK VIEW -->
             {% else %}
-            <div class="cards-row" style="font-size: 0.85rem; margin-top: 4px;">
-                {% for card, count in party_deck_cards %}
-                <div class="card-and-button-rect">
-                    {% include "game/card.html" with card=card %}
-                    <div class="btn-group" style="margin-top: 6px;">
-                        <h4 style="font-size: 1.5rem; color: var(--text-muted);">×{{ count }}</h4>
-                        <form method="POST" action="{% url 'handle_action' %}">
-                            {% csrf_token %}
-                            <input type="hidden" name="action_type" value="remove_deck">
-                            <input type="hidden" name="card_name" value="{{ card.name }}">
-                            <button type="submit" class="btn" style="font-size: 0.7rem; padding: 4px 6px;">-
-                                Deck</button>
-                        </form>
+            <div class="cards-row">
+                <div class="x-scrollable">
+                    {% for card, count in party_deck_cards %}
+                    <div class="card-and-button-rect">
+                        {% include "game/card.html" with card=card %}
+                        <div class="btn-group" style="margin-top: 6px;">
+                            <h4 style="font-size: 1.5rem; color: var(--text-muted);">×{{ count }}</h4>
+                            <form method="POST" action="{% url 'handle_action' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action_type" value="remove_deck">
+                                <input type="hidden" name="card_name" value="{{ card.name }}">
+                                <button type="submit" class="btn" style="font-size: 0.7rem; padding: 4px 6px;">-
+                                    Deck</button>
+                            </form>
+                        </div>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </div>
             {% endif %}
         </div>
@@ -507,34 +520,36 @@
                 </span>
             </h4>
             <div class="cards-row">
-                {% for card, count in party_inventory_cards %}
-                <div class="card-and-button-rect">
-                    {% include "game/card.html" with card=card %}
-                    <div class="btn-group" style="margin-top: 6px;">
-                        <h4 style="font-size: 1.5rem; color: var(--text-muted);">×{{ count }}</h4>
-                        {% if selected_char %}
-                        <form method="POST" action="{% url 'handle_action' %}">
-                            {% csrf_token %}
-                            <input type="hidden" name="action_type" value="give_card">
-                            <input type="hidden" name="card_name" value="{{ card.name }}">
-                            <button type="submit" class="btn" style="font-size: 0.7rem; padding: 4px 6px;">+ XP
-                                {% if card.give_heal_power %}& HP{% endif %}
-                            </button>
-                        </form>
-                        {% else %}
-                        <form method="POST" action="{% url 'handle_action' %}">
-                            {% csrf_token %}
-                            <input type="hidden" name="action_type" value="add_deck">
-                            <input type="hidden" name="card_name" value="{{ card.name }}">
-                            <button type="submit" class="btn" style="font-size: 0.7rem; padding: 4px 6px;">+
-                                Deck</button>
-                        </form>
-                        {% endif %}
+                <div class="x-scrollable">
+                    {% for card, count in party_inventory_cards %}
+                    <div class="card-and-button-rect">
+                        {% include "game/card.html" with card=card %}
+                        <div class="btn-group" style="margin-top: 6px;">
+                            <h4 style="font-size: 1.5rem; color: var(--text-muted);">×{{ count }}</h4>
+                            {% if selected_char %}
+                            <form method="POST" action="{% url 'handle_action' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action_type" value="give_card">
+                                <input type="hidden" name="card_name" value="{{ card.name }}">
+                                <button type="submit" class="btn" style="font-size: 0.7rem; padding: 4px 6px;">+ XP
+                                    {% if card.give_heal_power %}& HP{% endif %}
+                                </button>
+                            </form>
+                            {% else %}
+                            <form method="POST" action="{% url 'handle_action' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action_type" value="add_deck">
+                                <input type="hidden" name="card_name" value="{{ card.name }}">
+                                <button type="submit" class="btn" style="font-size: 0.7rem; padding: 4px 6px;">+
+                                    Deck</button>
+                            </form>
+                            {% endif %}
+                        </div>
                     </div>
+                    {% empty %}
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">No cards currently in inventory.</p>
+                    {% endfor %}
                 </div>
-                {% empty %}
-                <p style="font-size: 0.85rem; color: var(--text-muted);">No cards currently in inventory.</p>
-                {% endfor %}
             </div>
         </div>
 
@@ -548,19 +563,21 @@
         <div class="dialogue-box">
             <p class="card-illust" style="color: var(--text-muted)">{{ illust|illust }}</p>
             <p><span style="color: var(--text-muted)">{{ speaker }}:</span> {{ text }}</p>
-            <div class="cards-row" style="margin-top: 14px;">
-                {% for card, cost in shop_items %}
-                <div class="card-and-button-rect">
-                    {% include "game/card.html" with card=card %}
-                    <form method="POST" action="{% url 'handle_action' %}" style="margin-top: 8px;">
-                        {% csrf_token %}
-                        <input type="hidden" name="action_type" value="shop_buy">
-                        <input type="hidden" name="card_name" value="{{ card.name }}">
-                        <input type="hidden" name="cost" value="{{ cost }}">
-                        <button type="submit" class="btn" style="width: 100%;">Buy Card {{cost}}G</button>
-                    </form>
+            <div class="cards-row">
+                <div class="x-scrollable">
+                    {% for card, cost in shop_items %}
+                    <div class="card-and-button-rect">
+                        {% include "game/card.html" with card=card %}
+                        <form method="POST" action="{% url 'handle_action' %}" style="margin-top: 8px;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action_type" value="shop_buy">
+                            <input type="hidden" name="card_name" value="{{ card.name }}">
+                            <input type="hidden" name="cost" value="{{ cost }}">
+                            <button type="submit" class="btn" style="width: 100%;">Buy Card {{cost}}G</button>
+                        </form>
+                    </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </div>
         </div>
 
@@ -725,6 +742,43 @@
                 }
             }
         });
+
+        // SET UP SCROLLING
+        // Based on: https://stackoverflow.com/questions/30892830/detect-scrolling-on-pages-without-a-scroll-bar
+        document.addEventListener("wheel", function (e) {
+
+            // to make it work on IE or Chrome
+            var variation = 5 * parseInt(e.deltaY) / 114;
+
+            document.querySelectorAll(".x-scrollable").forEach(function (element) {
+
+                if (element.getBoundingClientRect().width <= element.parentNode.getBoundingClientRect().width) {
+                    return;
+                }
+
+                var visiblePercent = element.parentNode.getBoundingClientRect().width / element.getBoundingClientRect().width
+                var overflowPercent = 1 - visiblePercent;
+                overflowPercent += visiblePercent * 0.1; // Give just a little extra scroll
+
+                // get the old value of the translation (there has to be an easier way than this)
+                var oldVal = parseFloat(element.dataset.xscroll);
+                if (isNaN(oldVal)) {
+                    oldVal = 0;
+                }
+
+                var val = Math.min(Math.max((oldVal - variation), -100 * overflowPercent / 2), 100 * overflowPercent / 2)
+
+                // update the body translation to simulate a scroll
+                element.style.transform = "translate(" + val + "%)";
+                element.dataset.xscroll = val
+                console.log(element + "," + oldVal + "," + variation);
+            });
+
+            console.log(variation);
+
+            return false;
+
+        }, true);
 
         function submitMove(direction) {
             const form = document.createElement('form');
