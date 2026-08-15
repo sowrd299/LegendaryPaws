@@ -555,14 +555,13 @@
                     {% for card, cost in shop_items %}
                     <div class="card-and-button-rect">
                         {% include "game/card.html" with card=card %}
-                        {% if party.gold >= cost and party_inventory_len < inventory_max_size %} <form method="POST" action="{% url 'handle_action' %}" style="margin-top: 8px;">
+                        <form method="POST" action="{% url 'handle_action' %}" style="margin-top: 8px;">
                             {% csrf_token %}
                             <input type="hidden" name="action_type" value="shop_buy">
                             <input type="hidden" name="card_name" value="{{ card.name }}">
                             <input type="hidden" name="cost" value="{{ cost }}">
                             {% include "game/button.html" with label="Buy Card " cost=cost %}
-                            </form>
-                            {% endif %}
+                        </form>
                     </div>
                     {% endfor %}
                 </div>
