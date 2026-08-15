@@ -1,6 +1,7 @@
 import math
 import random
 import uuid
+from .illustration import ILLUSTRATION_DATA
 
 # --- STAT & MATH SCALING ---
 
@@ -735,6 +736,13 @@ class Character:
 
     def is_alive(self):
         return self.current_hp > 0
+
+    def illust(self):
+        for illust in ILLUSTRATION_DATA:
+            species_match = 'species' not in illust or self.species in illust['species']
+            class_match = 'classes' not in illust or self.current_class in illust['classes']
+            if species_match and class_match:
+                return 'game/{0}.png'.format(illust.get('name',''))
 
     def to_dict(self):
         return {

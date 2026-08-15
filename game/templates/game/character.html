@@ -1,4 +1,6 @@
+{% load static %}
 <div class="unit-card {{ unit_class }}" data-id="{{ char.id }}" onclick="selectTarget('{{ char.id }}')">
+    <img src="{% static char.illust %}" style="width: 100%; margin-top: -40px;" />
     <div>
         <strong>{{ char.name }}</strong>
     </div>

@@ -205,7 +205,7 @@
 
         .unit-card {
             padding: 8px;
-            margin-bottom: 24px;
+            margin-bottom: 6px;
             margin-right: 6px;
             border: 1px solid transparent;
             border-radius: 4px;
@@ -276,6 +276,7 @@
             display: flex;
             flex-direction: row;
             justify-content: center;
+            align-items: flex-start;
         }
 
         .stats-table {
@@ -446,6 +447,7 @@
             <!-- STATS VIEW -->
             {% if stats_tab %}
             <div class="stats-area">
+                <img src="{% static selected_char.illust %}" style="width: 20%; margin-top: 20px" />
                 <table class="stats-table">
                     <tbody>
                         {% for stat_name, stat_val, xp in scaled_core_stats %}
@@ -636,7 +638,7 @@
 
             <div class="combat-units-grid">
                 <!-- ENEMIES (TOP) -->
-                <div class="unit-group-title">Enemies (Select Target)</div>
+                <div class="unit-group-title">Enemies</div>
                 <div class="unit-group">
                     {% for enemy in combat_engine.enemies %}
                     {% include "game/character.html" with char=enemy char_class="enemy_unit" turn_char=turn_char %}
