@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseBadRequest
 from .engine import (
     create_initial_game_state, Party, Character, CombatEngine,
-    CARDS, CORE_STATS, DECK_MINIMUM_SIZE
+    CARD_DATA, CARDS, CORE_STATS, DECK_MINIMUM_SIZE
 )
 from .map import WORLD_MAP, MAP_WIDTH, MAP_HEIGHT, TILE_DESCRIPTIONS, get_shop
 
@@ -82,13 +82,20 @@ def game_index(request):
     party = Party.from_dict(state['party'])
     screen = state.get('screen', 'voinara_intro')
 
+    party_inventory_cards = [ (name_to_card(name), count) for name,count in list_to_unique_counts(party.inventory) ]
+    party_inventory_cards.sort(key = lambda card : CARD_DATA.index(CARDS[card[0]['name']]))
+
+    party_deck_cards = [ (name_to_card(name), count) for name,count in list_to_unique_counts(party.shared_deck) ]
+    party_deck_cards.sort(key = lambda card : CARD_DATA.index(CARDS[card[0]['name']]))
+
+
     # Prepare context data
     context = {
         'state': state,
         'screen': screen,
         'party': party,
-        'party_inventory_cards': [ (name_to_card(name), count) for name,count in list_to_unique_counts(party.inventory) ],
-        'party_deck_cards': [ (name_to_card(name), count) for name,count in list_to_unique_counts(party.shared_deck) ],
+        'party_inventory_cards': party_inventory_cards,
+        'party_deck_cards': party_deck_cards,
         'party_deck_len': len(party.shared_deck),
         'deck_minimum_size': DECK_MINIMUM_SIZE,
         'dead_illust': DEAD_ILLUST,

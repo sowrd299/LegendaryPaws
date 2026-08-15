@@ -132,8 +132,8 @@ CLASS_DATA = {
 
 # --- CARDS DATABASE ---
 
-CARDS = {
-    'Wait': {
+CARD_DATA = [
+    {
         'name': 'Wait',
         'type': 'nothingness',
         'rarity': '',
@@ -153,7 +153,7 @@ CARDS = {
 +                 +
 """
     },
-    'Wallow': {
+    {
         'name': 'Wallow',
         'type': 'nothingness',
         'rarity': '',
@@ -171,7 +171,7 @@ CARDS = {
 +                 +
 """
     },
-    'Potion': {
+    {
         'name': 'Potion',
         'type': 'trinket',
         'rarity': 'mundane',
@@ -192,7 +192,7 @@ CARDS = {
 +-----------------+
 """
     },
-    'Sour Potion': {
+    {
         'name': 'Sour Potion',
         'type': 'trinket',
         'rarity': 'mundane',
@@ -213,7 +213,7 @@ CARDS = {
 +-----------------+
 """
     },
-    'Syrupy Potion': {
+    {
         'name': 'Syrupy Potion',
         'type': 'trinket',
         'rarity': 'mundane',
@@ -234,7 +234,7 @@ CARDS = {
 +-----------------+
 """
     },
-    'Slash': {
+    {
         'name': 'Slash',
         'type': 'weapon',
         'rarity': 'mundane',
@@ -254,7 +254,7 @@ CARDS = {
 +-------*---------+
 """
     },
-    'Heavy Slash': {
+    {
         'name': 'Heavy Slash',
         'type': 'weapon',
         'rarity': 'mundane',
@@ -274,7 +274,7 @@ CARDS = {
 +-------*---------+
 """
     },
-    'Light Slash': {
+    {
         'name': 'Light Slash',
         'type': 'weapon',
         'rarity': 'mundane',
@@ -294,7 +294,7 @@ CARDS = {
 +-------*---------+
 """
     },
-    'Light Clothes': {
+    {
         'name': 'Light Clothes',
         'type': 'armor',
         'rarity': 'mundane',
@@ -303,7 +303,7 @@ CARDS = {
         'description': 'Protective garments.',
         'stat_boosts': {'brute_resistance': 0.15, 'melee_resistance': 0.3, 'ranged_resistance': 0.3}
     },
-    'Archery': {
+    {
         'name': 'Archery',
         'type': 'weapon',
         'rarity': 'mundane',
@@ -323,7 +323,7 @@ CARDS = {
 +-----------------+
 """
     },
-    'First Aid': {
+    {
         'name': 'First Aid',
         'type': 'trinket',
         'rarity': 'interesting',
@@ -334,7 +334,7 @@ CARDS = {
         'description': 'Heals an ally.',
         'stat_boosts': {'survival_intensity': 0.3, 'haleness': 0.2}
     },
-    'Wain': {
+    {
         'name': 'Wain',
         'type': 'scroll',
         'rarity': 'interesting',
@@ -354,7 +354,7 @@ CARDS = {
 +-----------------+
 """
     },
-    'Wax': {
+    {
         'name': 'Wax',
         'type': 'scroll',
         'rarity': 'interesting',
@@ -374,7 +374,7 @@ CARDS = {
 +-----------------+
 """
     },
-    'Pull of Tides': {
+    {
         'name': 'Pull of Tides',
         'type': 'scroll',
         'rarity': 'odd',
@@ -394,7 +394,7 @@ CARDS = {
 +-----------------+
 """
     },
-    'Singe': {
+    {
         'name': 'Singe',
         'type': 'scroll',
         'rarity': 'interesting',
@@ -405,7 +405,7 @@ CARDS = {
         'description': 'Magic spell dealing damage.',
         'stat_boosts': {'star_intensity': 0.2, 'star_resistance': 0.3, 'void_vulnerability': 0.3}
     },
-    'Singe Breath': {
+    {
         'name': 'Singe Breath',
         'type': 'scroll',
         'rarity': 'interesting',
@@ -416,7 +416,7 @@ CARDS = {
         'description': 'Magic spell dealing damage to all enemies.',
         'stat_boosts': {'star_intensity': 0.2, 'star_resistance': 0.3, 'void_vulnerability': 0.3}
     },
-    'Chill': {
+    {
         'name': 'Chill',
         'type': 'scroll',
         'rarity': 'interesting',
@@ -436,7 +436,7 @@ CARDS = {
 +-----------------+
 """
     },
-    'Chill Breath': {
+    {
         'name': 'Chill Breath',
         'type': 'scroll',
         'rarity': 'interesting',
@@ -456,7 +456,7 @@ CARDS = {
 +-----------------+
 """
     },
-    'Study': {
+    {
         'name': 'Study',
         'type': 'trinket',
         'rarity': 'interesting',
@@ -465,7 +465,7 @@ CARDS = {
         'description': 'Focuses mind, boosting magic stats.',
         'stat_boosts': {'star_intensity': 0.2, 'moon_intensity': 0.2, 'void_intensity': 0.2}
     },
-    'Training': {
+    {
         'name': 'Training',
         'type': 'trinket',
         'rarity': 'interesting',
@@ -474,7 +474,7 @@ CARDS = {
         'description': 'Physical training, boosting physical stats.',
         'stat_boosts': {'brute_intensity': 0.2, 'brute_resistance': 0.2, 'nimbleness': 0.1}
     },
-    'Honed Archery': {
+    {
         'name': 'Honed Archery',
         'type': 'weapon',
         'rarity': 'interesting',
@@ -494,7 +494,7 @@ CARDS = {
 +-----------------+
 """
     },
-    'Honed Slash': {
+    {
         'name': 'Honed Slash',
         'type': 'weapon',
         'rarity': 'interesting',
@@ -514,7 +514,7 @@ CARDS = {
 +-----------------+
 """
     },
-    'Burning Blade': {
+    {
         'name': 'Burning Blade',
         'type': 'weapon',
         'rarity': 'odd',
@@ -525,7 +525,7 @@ CARDS = {
         'description': 'Flaming melee strike dealing damage.',
         'stat_boosts': {'melee_damage': 0.5, 'star_intensity': 0.5}
     },
-    'Cursed Readings': {
+    {
         'name': 'Cursed Readings',
         'type': 'scroll',
         'rarity': 'odd',
@@ -536,7 +536,7 @@ CARDS = {
         'description': 'Dark void incantation dealing damage.',
         'stat_boosts': {'void_intensity': 0.8}
     },
-    'Scorch': {
+    {
         'name': 'Scorch',
         'type': 'scroll',
         'rarity': 'exceptional',
@@ -547,7 +547,7 @@ CARDS = {
         'description': 'Day Mage signature spell searing enemies.',
         'stat_boosts': {'star_intensity': 0.6}
     },
-    'Moonlight': {
+    {
         'name': 'Moonlight',
         'type': 'scroll',
         'rarity': 'exceptional',
@@ -558,7 +558,7 @@ CARDS = {
         'description': 'Bathes allies in healing moonlight.',
         'stat_boosts': {'moon_intensity': 0.6, 'moon_resistance': 0.6}
     },
-    'Call to the Void': {
+    {
         'name': 'Call to the Void',
         'type': 'scroll',
         'rarity': 'exceptional',
@@ -569,7 +569,9 @@ CARDS = {
         'description': 'Strikes all enemies with void energy.',
         'stat_boosts': {'void_intensity': 0.8}
     }
-}
+]
+
+CARDS = { card.get('name','') : card for card in CARD_DATA }
 
 
 # --- CHARACTER MODEL ---
