@@ -16,6 +16,8 @@ VOINARA_DIALOGUE = [
     "Make good decisions please, this little traveler's future depends on it. Tell me what Yew finds... wherever this is."
 ]
 
+INVENTORY_MAX_SIZE = 20
+
 DEAD_ILLUST = """
     _____    
    /  (  \   
@@ -72,6 +74,8 @@ def game_index(request):
         'screen': screen,
         'party': party,
         'party_inventory_cards': party_inventory_cards,
+        'party_inventory_len': len(party.inventory),
+        'inventory_max_size': INVENTORY_MAX_SIZE,
         'party_deck_cards': party_deck_cards,
         'party_deck_len': len(party.shared_deck),
         'deck_minimum_size': DECK_MINIMUM_SIZE,
@@ -246,7 +250,7 @@ def handle_action(request):
     elif action_type == 'shop_buy':
         card_name = request.POST.get('card_name')
         cost = int(request.POST.get('cost', 10))
-        if party.gold >= cost and len(party.inventory) < 20:
+        if party.gold >= cost and len(party.inventory) < INVENTORY_MAX_SIZE:
             party.gold -= cost
             party.inventory.append(card_name)
             state['message'] = f"Purchased {card_name} for {cost} gold!"
@@ -300,7 +304,7 @@ def handle_action(request):
                     party.gold += earned_gold
                     reward_card = random.choice(['Slash', 'Light Slash', 'First Aid', 'Wax', 'Wain', 'Pull of Tides', 'Singe', 'Singe Breath', 'Chill', 'Chill Breath'])
 
-                    if len(party.inventory) < 20:
+                    if len(party.inventory) < INVENTORY_MAX_SIZE:
                         party.inventory.append(reward_card)
 
                     # Copy character's HP stat out of combat, since the combat engine is a shallow copy

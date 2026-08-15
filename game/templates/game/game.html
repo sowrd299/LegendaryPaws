@@ -491,12 +491,19 @@
             <h4 style="font-size: 0.95rem;">
                 Inventory |
                 <span style="color: var(--text-muted);">
-                    {% if selected_char %}
-                    Give cards to {{ selected_char.name }} for XP
-                    {% else %}
-                    Add cards to your party's deck
-                    {% endif %}
-                </span>
+                    {%if party_inventory_len == inventory_max_size %}
+                    <span style="color: var(--accent-red);">
+                        {%else%}
+                        <span>
+                            {%endif%}
+                            {{ party_inventory_len }} / {{ inventory_max_size }} Cards
+                        </span> |
+                        {% if selected_char %}
+                        Give cards to {{ selected_char.name }} for XP
+                        {% else %}
+                        Add cards to your party's deck
+                        {% endif %}
+                    </span>
             </h4>
             <div class="cards-row">
                 <div class="x-scrollable">
@@ -548,24 +555,44 @@
                     {% for card, cost in shop_items %}
                     <div class="card-and-button-rect">
                         {% include "game/card.html" with card=card %}
-                        <form method="POST" action="{% url 'handle_action' %}" style="margin-top: 8px;">
+                        {% if party.gold >= cost and party_inventory_len < inventory_max_size %} <form method="POST" action="{% url 'handle_action' %}" style="margin-top: 8px;">
                             {% csrf_token %}
                             <input type="hidden" name="action_type" value="shop_buy">
                             <input type="hidden" name="card_name" value="{{ card.name }}">
                             <input type="hidden" name="cost" value="{{ cost }}">
                             {% include "game/button.html" with label="Buy Card " cost=cost %}
-                        </form>
+                            </form>
+                            {% endif %}
                     </div>
                     {% endfor %}
                 </div>
             </div>
         </div>
 
-        <form method="POST" action="{% url 'handle_action' %}" style="margin-top: 16px;">
-            {% csrf_token %}
-            <input type="hidden" name="action_type" value="close_menu">
-            {% include "game/button.html" with key="X" label="Exit Shop" %}
-        </form>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+            <h4 style="font-size: 0.95rem;">
+                Inventory |
+                <span style="color: var(--text-muted);">
+                    {%if party_inventory_len == inventory_max_size %}
+                    <span style="color: var(--accent-red);">
+                        {%else%}
+                        <span>
+                            {%endif%}
+                            {{ party_inventory_len }} / {{ inventory_max_size }} Cards
+                        </span> |
+                        {% if selected_char %}
+                        Give cards to {{ selected_char.name }} for XP
+                        {% else %}
+                        Add cards to your party's deck
+                        {% endif %}
+                    </span>
+            </h4>
+            <form method="POST" action="{% url 'handle_action' %}" style="margin-top: 16px;">
+                {% csrf_token %}
+                <input type="hidden" name="action_type" value="close_menu">
+                {% include "game/button.html" with key="X" label="Exit Shop" %}
+            </form>
+        </div>
 
         <!-- SCREEN: INN -->
         {% elif screen == 'inn' %}
