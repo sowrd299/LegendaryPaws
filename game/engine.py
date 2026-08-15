@@ -62,23 +62,33 @@ CLASS_DATA = {
     },
     'Student': {
         'bonus_stats': ['star_intensity', 'moon_intensity', 'void_intensity'],
-        'stat_mods': {'star_intensity': 2.0, 'moon_intensity': 2.0, 'void_intensity': 2.0, 'nimbleness': 2.0},
-        'default_cards': ['Study']
+        'stat_mods': {'star_intensity': 2.0, 'moon_intensity': 2.0, 'void_intensity': 2.0},
+        'default_cards': [],
+        'req_card': ['Training']
     },
-    'Day mage': {
+    'Day Mage': {
         'bonus_stats': ['star_intensity', 'moon_resistance', 'void_vulnerability'],
         'stat_mods': {'star_intensity': 4.0, 'moon_resistance': 3.0, 'void_vulnerability': 1.0},
-        'default_cards': ['Scorch']
+        'default_cards': [],
+        'req_class': ['Student'],
+        'req_card': ['Singe'],
+        'req_level': 4,
     },
-    'Night mage': {
+    'Night Mage': {
         'bonus_stats': ['moon_intensity', 'void_resistance', 'star_vulnerability'],
         'stat_mods': {'moon_intensity': 4.0, 'void_resistance': 3.0, 'star_vulnerability': 1.0},
-        'default_cards': ['Moonlight']
+        'default_cards': [],
+        'req_class': ['Student'],
+        'req_card': ['Wax', 'Wain'],
+        'req_level': 4,
     },
-    'Hour mage': {
+    'Passage Mage': {
         'bonus_stats': ['void_intensity', 'star_resistance', 'moon_vulnerability'],
         'stat_mods': {'void_intensity': 4.0, 'star_resistance': 3.0, 'moon_vulnerability': 1.0},
-        'default_cards': ['Call to the Void']
+        'default_cards': [],
+        'req_class': ['Student'],
+        'req_card': ['Chill'],
+        'req_level': 4,
     },
     'Warlock': {
         'bonus_stats': ['void_intensity', 'star_resistance', 'melee_resistance', 'moon_vulnerability'],
@@ -88,27 +98,35 @@ CLASS_DATA = {
     'Scout': {
         'bonus_stats': ['ranged_damage', 'survival_intensity', 'melee_resistance', 'moon_resistance'],
         'stat_mods': {'ranged_damage': 3.0, 'survival_intensity': 3.0, 'melee_resistance': 2.0},
-        'default_cards': ['Archery', 'First Aid']
+        'default_cards': ['Archery', 'First Aid'],
+        'req_card': ['Simple Trap']
     },
     'Ranger': {
         'bonus_stats': ['ranged_damage', 'survival_intensity', 'melee_resistance', 'moon_resistance'],
         'stat_mods': {'ranged_damage': 4.0, 'survival_intensity': 4.0, 'melee_resistance': 2.0},
-        'default_cards': ['Honed Archery', 'First Aid']
+        'default_cards': ['First Aid'],
+        'req_class': ['Scout'],
+        'req_card': ['Honed Archery'],
     },
     'Blackcloak': {
         'bonus_stats': ['moon_intensity', 'survival_intensity', 'melee_resistance', 'void_resistance'],
         'stat_mods': {'moon_intensity': 3.0, 'survival_intensity': 3.0, 'melee_resistance': 2.0},
-        'default_cards': []
+        'default_cards': [],
+        'req_class': ['Scout'],
+        'req_card': ['Wax'],
+        'req_level': 6,
     },
     'Squire': {
         'bonus_stats': ['melee_damage', 'melee_resistance', 'star_vulnerability', 'moon_vulnerability'],
         'stat_mods': {'melee_damage': 3.0, 'melee_resistance': 3.0},
-        'default_cards': ['Slash', 'Training']
+        'default_cards': []
     },
     'Knight': {
         'bonus_stats': ['melee_damage', 'melee_resistance', 'ranged_resistance', 'star_vulnerability'],
         'stat_mods': {'melee_damage': 4.0, 'melee_resistance': 4.0},
-        'default_cards': ['Honed Slash']
+        'default_cards': [],
+        'req_class': ['Squire'],
+        'req_card': ['Honed Slash'],
     },
     'Paladin': {
         'bonus_stats': ['melee_damage', 'star_intensity', 'melee_resistance', 'moon_resistance'],
@@ -317,13 +335,33 @@ CARD_DATA = [
         'damage_type': 'ranged_damage',
         'damage_power': 2.0,
         'description': 'Standard attack.',
-        'stat_boosts': {'ranged_damage': 0.2, 'nimbleness': 0.1},
+        'stat_boosts': {'ranged_damage': 0.2, 'nimbleness': 0.2},
         'illust': """
 +-----------------+
 |                 |
 |   >>======>     |
 |                 |
 |       >>======> |
+|                 |
++-----------------+
+"""
+    },
+    {
+        'name': 'Simple Trap',
+        'type': 'weapon',
+        'rarity': 'interesting',
+        'target': 'enemy',
+        'recovery_cost': 5,
+        'damage_type': 'survival_intensity',
+        'damage_power': 1.0,
+        'description': 'A scout\'s cleaver attack.',
+        'stat_boosts': {'survival_intensity': 0.2, 'ranged_damage': 0.2, 'nimbleness': 0.2},
+        'illust': """
++-----------------+
+|                 |
+|                 |
+|                 |
+|                 |
 |                 |
 +-----------------+
 """
@@ -728,6 +766,9 @@ class Character:
 
         self.level_up_cards.append(card_name)
 
+        # Re-evaluate class
+        self.update_class()
+
         # Re-evaluate max HP
         old_max = self.max_hp
         self.update_max_hp()
@@ -736,6 +777,26 @@ class Character:
         self.current_hp = min(self.max_hp, self.current_hp + int(card.get('give_heal_power', 0)))
 
         return True, f"Gave {card_name} to {self.name}! Level is now {self.level}."
+
+    def update_class(self):
+        for class_name in CLASS_DATA:
+            if class_name != self.current_class:
+                cl = CLASS_DATA[class_name]
+                has_class_req = 'req_class' in cl
+                has_card_req = 'req_card' in cl
+                has_level_req = 'req_level' in cl
+                has_species_req = 'req_species' in cl
+
+                if not has_class_req and not has_card_req and not has_level_req and not has_species_req:
+                    continue
+
+                class_req = not has_class_req or self.current_class in cl.get('req_class')
+                card_req = not has_card_req or any(c in self.equipped_cards for c in cl.get('req_card'))
+                level_req = not has_level_req or self.get_scaled_stats()['level'] >= cl.get('req_level')
+                species_req = not has_species_req or self.species in cl.get('req_species')
+
+                if class_req and card_req and level_req and species_req:
+                    self.current_class = class_name
 
     def update_max_hp(self): 
         scaled_stats = self.get_scaled_stats()
