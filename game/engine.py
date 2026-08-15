@@ -191,6 +191,48 @@ CARDS = {
 +-----------------+
 """
     },
+    'Sour Potion': {
+        'name': 'Sour Potion',
+        'type': 'trinket',
+        'rarity': 'mundane',
+        'target': 'ally',
+        'recovery_cost': 1,
+        'heal_power': 3.0,
+        'give_heal_power': 3.0,
+        'description': 'Rapidly heals an ally. Consumed on use.',
+        'stat_boosts': {},
+        'is_consumable': True,
+        'illust': """
++------\~~~/------+
+|      | . |      |
+|     / * . \     |
+|    | o.*.* |    |
+|    |. .* o |    |
+|     \_____/     |
++-----------------+
+"""
+    },
+    'Syrupy Potion': {
+        'name': 'Syrupy Potion',
+        'type': 'trinket',
+        'rarity': 'mundane',
+        'target': 'ally',
+        'recovery_cost': 30,
+        'heal_power': 30.0,
+        'give_heal_power': 30.0,
+        'description': 'Slugishly heals an ally. Consumed on use.',
+        'stat_boosts': {},
+        'is_consumable': True,
+        'illust': """
++------\-~-/------+
+|      || ||      |
+|     //0  )\     |
+|    ||o O .||    |
+|    ||  . o||    |
+|     \(___//     |
++-----------------+
+"""
+    },
     'Slash': {
         'name': 'Slash',
         'type': 'weapon',
@@ -334,7 +376,7 @@ CARDS = {
     'Pull of Tides': {
         'name': 'Pull of Tides',
         'type': 'scroll',
-        'rarity': 'interesting',
+        'rarity': 'odd',
         'target': 'all_enemies',
         'recovery_cost': 25,
         'damage_type': 'moon_intensity',

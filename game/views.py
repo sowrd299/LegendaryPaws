@@ -39,11 +39,11 @@ def generate_random_enemies(terrain, level=1):
     """Generates enemy characters using the exact Character system."""
     count = 2
     if terrain == 'R':
-        count = random.randint(2, 5)
+        count = random.randint(2, 4)
     elif terrain == '^':
-        count = random.randint(2, 4)
+        count = random.randint(3, 3)
     elif terrain == '↟':
-        count = random.randint(2, 4)
+        count = random.randint(2, 3)
 
     species_options = ['Badger', 'Cat', 'Fox', 'Rabbit', 'Owl']
     class_options = ['Husk', 'Soul']
