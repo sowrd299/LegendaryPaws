@@ -801,34 +801,6 @@ class Party:
         return p
 
 
-WORLD_MAP = [
-    ["^", "^", "^", "^", "^", ".", ".", ".", ".", ".", ".", ".", ".", "↟", "↟"],
-    ["R", "R", "^", "^", ".", ".", ".", ".", ".", ".", ".", ".", "↟", "↟", "↟"],
-    ["^", "^", "^", "^", ".", ".", ".", ".", ".", ".", ".", ".", "↟", "↟", "↟"],
-    ["^", "^", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "↟", "↟"],
-    ["^", ".", ".", ".", ".", ".", "_", "_", "_", ".", ".", ".", ".", "↟", "↟"],
-    ["^", ".", ".", ".", ".", ".", "S", "_", "I", ".", ".", ".", ".", "↟", "↟"],
-    ["^", ".", ".", ".", ".", ".", "_", "_", "_", ".", ".", ".", ".", ".", "↟"],
-    ["^", "^", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "↟", "↟"],
-    ["^", "^", "^", ".", ".", ".", ".", ".", ".", ".", ".", "R", "↟", "↟", "↟"],
-    ["^", "^", "^", "^", ".", ".", ".", ".", ".", ".", ".", "↟", "R", "↟", "↟"],
-    ["^", "^", "^", "^", "^", ".", ".", ".", ".", ".", "↟", "↟", "↟", "↟", "↟"],
-]
-
-MAP_WIDTH = len(WORLD_MAP[0])
-MAP_HEIGHT = len(WORLD_MAP)
-
-TILE_DESCRIPTIONS = {
-    'S': ('Shop', 'A bustling roadside merchant shop selling valuable items and move cards.'),
-    'I': ('Inn', 'A cozy inn offering a place to rest, fully restore party HP, and organize companions.'),
-    'R': ('Ancient Ruins', 'Dangerous crumbling stone ruins. Hostile forces and rare artifacts await!'),
-    '^': ('Mountain Pass', 'Rugged, high-altitude mountain terrain filled with treacherous wild beasts.'),
-    '↟': ('Dense Forest', 'Dark whispering woods where monsters stalk from the shadows.'),
-    '.': ('Open Field', 'Quiet open grasslands along the main adventuring path.'),
-    '_': ('In Town', 'Peaceful, well defended flagstone paths. The Rot won\'t get you here.'),
-}
-
-
 # --- COMBAT ENGINE ---
 
 class CombatEngine:

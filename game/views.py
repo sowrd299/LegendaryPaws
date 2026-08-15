@@ -3,8 +3,9 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseBadRequest
 from .engine import (
     create_initial_game_state, Party, Character, CombatEngine,
-    WORLD_MAP, MAP_WIDTH, MAP_HEIGHT, TILE_DESCRIPTIONS, CARDS, CORE_STATS, DECK_MINIMUM_SIZE
+    CARDS, CORE_STATS, DECK_MINIMUM_SIZE
 )
+from .map import WORLD_MAP, MAP_WIDTH, MAP_HEIGHT, TILE_DESCRIPTIONS, get_shop
 
 VOINARA_DIALOGUE = [
     "Oh!, oh no, somethings have gone very strange...",
@@ -13,13 +14,6 @@ VOINARA_DIALOGUE = [
     "Something seems.... rotten, I think, in this place. It sounds like the locals call it the \"Death Rot\" whatever it is... " +
     "I just can't tell what it is that is rotting in the first place.",
     "Make good decisions please, this little traveler's future depends on it. Tell me what Yew finds... wherever this is."
-]
-
-SHOP_ITEMS = [
-    ('Honed Slash', 40),
-    ('Honed Archery', 40),
-    ('Wax', 15),
-    ('Potion', 5),
 ]
 
 def name_to_card(card_name):
@@ -131,7 +125,13 @@ def game_index(request):
                 context['known_cards'] = [ name_to_card(name) for name in selected_char.get_known_cards() ]
 
     elif screen == 'shop':
-        context['shop_items'] = [(name_to_card(name), cost) for name,cost in SHOP_ITEMS]
+        shop_data = get_shop(party.x, party.y)
+        speaker, dialogue = random.choice(shop_data.get('dialogues', [("","")]))
+        context['title'] = shop_data.get('title', '')
+        context['illust'] = shop_data.get('illust', '')
+        context['speaker'] = speaker
+        context['text'] = dialogue
+        context['shop_items'] = [(name_to_card(name), cost) for name,cost in shop_data.get('items', dict())]
 
     elif screen == 'combat':
         combat_dict = state.get('combat')

@@ -570,23 +570,27 @@
         <!-- SCREEN: SHOP -->
         {% elif screen == 'shop' %}
         <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h2 style="color: var(--text-muted);">Merchant Shop</h2>
+            <h2 style="color: var(--text-muted);">Shop | {{ title }}</h2>
             <div style="color: var(--accent-amber);">Gold: {{ party.gold }}</div>
         </div>
 
-        <div class="cards-row" style="margin-top: 14px;">
-            {% for card, cost in shop_items %}
-            <div class="card-and-button-rect">
-                {% include "game/card.html" with card=card %}
-                <form method="POST" action="{% url 'handle_action' %}" style="margin-top: 8px;">
-                    {% csrf_token %}
-                    <input type="hidden" name="action_type" value="shop_buy">
-                    <input type="hidden" name="card_name" value="{{ card.name }}">
-                    <input type="hidden" name="cost" value="{{ cost }}">
-                    <button type="submit" class="btn" style="width: 100%;">Buy Card {{cost}}G</button>
-                </form>
+        <div class="dialogue-box">
+            <p class="card-illust" style="color: var(--text-muted)">{{ illust|illust }}</p>
+            <p><span style="color: var(--text-muted)">{{ speaker }}:</span> {{ text }}</p>
+            <div class="cards-row" style="margin-top: 14px;">
+                {% for card, cost in shop_items %}
+                <div class="card-and-button-rect">
+                    {% include "game/card.html" with card=card %}
+                    <form method="POST" action="{% url 'handle_action' %}" style="margin-top: 8px;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action_type" value="shop_buy">
+                        <input type="hidden" name="card_name" value="{{ card.name }}">
+                        <input type="hidden" name="cost" value="{{ cost }}">
+                        <button type="submit" class="btn" style="width: 100%;">Buy Card {{cost}}G</button>
+                    </form>
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
 
         <form method="POST" action="{% url 'handle_action' %}" style="margin-top: 16px;">
