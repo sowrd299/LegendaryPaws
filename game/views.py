@@ -16,6 +16,16 @@ VOINARA_DIALOGUE = [
     "Make good decisions please, this little traveler's future depends on it. Tell me what Yew finds... wherever this is."
 ]
 
+DEAD_ILLUST = """
+    _____    
+   /  (  \   
+  | *   . |  
+  |    .  |  
+  |       |  
+  |       |" 
+-"~----~~-~-
+"""
+
 def name_to_card(card_name):
     card = dict(CARDS[card_name])
     return card
@@ -81,6 +91,7 @@ def game_index(request):
         'party_deck_cards': [ (name_to_card(name), count) for name,count in list_to_unique_counts(party.shared_deck) ],
         'party_deck_len': len(party.shared_deck),
         'deck_minimum_size': DECK_MINIMUM_SIZE,
+        'dead_illust': DEAD_ILLUST,
     }
 
     if screen == 'voinara_intro':

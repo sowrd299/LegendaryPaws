@@ -1,7 +1,68 @@
 {% load static %}
-<div class="unit-card {{ unit_class }}" data-id="{{ char.id }}" onclick="selectTarget('{{ char.id }}')">
-    <img src="{% static char.illust %}" style="width: 100%; margin-top: -40px;" />
-    <div>
+{% load utils %}
+<style>
+    .unit-card {
+        padding: 8px;
+        margin-bottom: 6px;
+        margin-right: 6px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        background-color: var(--panel-bg);
+        width: 189px;
+        position: relative;
+    }
+
+    .unit-card.selectable {
+        border-color: var(--accent-amber);
+    }
+
+    .unit-card.selected {
+        border-color: var(--accent-green);
+        background-color: #233042;
+    }
+
+    .unit-card.dead .name {
+        color: var(--text-muted)
+    }
+
+    .unit-card.dead .char-illust {
+        visibility: hidden;
+    }
+
+    .unit-card.dead .dead-illust {
+        display: block;
+    }
+
+    .unit-card .dead-illust {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translate(-50%, 0);
+    }
+
+    .hp-bar {
+        color: var(--accent-green);
+        letter-spacing: 1px;
+    }
+
+    .hp-bar.low {
+        color: var(--accent-red);
+    }
+
+    .unit-card.dead .hp-bar {
+        color: var(--text-muted);
+    }
+</style>
+
+<div class="unit-card {{ unit_class }} {%if not char.is_alive %}dead{% endif %}" data-id="{{ char.id }}"
+    onclick="selectTarget('{{ char.id }}')">
+    <img class="char-illust" src="{% static char.illust %}" style="width: 100%; margin-top: -40px;" />
+    <p class="card-illust dead-illust">{{ dead_illust|illust }}</p>
+    <div class="name">
         <strong>{{ char.name }}</strong>
     </div>
     <div class="hp-bar {% if char.current_hp < char.max_hp|add:'-3' %}low{% endif %}">
