@@ -11,11 +11,24 @@
             | <span style="color: var(--accent-red)">{{ card.damage_power|floatformat }}×
                 {{ card.damage_type|damage_type }}
             </span>
-            {% elif card.heal_power %}
+            {% endif %}
+            {% if card.heal_power %}
             | <span style="color: var(--accent-green)">{{ card.heal_power|floatformat }}×
                 {{ card.heal_stat|damage_type }}
             </span>
             {% endif %}
+            {% for effect in card.effects %}
+            {% if effect.damage_power %}
+            | <span style="color: var(--accent-red)">{{ effect.damage_power|floatformat }}×
+                {{ effect.damage_type|damage_type }}
+            </span>
+            {% endif %}
+            {% if effect.heal_power %}
+            | <span style="color: var(--accent-green)">{{ effect.heal_power|floatformat }}×
+                {{ effect.heal_stat|damage_type }}
+            </span>
+            {% endif %}
+            {% endfor %}
         </div>
         <div class="card-desc">
             {{ card.description }}

@@ -87,6 +87,7 @@ SHOP_DATA = [
         'title': 'Sally\'s School Supplies',
         'items': [
             ('Simple Trap', 60),
+            ('Elementary Magic', 60),
         ],
         'illust': """
 +--------------------------------------------------------------------------------------------------+

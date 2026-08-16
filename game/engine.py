@@ -64,7 +64,7 @@ CLASS_DATA = {
         'bonus_stats': ['star_intensity', 'moon_intensity', 'void_intensity'],
         'stat_mods': {'star_intensity': 2.0, 'moon_intensity': 2.0, 'void_intensity': 2.0},
         'default_cards': [],
-        'req_card': ['Training']
+        'req_card': ['Elementary Magic', 'Study']
     },
     'Day Mage': {
         'bonus_stats': ['star_intensity', 'moon_resistance', 'void_vulnerability'],
@@ -96,17 +96,17 @@ CLASS_DATA = {
         'default_cards': ['Cursed Readings']
     },
     'Scout': {
-        'bonus_stats': ['ranged_damage', 'survival_intensity', 'melee_resistance', 'moon_resistance'],
-        'stat_mods': {'ranged_damage': 3.0, 'survival_intensity': 3.0, 'melee_resistance': 2.0},
+        'bonus_stats': ['melee_damage', 'ranged_damage', 'survival_intensity', 'moon_resistance'],
+        'stat_mods': {'ranged_damage': 3.0, 'survival_intensity': 3.0},
         'default_cards': ['Archery', 'First Aid'],
         'req_card': ['Simple Trap']
     },
     'Ranger': {
-        'bonus_stats': ['ranged_damage', 'survival_intensity', 'melee_resistance', 'moon_resistance'],
-        'stat_mods': {'ranged_damage': 4.0, 'survival_intensity': 4.0, 'melee_resistance': 2.0},
+        'bonus_stats': ['ranged_damage', 'survival_intensity', 'moon_resistance'],
+        'stat_mods': {'level': 2, 'ranged_damage': 5.0, 'survival_intensity': 5.0, 'moon_resistance': 1.0},
         'default_cards': ['First Aid'],
         'req_class': ['Scout'],
-        'req_card': ['Honed Archery'],
+        'req_level': 6,
     },
     'Blackcloak': {
         'bonus_stats': ['moon_intensity', 'survival_intensity', 'melee_resistance', 'void_resistance'],
@@ -126,7 +126,7 @@ CLASS_DATA = {
         'stat_mods': {'melee_damage': 4.0, 'melee_resistance': 4.0},
         'default_cards': [],
         'req_class': ['Squire'],
-        'req_card': ['Honed Slash'],
+        'level': 6,
     },
     'Paladin': {
         'bonus_stats': ['melee_damage', 'star_intensity', 'melee_resistance', 'moon_resistance'],
@@ -354,15 +354,15 @@ CARD_DATA = [
         'recovery_cost': 5,
         'damage_type': 'survival_intensity',
         'damage_power': 1.0,
-        'description': 'A scout\'s cleaver attack.',
+        'description': 'A scout\'s first attack.',
         'stat_boosts': {'survival_intensity': 0.2, 'ranged_damage': 0.2, 'nimbleness': 0.2},
         'illust': """
 +-----------------+
-|                 |
-|                 |
-|                 |
-|                 |
-|                 |
+|  "  / .   ` /_//|
+| "  / .   .     ||
+|   /   `   .  / j|
+|"|-------------| |
+|/  .    .  . /" "|
 +-----------------+
 """
     },
@@ -376,6 +376,38 @@ CARD_DATA = [
         'heal_stat': 'survival_intensity',
         'description': 'Heals an ally.',
         'stat_boosts': {'survival_intensity': 0.3, 'haleness': 0.2}
+    },
+    {
+        'name': 'Elementary Magic',
+        'type': 'scroll',
+        'rarity': 'interesting',
+        'target': 'enemy',
+        'recovery_cost': 20,
+        'effects': [
+            {
+                'damage_type': 'moon_intensity',
+                'damage_power': 1.0,
+            },
+            {
+                'damage_type': 'star_intensity',
+                'damage_power': 1.0,
+            },
+            {
+                'damage_type': 'void_intensity',
+                'damage_power': 1.0,
+            },
+        ],
+        'description': 'A student\'s first attack.',
+        'stat_boosts': {'moon_intensity': 0.2, 'moon_resistance': 0.3, 'star_vulnerability': 0.3},
+        'illust': """
++-----------------+
+|      ,/(        |
+|      '\(     ,  |
+| \|/             |
+| -*-           ` |
+| /|\       ,  '  |
++-----------------+
+"""
     },
     {
         'name': 'Wain',
@@ -982,6 +1014,7 @@ class CombatEngine:
         if card.get('is_wait'):
             self.combat_log.append(f"{actor.name} waited to recover energy.")
 
+        # Heal calculation
         if 'heal_power' in card:
             heal_stat_name = card.get('heal_stat', '')
             heal_amount = int(card['heal_power'])
@@ -1027,6 +1060,16 @@ class CombatEngine:
                 dmg = max(1, int(round(raw_dmg)))
                 t.current_hp = max(0, t.current_hp - dmg)
                 self.combat_log.append(f"{actor.name} used {card_name} on {t.name} for {dmg} damage!")
+
+        # recur onto bonus effects
+        for effect in card.get('effects', []):
+            effect = dict(effect)
+            if not 'name' in effect:
+                effect['name'] = card_name
+            if not 'target' in effect:
+                effect['target'] = target
+
+            self.apply_card_effect(actor, effect, target)
 
         print(f"[Combat!] Turn complete: {', '.join([f'{c.name}: {c.action_timer} ticks' for c in self.allies + self.enemies])}")
 
@@ -1119,9 +1162,9 @@ def create_initial_game_state():
     party.inventory = starting_inventory
     party.shared_deck = ( 
         ['Slash'] * 5 +
-        ['Light Slash', 'Heavy Slash'] +
+        ['Heavy Slash'] +
         ['Potion'] * 2 +
-        ['Wain'] * 1
+        ['Wain'] * 2
     )
 
     return {

@@ -50,6 +50,11 @@ ILLUSTRATION_DATA = [
         'classes': ['Husk', 'Rotmonger'],
     },
     {
+        'name': 'fox_student',
+        'species': ['Fox'],
+        'classes': ['Student'],
+    },
+    {
         'name': 'fox_star_mage',
         'species': ['Fox'],
         'classes': ['Day Mage'],
