@@ -193,6 +193,7 @@ def handle_action(request):
             enemies = get_random_encounter(new_x, new_y, level=party.members[0].level if party.members else 1)
             if enemies:
                 engine = CombatEngine(party.members, enemies, party.shared_deck)
+                engine.start_combat()
                 state['combat'] = engine.to_dict()
                 state['screen'] = 'combat'
                 state['message'] = f"Encountered wild enemy forces on the {TILE_DESCRIPTIONS.get(current_tile, ('tile', ''))[0]}!"

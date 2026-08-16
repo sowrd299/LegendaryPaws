@@ -710,11 +710,11 @@ class Character:
 
         if stat_name in scaled_stats:
             return scaled_stats[stat_name]
-        if stat_name in MAGIC_STATS:
+        elif stat_name in MAGIC_STATS:
             return 0
         elif stat in damage_stat_name and 'brute_intensity' in scaled_stats:
             return scaled_stats['brute_intensity']
-        elif "resistance" and 'brute_resistance' in scaled_stats:
+        elif "resistance" in damage_stat_name and 'brute_resistance' in scaled_stats:
             return scaled_stats['brute_resistance']
         else:
             return 0
@@ -883,16 +883,18 @@ class CombatEngine:
     def __init__(self, allies, enemies, shared_deck = []):
         self.allies = allies  # List of Character objects
         self.enemies = enemies  # List of Character objects (built using Character class!)
+        self.shared_deck = shared_deck
         self.combat_log = []
         self.is_over = False
         self.victory = False
 
+    def start_combat(self):
         # Reset action timers
         for c in self.allies + self.enemies:
             c.action_timer = 20 - c.get_scaled_stats().get("nimbleness", 0)
 
         # Build party shared deck
-        deck_pool = list(shared_deck)
+        deck_pool = list(self.shared_deck)
         while len(deck_pool) < DECK_MINIMUM_SIZE:
             deck_pool.append("Wallow")
         for a in self.allies:
@@ -940,12 +942,15 @@ class CombatEngine:
             for c in self.allies + self.enemies:
                 if c.is_alive():
                     c.action_timer = max(0, c.action_timer - min_timer)
+
+        print(f"[Combat!] Start of turn: {', '.join([f'{c.name}: {c.action_timer} ticks' for c in self.allies + self.enemies])}")
         return turn_char
 
     def execute_enemy_turn(self, enemy):
         """AI execution for an enemy character turn."""
         living_allies = [a for a in self.allies if a.is_alive()]
         living_enemies = [e for e in self.enemies if e.is_alive()]
+        damaged_enemies = [e for e in living_enemies if e.current_hp < e.max_hp]
         if not living_allies:
             return
 
@@ -955,8 +960,8 @@ class CombatEngine:
 
         target = random.choice(living_allies)
         if card.get('target') == 'ally':
-            if card.get('heal_power') > 0:
-                target = random.choice([e for e in living_enemies if e.current_hp < e.max_hp])
+            if card.get('heal_power') > 0 and damaged_enemies:
+                target = random.choice(damaged_enemies)
             else:
                 target = random.choice(living_enemies)
 
@@ -976,7 +981,6 @@ class CombatEngine:
 
         if card.get('is_wait'):
             self.combat_log.append(f"{actor.name} waited to recover energy.")
-            return
 
         if 'heal_power' in card:
             heal_stat_name = card.get('heal_stat', '')
@@ -994,7 +998,6 @@ class CombatEngine:
                 if t and t.is_alive():
                     t.current_hp = min(t.max_hp, t.current_hp + heal_amount)
                     self.combat_log.append(f"{actor.name} used {card_name} on {t.name}, healing {heal_amount} HP!")
-            return
 
         # Damage calculation
         if 'damage_power' in card:
@@ -1019,9 +1022,13 @@ class CombatEngine:
                 vul_val = t.get_combat_scaled_stat(dmg_type, "vulnerability")
 
                 raw_dmg = (base_power * atk_val) + vul_val - res_val
+                print(f"[Combat!] Damage calc for {card_name}: base_power: {base_power}, atk_val: {atk_val}, vul_val: {vul_val}, res_val: {res_val} => {raw_dmg}")
+
                 dmg = max(1, int(round(raw_dmg)))
                 t.current_hp = max(0, t.current_hp - dmg)
                 self.combat_log.append(f"{actor.name} used {card_name} on {t.name} for {dmg} damage!")
+
+        print(f"[Combat!] Turn complete: {', '.join([f'{c.name}: {c.action_timer} ticks' for c in self.allies + self.enemies])}")
 
     def execute_player_turn(self, actor, card_name, target_id):
         """Processes player character turn using card_name and target_id."""
@@ -1044,7 +1051,7 @@ class CombatEngine:
         # Increase action timer
         stats = actor.get_scaled_stats()
         nimble = stats.get('nimbleness', 2)
-        rec = card.get('recovery_cost', 10) * (1.0 / (0.5 + nimble * 0.1))
+        rec = ((4 * card.get('recovery_cost', 10)) - nimble) / 4
         actor.action_timer += int(round(rec))
 
         # Replenish hand
@@ -1071,6 +1078,7 @@ class CombatEngine:
         return {
             'allies': [a.to_dict() for a in self.allies],
             'enemies': [e.to_dict() for e in self.enemies],
+            'shared_deck': self.shared_deck,
             'combat_log': self.combat_log,
             'is_over': self.is_over,
             'victory': self.victory,
@@ -1083,7 +1091,7 @@ class CombatEngine:
     def from_dict(cls, d):
         allies = [Character.from_dict(a) for a in d.get('allies', [])]
         enemies = [Character.from_dict(e) for e in d.get('enemies', [])]
-        engine = cls(allies, enemies)
+        engine = cls(allies, enemies, d.get('shared_deck', []))
         engine.combat_log = d.get('combat_log', [])
         engine.is_over = d.get('is_over', False)
         engine.victory = d.get('victory', False)
