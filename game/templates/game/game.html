@@ -491,7 +491,7 @@
             <h4 style="font-size: 0.95rem;">
                 Inventory |
                 <span style="color: var(--text-muted);">
-                    {%if party_inventory_len == inventory_max_size %}
+                    {%if party_inventory_len >= inventory_max_size %}
                     <span style="color: var(--accent-red);">
                         {%else%}
                         <span>
@@ -572,7 +572,7 @@
             <h4 style="font-size: 0.95rem;">
                 Inventory |
                 <span style="color: var(--text-muted);">
-                    {%if party_inventory_len == inventory_max_size %}
+                    {%if party_inventory_len >= inventory_max_size %}
                     <span style="color: var(--accent-red);">
                         {%else%}
                         <span>
