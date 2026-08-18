@@ -126,7 +126,7 @@ CLASS_DATA = {
         'stat_mods': {'melee_damage': 4.0, 'melee_resistance': 4.0},
         'default_cards': [],
         'req_class': ['Squire'],
-        'level': 6,
+        'req_level': 6,
     },
     'Paladin': {
         'bonus_stats': ['melee_damage', 'star_intensity', 'melee_resistance', 'moon_resistance'],
@@ -278,6 +278,46 @@ CARD_DATA = [
 """
     },
     {
+        'name': 'Favorite Slash',
+        'type': 'weapon',
+        'rarity': 'interesting',
+        'target': 'enemy',
+        'recovery_cost': 10,
+        'damage_type': 'melee_damage',
+        'damage_power': 2.0,
+        'description': 'Standard attack.',
+        'stat_boosts': {'melee_damage': 0.2},
+        'illust': """
++-----------------+
+|     - -   _.    |
+|      - - / |    |
+|    -  . ///     |
+|        \//      |
+|       //\.      |
++-------*---------+
+"""
+    },
+    {
+        'name': 'Favorite Heavy Slash',
+        'type': 'weapon',
+        'rarity': 'interesting',
+        'target': 'enemy',
+        'recovery_cost': 20,
+        'damage_type': 'melee_damage',
+        'damage_power': 3.0,
+        'description': 'Standard attack.',
+        'stat_boosts': {'melee_damage': 0.2},
+        'illust': """
++-----------------+
+|     - -   _.    |
+|      - - / |    |
+|    -  . ///     |
+|        \//      |
+|       //\.      |
++-------*---------+
+"""
+    },
+    {
         'name': 'Heavy Slash',
         'type': 'weapon',
         'rarity': 'mundane',
@@ -285,6 +325,26 @@ CARD_DATA = [
         'recovery_cost': 20,
         'damage_type': 'melee_damage',
         'damage_power': 3.0,
+        'description': 'Standard attack.',
+        'stat_boosts': {'melee_damage': 0.2},
+        'illust': """
++-----------------+
+|     - -   _.    |
+|      - - / |    |
+|    -  . ///     |
+|        \//      |
+|       //\.      |
++-------*---------+
+"""
+    },
+    {
+        'name': 'Favorite Light Slash',
+        'type': 'weapon',
+        'rarity': 'interesting',
+        'target': 'enemy',
+        'recovery_cost': 5,
+        'damage_type': 'melee_damage',
+        'damage_power': 1.0,
         'description': 'Standard attack.',
         'stat_boosts': {'melee_damage': 0.2},
         'illust': """
@@ -330,6 +390,26 @@ CARD_DATA = [
         'name': 'Archery',
         'type': 'weapon',
         'rarity': 'mundane',
+        'target': 'enemy',
+        'recovery_cost': 10,
+        'damage_type': 'ranged_damage',
+        'damage_power': 2.0,
+        'description': 'Standard attack.',
+        'stat_boosts': {'ranged_damage': 0.2, 'nimbleness': 0.2},
+        'illust': """
++-----------------+
+|                 |
+|   >>======>     |
+|                 |
+|       >>======> |
+|                 |
++-----------------+
+"""
+    },
+    {
+        'name': 'Favorite Archery',
+        'type': 'weapon',
+        'rarity': 'interesting',
         'target': 'enemy',
         'recovery_cost': 10,
         'damage_type': 'ranged_damage',
@@ -406,6 +486,26 @@ CARD_DATA = [
 | \|/             |
 | -*-           ` |
 | /|\       ,  '  |
++-----------------+
+"""
+    },
+    {
+        'name': 'Woe',
+        'type': 'scroll',
+        'rarity': 'interesting',
+        'target': 'enemy',
+        'recovery_cost': 20,
+        'damage_type': 'moon_intensity',
+        'damage_power': 3.0,
+        'description': 'Magic spell dealing damage.',
+        'stat_boosts': {'moon_intensity': 0.2, 'moon_resistance': 0.3, 'star_vulnerability': 0.3},
+        'illust': """
++-----------------+
+| `'        (  )  |
+|       /\   `'   |
+|      /  \       |
+|      (  )       |
+| ^     `'    /\  |
 +-----------------+
 """
     },
@@ -1190,15 +1290,14 @@ def create_initial_game_state():
     # Starting cards per GDD: 5 health potions, 6 slashes, 3 light clothes
     starting_inventory = (
         ['Potion'] * 4 +
-        ['Wain'] * 1
+        ['Woe'] * 1
     )
     party.inventory = starting_inventory
     party.shared_deck = ( 
         ['Bargain'] +
         ['Slash'] * 4 +
-        ['Heavy Slash'] +
         ['Potion'] * 2 +
-        ['Wain'] * 2
+        ['Woe'] * 2
     )
 
     return {
