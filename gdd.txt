@@ -147,10 +147,10 @@ The Species:
 - Owl
 - Raven
 - Dragonling
-- Ember sprite (bonuses to star intensity and resistance)
-- Dew sprite (bonuses to moon intensity and resistance)
-- Lost sprite (bonuses to void intensity and resistance)
-- Automaton (bonuses to physical stats, penalties to magic all three magic intensity stats)
+- Ember Sprite (bonuses to star intensity and resistance)
+- Dew Sprite (bonuses to moon intensity and resistance)
+- Loss Sprite (bonuses to void intensity and resistance)
+- Clockwork (bonuses to physical stats, penalties to magic all three magic intensity stats)
 
 The classes:
 - Wandering Spellsword (knows melee damage, moon spell intensity, and Diplomacy as its three bonus stats; learned from any Ranger at any level with Wain, 
@@ -197,3 +197,32 @@ I think you are about to witness quite the adventure. Make good descions please,
 
 The character begins with 1 level 1 Fox Wandering Spellsword in their party. They have 5 health potions, 6 slashes, and 3 light clothes.
 They begin in the center of the town area on the map.
+
+
+=== RECRUITMENT LOOP ==
+- Certain encounter types are "recruitable"; they contain all playable species, and the classes Student, Squire, and Scout. They each only have one enemy. 
+    - The come with a mix up one each of a random trinket, scroll, weapon, and armor relevant to their class, plus Potion xp cards to get them up to the target level
+    - Level 2 recruitable characters are findable in the field a 0.1 rate
+    - Level 4 recruitable characters are findable in forest at 0.3 rate
+    - All the the above, including cards per class, are defined in encounter data
+
+- The player starts with one copy of the card "Bargain" in their deck; more copies are available for 15 G at the school supply shop
+    - It costs 10 ticks, deals 1x Diplomacy damage, raises Diplomacy by 0.3 as its main stat bonus, is a mundane scroll, and has "Recruit some enemies defeated by this attack."
+
+- This last ability is a new "can_recruit" attribute; when an enemy is defeated by a card with "can_recruit", if the encounter is recruitable,
+    that enemy enters a "recruited" state
+    - Recruited enemies have a unique dead illust, showing either a scroll being signed, if the player's party has room, or an "INN" sign if it doesn't
+
+- At the end of combat, any recruited characters are added to the player's party (if the party has room, up to a max of 4)
+- Any other recruited characters are logged as staying at the nearest Inn
+
+- INNS : 
+    - Each Inn has a distinct list of characters staying there
+    - When interacting with an Inn, the player has a UI to leave characters from their party staying at that Inn, and add characters staying there to their party
+    (they player's party must always have at least one, and at most 4 characters)
+
+    - The Inn UI is based on the shop and deck editor UIs, with (from top to bottom)
+        1) ASCII art illustration 
+        2) Dialogue from the Innkeeper
+        3) A x-scrollable row of the characterts staying at the Inn, each with their portait name, level, species, and class, and a "Recruit" button
+        4) a second, same-format (and code) row of characters in the player's party, with a "Dismiss" button

@@ -28,6 +28,25 @@ DEAD_ILLUST = """
 -"~----~~-~-
 """
 
+SIGNED_SCROLL_ILLUST = """
+
+(=========(@  
+ | ~~ ~~~~ | 
+ | ~~~~ ~~ | 
+ |  X_____ | 
+(=========(@  
+"""
+
+INN_SIGN_ILLUST = """
+  ==)===)===
+    O   O
+   ()  ()
+  /-n---n-\ 
+  |  INN  | 
+  |  ===  / 
+  +------/  
+"""
+
 def name_to_card(card_name):
     card = dict(CARDS[card_name])
     return card
@@ -80,6 +99,10 @@ def game_index(request):
         'party_deck_len': len(party.shared_deck),
         'deck_minimum_size': DECK_MINIMUM_SIZE,
         'dead_illust': DEAD_ILLUST,
+        'signed_scroll_illust': SIGNED_SCROLL_ILLUST,
+        'inn_sign_illust': INN_SIGN_ILLUST,
+        'party_len': len(party.members),
+        'max_party_size': 4,
     }
 
     if screen == 'voinara_intro':
@@ -190,9 +213,9 @@ def handle_action(request):
             state['message'] = "You rest at the inn. Party HP fully restored!"
         else:
             # Chance for wild combat encounter based on terrain
-            enemies = get_random_encounter(new_x, new_y, level=party.members[0].level if party.members else 1)
+            enemies, is_recruitable = get_random_encounter(new_x, new_y)
             if enemies:
-                engine = CombatEngine(party.members, enemies, party.shared_deck)
+                engine = CombatEngine(party.members, enemies, party.shared_deck, is_recruitable=is_recruitable)
                 engine.start_combat()
                 state['combat'] = engine.to_dict()
                 state['screen'] = 'combat'
@@ -314,8 +337,21 @@ def handle_action(request):
                             if a.id == m.id:
                                 m.current_hp = a.current_hp
 
+                    recruited_msgs = []
+                    for e in engine.enemies:
+                        if getattr(e, 'is_recruited', False):
+                            e.current_hp = e.max_hp
+                            e.is_recruited = False
+                            if len(party.members) < 4:
+                                party.members.append(e)
+                                recruited_msgs.append(f"Recruited {e.name} into your party!")
+                            else:
+                                # TODO: Phase 2: Send character to nearest Inn here
+                                recruited_msgs.append(f"{e.name} was recruited! (Party full)")
+
+                    recruited_str = (" " + " ".join(recruited_msgs)) if recruited_msgs else ""
                     state['screen'] = 'overworld'
-                    state['message'] = f"Victory! Gained {earned_gold} gold and a '{reward_card}' card!"
+                    state['message'] = f"Victory! Gained {earned_gold} gold and a '{reward_card}' card!{recruited_str}"
                 else:
                     # Fully restore party on defeat & return to safe town position
                     for m in party.members:

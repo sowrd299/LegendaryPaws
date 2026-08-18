@@ -88,6 +88,7 @@ SHOP_DATA = [
         'items': [
             ('Simple Trap', 60),
             ('Elementary Magic', 60),
+            ('Bargain', 15),
         ],
         'illust': """
 +--------------------------------------------------------------------------------------------------+
@@ -111,8 +112,42 @@ SHOP_DATA = [
     },
 ]
 
+ALL_PLAYABLE_SPECIES = [
+    'Fox', 'Cat', 'Badger', 'Rabbit', 'Owl', 'Raven',
+    'Dragonling', 'Ember Sprite', 'Dew Sprite', 'Loss Sprite', 'Clockwork'
+]
+
+DEFAULT_CHARACTER_NAMES = [
+    'Twig', 'Lily', 'Pip', 'Moss', 'Bramble', 'Clover', 'Hazel', 'Fern',
+    'Rowan', 'Acorn', 'Willow', 'Pebble', 'Finley', 'Copper', 'Oat',
+    'Thistle', 'Sedge', 'Cedar', 'Birch', 'Briar', 'Plum', 'Pippin', 'Sprout'
+]
+
+DEFAULT_CLASS_STARTER_CARDS = {
+    'Student': {
+        'scroll': ['Elementary Magic', 'Wain', 'Wax', 'Singe', 'Chill'],
+    },
+    'Squire': {
+        'weapon': ['Honed Slash'],
+    },
+    'Scout': {
+        'weapon': ['Honed Archery', 'Simple Trap'],
+    },
+}
+
 ENCOUNTER_DATA = {
     '.': [
+        {
+            'chance': 0.1,
+            'min_enemies': 1,
+            'max_enemies': 1,
+            'species': ALL_PLAYABLE_SPECIES,
+            'classes': ['Student', 'Squire', 'Scout'],
+            'target_level': 2,
+            'is_recruitable': True,
+            'cards_by_class': DEFAULT_CLASS_STARTER_CARDS,
+            'names': DEFAULT_CHARACTER_NAMES,
+        },
         {
             'chance': 0.2,
             'min_enemies': 2,
@@ -148,6 +183,17 @@ ENCOUNTER_DATA = {
     ],
     '↟': [
         {
+            'chance': 0.3,
+            'min_enemies': 1,
+            'max_enemies': 1,
+            'species': ALL_PLAYABLE_SPECIES,
+            'classes': ['Student', 'Squire', 'Scout'],
+            'target_level': 4,
+            'is_recruitable': True,
+            'cards_by_class': DEFAULT_CLASS_STARTER_CARDS,
+            'names': DEFAULT_CHARACTER_NAMES,
+        },
+        {
             'chance': 0.5,
             'min_enemies': 2,
             'max_enemies': 4,
@@ -170,28 +216,50 @@ def get_shop(shop_x, shop_y):
             elif map[y][x] == 'S': 
                 idx += 1
 
-def generate_random_enemies(encounter_data, level=1):
+def generate_random_enemies(encounter_data):
     """Generates enemy characters using the exact Character system."""
     count = random.randint(encounter_data['min_enemies'], encounter_data['max_enemies'])
     
     species_options = encounter_data['species']
     class_options = encounter_data['classes']
+    cards_by_class = encounter_data.get('cards_by_class', {})
+    target_lvl = encounter_data.get('target_level')
+
+    names = list(encounter_data.get('names', []))
+    random.shuffle(names)
 
     enemies = []
     for i in range(count):
         sp = random.choice(species_options)
         cl = random.choice(class_options)
-        name = f"{sp} {cl}"
-        enemy = Character(name=name, species=sp, current_class=cl, level=level)
+        
+        name = "{0} {1}".format(sp, cl)
+        if names:
+            name = names.pop()
+
+        enemy = Character(name=name, species=sp, current_class=cl, level=1)
+
+        if cards_by_class and cl in cards_by_class:
+            class_pools = cards_by_class[cl]
+            for card_type in class_pools:
+                chosen_card = random.choice(class_pools[card_type])
+                enemy.give_card(chosen_card)
+
+        if target_lvl is not None:
+            while enemy.get_scaled_stats().get('level') < target_lvl:
+                enemy.give_card('Potion')
+
+        enemy.current_hp = enemy.max_hp
         enemies.append(enemy)
     return enemies
 
-def get_random_encounter(encounter_x, encounter_y, level=1):
+def get_random_encounter(encounter_x, encounter_y):
     terrain = WORLD_MAP[encounter_y][encounter_x]
-    encounter_data = ENCOUNTER_DATA[terrain]
+    encounter_data = ENCOUNTER_DATA.get(terrain, [])
     r = random.random()
     for encounter in encounter_data:
         if r < encounter['chance']:
-            return generate_random_enemies(encounter, level)
+            enemies = generate_random_enemies(encounter)
+            return enemies, encounter.get('is_recruitable', False)
         r -= encounter['chance']
-    return []
+    return [], False

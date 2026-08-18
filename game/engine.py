@@ -47,10 +47,10 @@ SPECIES_DATA = {
     'Owl': {'haleness': 3.0, 'star_intensity': 4.0, 'nimbleness': 2.0, 'brute_intensity': 3},
     'Raven': {'void_intensity': 4.0, 'nimbleness': 3.0, 'haleness': 2.0, 'brute_resistance': 1.0},
     'Dragonling': {'brute_intensity': 8, 'star_intensity': 3.0, 'haleness': 3.0, 'brute_resistance': 2.0},
-    'Ember sprite': {'star_intensity': 5.0, 'star_resistance': 4.0, 'haleness': 1.0, 'brute_intensity': 0},
-    'Dew sprite': {'moon_intensity': 5.0, 'moon_resistance': 4.0, 'haleness': 1.0, 'brute_intensity': 0},
-    'Lost sprite': {'void_intensity': 5.0, 'void_resistance': 4.0, 'haleness': 1.0, 'brute_intensity': 0},
-    'Automaton': {'brute_intensity': 15, 'brute_resistance': 5.0, 'nimbleness': 2.0, 'haleness': 4.0,
+    'Ember Sprite': {'star_intensity': 5.0, 'star_resistance': 4.0, 'haleness': 1.0, 'brute_intensity': 0},
+    'Dew Sprite': {'moon_intensity': 5.0, 'moon_resistance': 4.0, 'haleness': 1.0, 'brute_intensity': 0},
+    'Loss Sprite': {'void_intensity': 3.0, 'void_resistance': 4.0, 'haleness': 0.0, 'brute_intensity': 0, 'nimbleness': 3.0},
+    'Clockwork': {'brute_intensity': 15, 'brute_resistance': 5.0, 'nimbleness': 2.0, 'haleness': 4.0,
                   'star_intensity': -3.0, 'moon_intensity': -3.0, 'void_intensity': -3.0}
 }
 
@@ -643,6 +643,27 @@ CARD_DATA = [
         'damage_power': 1.2,
         'description': 'Strikes all enemies with void energy.',
         'stat_boosts': {'void_intensity': 0.8}
+    },
+    {
+        'name': 'Bargain',
+        'type': 'scroll',
+        'rarity': 'mundane',
+        'target': 'enemy',
+        'recovery_cost': 10,
+        'damage_type': 'diplomacy',
+        'damage_power': 1.0,
+        'description': 'Recruits some enemies defeated by this attack.',
+        'can_recruit': True,
+        'stat_boosts': {'diplomacy': 0.3},
+        'illust': """
++-----------------+
+| (============(@ |
+|  | ~~ ~~~~~~~ | |
+|  | ~~~~~~ ~~~ | |
+|  |  X________ | |
+| (============(@ |
++-----------------+
+"""
     }
 ]
 
@@ -673,6 +694,7 @@ class Character:
         self.current_hp = self.max_hp
         self.action_timer = 0
         self.equipped_cards = []  # Specific equipped cards
+        self.is_recruited = False
 
     @property
     def level(self):
@@ -824,7 +846,7 @@ class Character:
 
                 class_req = not has_class_req or self.current_class in cl.get('req_class')
                 card_req = not has_card_req or any(c in self.equipped_cards for c in cl.get('req_card'))
-                level_req = not has_level_req or self.get_scaled_stats()['level'] >= cl.get('req_level')
+                level_req = not has_level_req or self.get_scaled_stats().get('level', 1) >= cl.get('req_level')
                 species_req = not has_species_req or self.species in cl.get('req_species')
 
                 if class_req and card_req and level_req and species_req:
@@ -854,7 +876,8 @@ class Character:
             'current_hp': self.current_hp,
             'max_hp': self.max_hp,
             'action_timer': self.action_timer,
-            'equipped_cards': self.equipped_cards
+            'equipped_cards': self.equipped_cards,
+            'is_recruited': getattr(self, 'is_recruited', False)
         }
 
     @classmethod
@@ -868,6 +891,7 @@ class Character:
             level_up_cards=cards
         )
         c.equipped_cards = d.get('equipped_cards', [])
+        c.is_recruited = d.get('is_recruited', False)
         # Recalculate max_hp based on state
         scaled_stats = c.get_scaled_stats()
         c.update_max_hp()
@@ -912,13 +936,17 @@ class Party:
 # --- COMBAT ENGINE ---
 
 class CombatEngine:
-    def __init__(self, allies, enemies, shared_deck = []):
+    def __init__(self, allies, enemies, shared_deck = [], is_recruitable = False):
         self.allies = allies  # List of Character objects
         self.enemies = enemies  # List of Character objects (built using Character class!)
         self.shared_deck = shared_deck
+        self.is_recruitable = is_recruitable
         self.combat_log = []
         self.is_over = False
         self.victory = False
+        self.draw_pile = []
+        self.discard_pile = []
+        self.hand = []
 
     def start_combat(self):
         # Reset action timers
@@ -1061,6 +1089,10 @@ class CombatEngine:
                 t.current_hp = max(0, t.current_hp - dmg)
                 self.combat_log.append(f"{actor.name} used {card_name} on {t.name} for {dmg} damage!")
 
+                if t.current_hp == 0 and card.get('can_recruit') and getattr(self, 'is_recruitable', False):
+                    t.is_recruited = True
+                    self.combat_log.append(f"> {t.name} was successfully recruited!")
+
         # recur onto bonus effects
         for effect in card.get('effects', []):
             effect = dict(effect)
@@ -1122,6 +1154,7 @@ class CombatEngine:
             'allies': [a.to_dict() for a in self.allies],
             'enemies': [e.to_dict() for e in self.enemies],
             'shared_deck': self.shared_deck,
+            'is_recruitable': getattr(self, 'is_recruitable', False),
             'combat_log': self.combat_log,
             'is_over': self.is_over,
             'victory': self.victory,
@@ -1134,7 +1167,7 @@ class CombatEngine:
     def from_dict(cls, d):
         allies = [Character.from_dict(a) for a in d.get('allies', [])]
         enemies = [Character.from_dict(e) for e in d.get('enemies', [])]
-        engine = cls(allies, enemies, d.get('shared_deck', []))
+        engine = cls(allies, enemies, d.get('shared_deck', []), is_recruitable=d.get('is_recruitable', False))
         engine.combat_log = d.get('combat_log', [])
         engine.is_over = d.get('is_over', False)
         engine.victory = d.get('victory', False)
@@ -1161,7 +1194,8 @@ def create_initial_game_state():
     )
     party.inventory = starting_inventory
     party.shared_deck = ( 
-        ['Slash'] * 5 +
+        ['Bargain'] +
+        ['Slash'] * 4 +
         ['Heavy Slash'] +
         ['Potion'] * 2 +
         ['Wain'] * 2

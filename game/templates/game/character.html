@@ -64,7 +64,17 @@
 
 <div class="unit-card {{ char_class }} {%if not char.is_alive %}dead{% endif %}" data-id="{{ char.id }}" onclick="selectTarget('{{ char.id }}')">
     <img class="char-illust" src="{% static char.illust %}" style="width: 100%; margin-top: -40px;" />
-    <p class="card-illust dead-illust">{{ dead_illust|illust }}</p>
+    {% if not char.is_alive %}
+      {% if char.is_recruited %}
+        {% if party_len < max_party_size %}
+          <p class="card-illust dead-illust">{{ signed_scroll_illust|illust }}</p>
+        {% else %}
+          <p class="card-illust dead-illust">{{ inn_sign_illust|illust }}</p>
+        {% endif %}
+      {% else %}
+        <p class="card-illust dead-illust">{{ dead_illust|illust }}</p>
+      {% endif %}
+    {% endif %}
     <div class="name">
         <strong>{{ char.name }}</strong>
     </div>
