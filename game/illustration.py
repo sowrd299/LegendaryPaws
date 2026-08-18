@@ -99,10 +99,114 @@ ILLUSTRATION_DATA = [
         'species': ['Fox', 'Cat'],
         'classes': ['Dragonslayer'],
     },
+    {
+        'name': 'embersprite_squire',
+        'species': ['Ember Sprite'],
+        'classes': ['Squire', 'Knight', 'Paladin', 'Dragonslayer'],
+    },
+    {
+        'name': 'embersprite_scout',
+        'species': ['Ember Sprite'],
+        'classes': ['Scout', 'scout'],
+    },
+    {
+        'name': 'embersprite_day_mage',
+        'species': ['Ember Sprite'],
+        'classes': ['Day Mage'],
+    },
+    {
+        'name': 'dewsprite_squire',
+        'species': ['Dew Sprite'],
+        'classes': ['Squire', 'Knight', 'Paladin', 'Dragonslayer'],
+    },
+    {
+        'name': 'dewsprite_scout',
+        'species': ['Dew Sprite'],
+        'classes': ['Scout', 'scout'],
+    },
+    {
+        'name': 'dewsprite_night_mage',
+        'species': ['Dew Sprite'],
+        'classes': ['Night Mage'],
+    },
+    {
+        'name': 'frostsprite_squire',
+        'species': ['Frost Sprite'],
+        'classes': ['Squire', 'Knight', 'Paladin', 'Dragonslayer'],
+    },
+    {
+        'name': 'frostsprite_scout',
+        'species': ['Frost Sprite'],
+        'classes': ['Scout', 'scout'],
+    },
+    {
+        'name': 'frostsprite_passage_mage',
+        'species': ['Frost Sprite'],
+        'classes': ['Passage Mage'],
+    },
+    {
+        'name': 'losssprite_squire',
+        'species': ['Loss Sprite'],
+        'classes': ['Squire', 'Knight', 'Paladin', 'Dragonslayer'],
+    },
+    {
+        'name': 'losssprite_scout',
+        'species': ['Loss Sprite'],
+        'classes': ['Scout', 'Ranger'],
+    },
+    {
+        'name': 'losssprite_passage_mage',
+        'species': ['Loss Sprite'],
+        'classes': ['Passage Mage'],
+    },
 
     # Species-generic portraits; go last so we check for class-specific matches first
     {
         'name': 'fox',
         'species': ['Fox'],
+    },
+    {
+        'name': 'cat',
+        'species': ['Cat'],
+    },
+    {
+        'name': 'badger',
+        'species': ['Badger'],
+    },
+    {
+        'name': 'rabbit',
+        'species': ['Rabbit'],
+    },
+    {
+        'name': 'owl',
+        'species': ['Owl'],
+    },
+    {
+        'name': 'raven',
+        'species': ['Raven'],
+    },
+    {
+        'name': 'dragonling',
+        'species': ['Dragonling'],
+    },
+    {
+        'name': 'clockwork',
+        'species': ['Clockwork'],
+    },
+    {
+        'name': 'embersprite1',
+        'species': ['Ember Sprite'],
+    },
+    {
+        'name': 'dewsprite1',
+        'species': ['Dew Sprite'],
+    },
+    {
+        'name': 'frostsprite1',
+        'species': ['Frost Sprite'],
+    },
+    {
+        'name': 'losssprite',
+        'species': ['Loss Sprite'],
     },
 ]
