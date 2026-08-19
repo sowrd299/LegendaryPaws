@@ -112,6 +112,30 @@ SHOP_DATA = [
     },
 ]
 
+INN_DATA = [
+    {
+        'id': 'inn_0',
+        'title': 'The Cozy Salmon Inn',
+        'illust': """
++--------------------------------------------------------------------------------------------------+
+|                                                                                   ==)===)========|
+|                                                                                     O   O        |
+|                                                                                    ()  ()        |
+|                                                                                   /-n---n-\      |
+|                                                                                   |  INN  |      |
+|                                                                                   |  ===  /      |
+|                                                                                   +------/       |
+|                                                                                                  |
+|                                                                                                  |
++--------------------------------------------------------------------------------------------------+
+""",
+        'dialogues': [
+            ("Innkeeper Barnaby", "Welcome, weary travelers! Rest your head, heal your wounds, and organize your company."),
+            ("Innkeeper Barnaby", "The Rot might be fierce outside, but our hearth is warm and safe."),
+        ]
+    },
+]
+
 ALL_PLAYABLE_SPECIES = [
     'Fox', 'Cat', 'Badger', 'Rabbit', 'Owl', 'Raven',
     'Dragonling', 'Ember Sprite', 'Dew Sprite', 'Loss Sprite', 'Clockwork'
@@ -213,9 +237,44 @@ def get_shop(shop_x, shop_y):
     for y in range(len(map)):
         for x in range(len(map[y])):
             if x == shop_x and y == shop_y:
-                return SHOP_DATA[min(idx, len(SHOP_DATA))]
+                return SHOP_DATA[min(idx, len(SHOP_DATA)-1)]
             elif map[y][x] == 'S': 
                 idx += 1
+
+def get_inn(inn_x, inn_y):
+    map_grid = WORLD_MAP
+    idx = 0
+    for y in range(len(map_grid)):
+        for x in range(len(map_grid[y])):
+            if x == inn_x and y == inn_y:
+                inn_info = dict(INN_DATA[min(idx, len(INN_DATA) - 1)])
+                inn_info['index'] = idx
+                return inn_info
+            elif map_grid[y][x] == 'I':
+                idx += 1
+    return None
+
+def get_inn_id(inn_x, inn_y):
+    inn_info = get_inn(inn_x, inn_y)
+    return inn_info.get('id') if inn_info else None
+
+def get_nearest_inn_id(px, py):
+    map_grid = WORLD_MAP
+    idx = 0
+    nearest_id = None
+    min_dist = float('inf')
+    
+    for y in range(len(map_grid)):
+        for x in range(len(map_grid[y])):
+            if map_grid[y][x] == 'I':
+                dist = abs(px - x) + abs(py - y)
+                if dist < min_dist:
+                    min_dist = dist
+                    inn_info = INN_DATA[min(idx, len(INN_DATA) - 1)]
+                    nearest_id = inn_info.get('id')
+                idx += 1
+    return nearest_id or INN_DATA[0].get('id', 'inn_0')
+
 
 def generate_random_enemies(encounter_data):
     """Generates enemy characters using the exact Character system."""

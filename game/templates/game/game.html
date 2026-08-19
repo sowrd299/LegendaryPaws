@@ -590,14 +590,67 @@
 
         <!-- SCREEN: INN -->
         {% elif screen == 'inn' %}
-        <div class="dialogue-box">
-            <h2 style="color: var(--accent-amber); margin-bottom: 8px;">Welcome to the Traveler's Rest Inn</h2>
-            <p>Your party rests peacefully under warm blankets. All HP has been restored!</p>
-            <form method="POST" action="{% url 'handle_action' %}" style="margin-top: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="color: var(--text-muted);">Inn | {{ title }}</h2>
+            <form method="POST" action="{% url 'handle_action' %}">
                 {% csrf_token %}
                 <input type="hidden" name="action_type" value="close_menu">
                 {% include "game/button.html" with key="X" label="Exit Inn" %}
             </form>
+        </div>
+
+        <div class="dialogue-box">
+            <p class="card-illust" style="color: var(--text-muted)">{{ illust|illust }}</p>
+            <p><span style="color: var(--text-muted)">{{ speaker }}:</span> {{ text }}</p>
+
+            <!-- GUESTS AT THE INN -->
+            <h4 style="font-size: 0.95rem; margin-top: 14px; margin-bottom: 6px;">
+                Guests Staying at the Inn |
+                <span style="color: var(--text-muted);">{{ inn_characters|length }} Guests</span>
+            </h4>
+            <div class="cards-row">
+                <div class="x-scrollable">
+                    {% for char in inn_characters %}
+                    <div class="card-and-button-rect">
+                        {% include "game/inn_character.html" with char=char %}
+                        <form method="POST" action="{% url 'handle_action' %}" style="margin-top: 6px;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action_type" value="inn_recruit">
+                            <input type="hidden" name="char_index" value="{{ forloop.counter0 }}">
+                            {% if party_len < max_party_size %} {% include "game/button.html" with label="Recruit" %} {% else %} <button type="button" class="btn" disabled style="color: var(--text-muted); cursor: not-allowed; opacity: 0.6;">[ Full ]</button>
+                                {% endif %}
+                        </form>
+                    </div>
+                    {% empty %}
+                    <p style="font-size: 0.85rem; color: var(--text-muted); width: max-content;">No guests currently staying at this inn.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- PARTY MEMBERS -->
+        <h4 style="font-size: 0.95rem; margin-top: 18px; margin-bottom: 6px;">
+            Your Party |
+            <span style="color: var(--text-muted);">
+                {{ party_len }} / {{ max_party_size }} Members
+            </span>
+        </h4>
+        <div class="cards-row">
+            {% for char in party.members %}
+            <div class="card-and-button-rect">
+                {% include "game/inn_character.html" with char=char %}
+                <form method="POST" action="{% url 'handle_action' %}" style="margin-top: 6px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action_type" value="inn_dismiss">
+                    <input type="hidden" name="char_index" value="{{ forloop.counter0 }}">
+                    {% if party_len > 1 %}
+                    {% include "game/button.html" with label="Dismiss" %}
+                    {% else %}
+                    <button type="button" class="btn" disabled style="color: var(--text-muted); cursor: not-allowed; opacity: 0.6;">[ Keep 1 ]</button>
+                    {% endif %}
+                </form>
+            </div>
+            {% endfor %}
         </div>
 
         <!-- SCREEN: COMBAT -->

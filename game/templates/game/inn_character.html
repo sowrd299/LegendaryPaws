@@ -1,0 +1,23 @@
+{% load static %}
+<style>
+    .inn-char-rect {
+        padding: 0px;
+        margin-right: 0px;
+        cursor: pointer;
+        width: 180px;
+        display: flex;
+        flex-direction: row;
+        justify-content: left;
+        position: relative;
+    }
+</style>
+
+<div class="inn-char-rect">
+    <img src="{% static char.illust %}" style="height: 86px; object-fit: contain; flex-shrink: 0;" alt="{{ char.name }}" />
+    <div style="display: flex; flex-direction: column; gap: 2px; text-align: left;">
+        <div style="font-weight: bold; font-size: 0.95rem; color: var(--text-color);">{{ char.name }}</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">Level {{ char.level }}</div>
+        <div style="font-size: 0.7rem; color: var(--text-color);">{{ char.species }}</div>
+        <div style="font-size: 0.7rem; color: var(--text-color);">{{ char.current_class }}</div>
+    </div>
+</div>

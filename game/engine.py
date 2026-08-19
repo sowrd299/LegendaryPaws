@@ -1304,6 +1304,7 @@ def create_initial_game_state():
         'screen': 'voinara_intro',  # Start at Voinara dialogue screen
         'voinara_step': 0,
         'party': party.to_dict(),
+        'inns': {},
         'active_menu': None,  # None, 'character_menu', 'shop', 'inn', 'combat'
         'combat': None,
         'message': "Welcome to Legs on Strange Lands."

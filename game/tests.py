@@ -3,9 +3,21 @@ from django.urls import reverse
 from game.engine import (
     raw_to_scaled, Character, Party, CombatEngine, CARDS, create_initial_game_state
 )
-from game.map import generate_random_enemies, DEFAULT_CHARACTER_NAMES
+from game.map import generate_random_enemies, DEFAULT_CHARACTER_NAMES, get_inn_id, get_inn, get_nearest_inn_id
 
 class EngineTests(TestCase):
+    def test_inn_reading_order_and_nearest_resolution(self):
+        """Test reading-order ID assignment and nearest Inn resolution."""
+        inn_id = get_inn_id(8, 5)
+        self.assertEqual(inn_id, 'inn_0')
+
+        inn_data = get_inn(8, 5)
+        self.assertIsNotNone(inn_data)
+        self.assertEqual(inn_data['id'], 'inn_0')
+
+        nearest = get_nearest_inn_id(7, 5)
+        self.assertEqual(nearest, 'inn_0')
+
     def test_character_generation_default_names(self):
         """Test character generation picks names from DEFAULT_CHARACTER_NAMES including Twig and Lily."""
         encounter_data = {
@@ -13,6 +25,7 @@ class EngineTests(TestCase):
             'max_enemies': 2,
             'species': ['Fox', 'Cat'],
             'classes': ['Student', 'Squire'],
+            'names': DEFAULT_CHARACTER_NAMES,
         }
         enemies = generate_random_enemies(encounter_data)
         self.assertEqual(len(enemies), 2)
@@ -247,4 +260,117 @@ class ViewIntegrationTests(TestCase):
         self.assertEqual(len(updated_party.members), 2)
         self.assertEqual(updated_party.members[1].name, "Recruited Cat")
 
+    def test_combat_end_recruitment_overflow_to_inn(self):
+        """Test combat_end victory sends recruited enemy to nearest inn when party is full (4 members)."""
+        session = self.client.session
+        state = create_initial_game_state()
+        party = Party.from_dict(state['party'])
+        for i in range(3):
+            party.members.append(Character(name=f"Member {i+2}", species="Fox", current_class="Squire"))
+        self.assertEqual(len(party.members), 4)
+
+        recruited_enemy = Character(name="Overflow Owl", species="Owl", current_class="Student", level=1)
+        recruited_enemy.is_recruited = True
+        recruited_enemy.current_hp = 0
+
+        engine = CombatEngine(party.members, [recruited_enemy], is_recruitable=True)
+        engine.is_over = True
+        engine.victory = True
+        state['combat'] = engine.to_dict()
+        state['screen'] = 'combat'
+        state['party'] = party.to_dict()
+        session['game_state'] = state
+        session.save()
+
+        response = self.client.post(reverse('handle_action'), {'action_type': 'combat_end'})
+        self.assertEqual(response.status_code, 302)
+
+        updated_state = self.client.session['game_state']
+        updated_party = Party.from_dict(updated_state['party'])
+        self.assertEqual(len(updated_party.members), 4)
+        
+        inns = updated_state.get('inns', {})
+        self.assertIn('inn_0', inns)
+        inn_0_chars = inns['inn_0']
+        self.assertEqual(len(inn_0_chars), 1)
+        self.assertEqual(inn_0_chars[0]['name'], "Overflow Owl")
+
+    def test_inn_recruit_action_success_and_party_full(self):
+        """Test recruiting guest from Inn to party, and blocking recruitment when party is full (4)."""
+        session = self.client.session
+        state = create_initial_game_state()
+        state['current_inn_id'] = 'inn_0'
+        guest = Character(name="Inn Guest Cat", species="Cat", current_class="Student", level=1)
+        state['inns'] = {'inn_0': [guest.to_dict()]}
+        session['game_state'] = state
+        session.save()
+
+        # Recruit guest into party (1 -> 2 members)
+        response = self.client.post(reverse('handle_action'), {
+            'action_type': 'inn_recruit',
+            'char_index': 0
+        })
+        self.assertEqual(response.status_code, 302)
+
+        updated_state = self.client.session['game_state']
+        updated_party = Party.from_dict(updated_state['party'])
+        self.assertEqual(len(updated_party.members), 2)
+        self.assertEqual(updated_party.members[1].name, "Inn Guest Cat")
+        self.assertEqual(len(updated_state['inns']['inn_0']), 0)
+
+        # Fill party to 4 members & add another guest to inn
+        updated_party.members.append(Character(name="Member 3", species="Fox", current_class="Squire"))
+        updated_party.members.append(Character(name="Member 4", species="Badger", current_class="Scout"))
+        guest2 = Character(name="Extra Guest", species="Rabbit", current_class="Student")
+        updated_state['inns']['inn_0'] = [guest2.to_dict()]
+        updated_state['party'] = updated_party.to_dict()
+        session['game_state'] = updated_state
+        session.save()
+
+        # Attempt to recruit 5th member
+        response = self.client.post(reverse('handle_action'), {
+            'action_type': 'inn_recruit',
+            'char_index': 0
+        })
+        self.assertEqual(response.status_code, 302)
+        final_state = self.client.session['game_state']
+        final_party = Party.from_dict(final_state['party'])
+        self.assertEqual(len(final_party.members), 4)
+        self.assertIn("party is full", final_state['message'].lower())
+
+    def test_inn_dismiss_action_success_and_min_party_limit(self):
+        """Test dismissing party member to Inn, and preventing dismissal when only 1 member remains."""
+        session = self.client.session
+        state = create_initial_game_state()
+        state['current_inn_id'] = 'inn_0'
+        party = Party.from_dict(state['party'])
+        companion = Character(name="Party Companion", species="Owl", current_class="Scout")
+        party.members.append(companion)
+        state['party'] = party.to_dict()
+        session['game_state'] = state
+        session.save()
+
+        # Dismiss companion (2 -> 1 member)
+        response = self.client.post(reverse('handle_action'), {
+            'action_type': 'inn_dismiss',
+            'char_index': 1
+        })
+        self.assertEqual(response.status_code, 302)
+
+        updated_state = self.client.session['game_state']
+        updated_party = Party.from_dict(updated_state['party'])
+        self.assertEqual(len(updated_party.members), 1)
+        self.assertEqual(len(updated_state['inns']['inn_0']), 1)
+        self.assertEqual(updated_state['inns']['inn_0'][0]['name'], "Party Companion")
+
+        # Attempt to dismiss last member
+        response = self.client.post(reverse('handle_action'), {
+            'action_type': 'inn_dismiss',
+            'char_index': 0
+        })
+        self.assertEqual(response.status_code, 302)
+        final_state = self.client.session['game_state']
+        final_party = Party.from_dict(final_state['party'])
+        self.assertEqual(len(final_party.members), 1)
+        self.assertIn("at least one character", final_state['message'].lower())
 

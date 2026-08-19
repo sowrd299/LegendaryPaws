@@ -5,7 +5,10 @@ from .engine import (
     create_initial_game_state, Party, Character, CombatEngine,
     CARD_DATA, CARDS, CORE_STATS, DECK_MINIMUM_SIZE
 )
-from .map import WORLD_MAP, MAP_WIDTH, MAP_HEIGHT, TILE_DESCRIPTIONS, get_shop, get_random_encounter
+from .map import (
+    WORLD_MAP, MAP_WIDTH, MAP_HEIGHT, TILE_DESCRIPTIONS,
+    get_shop, get_inn, get_inn_id, get_nearest_inn_id, get_random_encounter
+)
 
 VOINARA_DIALOGUE = [
     "Oh!, oh no, somethings have gone very strange...",
@@ -155,6 +158,28 @@ def game_index(request):
         context['text'] = dialogue
         context['shop_items'] = [(name_to_card(name), cost) for name,cost in shop_data.get('items', dict())]
 
+    elif screen == 'inn':
+        inn_id = state.get('current_inn_id') or get_inn_id(party.x, party.y) or 'inn_0'
+        inn_data = get_inn(party.x, party.y)
+        if not inn_data:
+            inn_data = {
+                'title': 'The Inn',
+                'illust': INN_SIGN_ILLUST,
+                'dialogues': [("Innkeeper", "Welcome to the Inn!")]
+            }
+        speaker, dialogue = random.choice(inn_data.get('dialogues', [("Innkeeper", "Welcome to the Inn!")]))
+        
+        inns_dict = state.setdefault('inns', {})
+        char_dicts = inns_dict.get(inn_id, [])
+        inn_characters = [Character.from_dict(cd) for cd in char_dicts]
+
+        context['title'] = inn_data.get('title', 'The Inn')
+        context['illust'] = inn_data.get('illust', INN_SIGN_ILLUST)
+        context['speaker'] = speaker
+        context['text'] = dialogue
+        context['inn_id'] = inn_id
+        context['inn_characters'] = inn_characters
+
     elif screen == 'combat':
         combat_dict = state.get('combat')
         if combat_dict:
@@ -209,6 +234,7 @@ def handle_action(request):
             # Inn auto heals party
             for m in party.members:
                 m.current_hp = m.max_hp
+            state['current_inn_id'] = get_inn_id(new_x, new_y)
             state['screen'] = 'inn'
             state['message'] = "You rest at the inn. Party HP fully restored!"
         else:
@@ -281,6 +307,40 @@ def handle_action(request):
         else:
             state['message'] = "Not enough gold or inventory full!"
 
+    elif action_type == 'inn_recruit':
+        inn_id = state.get('current_inn_id') or get_inn_id(party.x, party.y) or 'inn_0'
+        inns_dict = state.setdefault('inns', {})
+        inn_chars = inns_dict.get(inn_id, [])
+        try:
+            char_idx = int(request.POST.get('char_index', 0))
+        except (ValueError, TypeError):
+            char_idx = -1
+
+        if len(party.members) >= 4:
+            state['message'] = "Your party is full (maximum 4 members)!"
+        elif 0 <= char_idx < len(inn_chars):
+            char_dict = inn_chars.pop(char_idx)
+            recruited_char = Character.from_dict(char_dict)
+            recruited_char.current_hp = recruited_char.max_hp
+            party.members.append(recruited_char)
+            state['message'] = f"Recruited {recruited_char.name} into your party!"
+
+    elif action_type == 'inn_dismiss':
+        inn_id = state.get('current_inn_id') or get_inn_id(party.x, party.y) or 'inn_0'
+        inns_dict = state.setdefault('inns', {})
+        try:
+            char_idx = int(request.POST.get('char_index', 0))
+        except (ValueError, TypeError):
+            char_idx = -1
+
+        if len(party.members) <= 1:
+            state['message'] = "You must keep at least one person in your party!"
+        elif 0 <= char_idx < len(party.members):
+            dismissed_char = party.members.pop(char_idx)
+            dismissed_char.current_hp = dismissed_char.max_hp
+            inns_dict.setdefault(inn_id, []).append(dismissed_char.to_dict())
+            state['message'] = f"Left {dismissed_char.name} resting at the Inn."
+
     elif action_type == 'combat_action':
         # Two-phase combat action: card_name + target_id in one request
         combat_dict = state.get('combat')
@@ -346,8 +406,10 @@ def handle_action(request):
                                 party.members.append(e)
                                 recruited_msgs.append(f"Recruited {e.name} into your party!")
                             else:
-                                # TODO: Phase 2: Send character to nearest Inn here
-                                recruited_msgs.append(f"{e.name} was recruited! (Party full)")
+                                nearest_inn_id = get_nearest_inn_id(party.x, party.y)
+                                inns_dict = state.setdefault('inns', {})
+                                inns_dict.setdefault(nearest_inn_id, []).append(e.to_dict())
+                                recruited_msgs.append(f"{e.name} was recruited and sent to the nearest Inn ({nearest_inn_id})!")
 
                     recruited_str = (" " + " ".join(recruited_msgs)) if recruited_msgs else ""
                     state['screen'] = 'overworld'
