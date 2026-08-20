@@ -31,14 +31,6 @@
         margin-bottom: 4px;
     }
 
-    .card-illust {
-        color: var(--text-muted);
-        font-size: 0.78rem;
-        margin: 6px 0;
-        line-height: 1.2;
-        white-space-collapse: preserve;
-    }
-
     .card-type {
         font-size: 0.75rem;
         color: var(--text-muted);
@@ -67,25 +59,25 @@
         <div class="card-type">{{ card.rarity }} {{ card.type }}</div>
         <div class="card-desc">
             <span style="color: var(--accent-cyan)">{{ card.recovery_cost }}⧗</span>
-            {% if card.damage_power %}
-            | <span style="color: var(--accent-red)">{{ card.damage_power|floatformat }}×
-                {{ card.damage_type|damage_type }}
-            </span>
-            {% endif %}
-            {% if card.heal_power %}
-            | <span style="color: var(--accent-green)">{{ card.heal_power|floatformat }}×
-                {{ card.heal_stat|damage_type }}
-            </span>
-            {% endif %}
-            {% for effect in card.effects %}
+            {% for effect in card|all_unique_effects %}
             {% if effect.damage_power %}
-            | <span style="color: var(--accent-red)">{{ effect.damage_power|floatformat }}×
+            | <span style="color: var(--accent-red)">{{ effect.damage_power|floatformat }}{%if effect.damage_type %}×{% endif %}
                 {{ effect.damage_type|damage_type }}
             </span>
             {% endif %}
             {% if effect.heal_power %}
-            | <span style="color: var(--accent-green)">{{ effect.heal_power|floatformat }}×
+            | <span style="color: var(--accent-green)">{{ effect.heal_power|floatformat }}{%if effect.heal_stat %}×{% endif %}
                 {{ effect.heal_stat|damage_type }}
+            </span>
+            {% endif %}
+            {% if effect.status_effect_power %}
+            | <span style="color: var(--accent-purple)">{{ effect.status_effect_power|floatformat }}{% if effect.status_effect_stat %}×{% endif %}
+                {{ effect.status_effect_stat|damage_type }}
+            </span>
+            {% endif %}
+            {% if effect.status_effect_duration %}
+            | <span style="color: var(--accent-cyan)">{{ effect.status_effect_duration|floatformat }}{% if effect.status_effect_duration_stat %}×{% endif %}
+                {{ effect.status_effect_duration_stat|damage_type }}
             </span>
             {% endif %}
             {% endfor %}

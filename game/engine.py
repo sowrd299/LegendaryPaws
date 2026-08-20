@@ -2,6 +2,7 @@ import math
 import random
 import uuid
 from .illustration import ILLUSTRATION_DATA
+from .templatetags.utils import stat_name
 
 # --- STAT & MATH SCALING ---
 
@@ -254,6 +255,27 @@ CARD_DATA = [
 |    ||o O .||    |
 |    ||  . o||    |
 |     \(___//     |
++-----------------+
+"""
+    },
+    {
+        'name': 'Shield',
+        'type': 'armor',
+        'rarity': 'interesting',
+        'target': 'self',
+        'recovery_cost': 10,
+        'status_effect_target_stat': 'brute_resistance',
+        'status_effect_power': 3,
+        'status_effect_duration': 15,
+        'description': 'Shields the user from harm.',
+        'stat_boosts': {'brute_resistance': 0.3},
+        'illust': """
++-----------------+
+|                 |
+|                 |
+|                 |
+|                 |
+|                 |
 +-----------------+
 """
     },
@@ -636,18 +658,52 @@ CARD_DATA = [
         'type': 'trinket',
         'rarity': 'interesting',
         'target': 'self',
-        'recovery_cost': 8,
-        'description': 'Focuses mind, boosting magic stats.',
-        'stat_boosts': {'star_intensity': 0.2, 'moon_intensity': 0.2, 'void_intensity': 0.2}
+        'recovery_cost': 10,
+        'description': 'A student\'s focused mind, boosting magical stats.',
+        'stat_boosts': {'star_intensity': 0.2, 'moon_intensity': 0.2, 'void_intensity': 0.2},
+        'effects': [
+            {
+                'status_effect_target_stat': 'star_intensity',
+                'status_effect_power': 2,
+                'status_effect_duration': 30,
+            },
+            {
+                'status_effect_target_stat': 'moon_intensity',
+                'status_effect_power': 2,
+                'status_effect_duration': 30,
+            },
+            {
+                'status_effect_target_stat': 'void_intensity',
+                'status_effect_power': 2,
+                'status_effect_duration': 30,
+            },
+        ]
     },
     {
         'name': 'Training',
         'type': 'trinket',
         'rarity': 'interesting',
         'target': 'self',
-        'recovery_cost': 8,
-        'description': 'Physical training, boosting physical stats.',
-        'stat_boosts': {'brute_intensity': 0.2, 'brute_resistance': 0.2, 'nimbleness': 0.1}
+        'recovery_cost': 10,
+        'description': 'A squire\'s physical training, boosting physical stats.',
+        'stat_boosts': {'melee_damage': 0.2, 'brute_resistance': 0.2},
+        'effects': [
+            {
+                'status_effect_target_stat': 'melee_damage',
+                'status_effect_power': 1,
+                'status_effect_duration': 40,
+            },
+            {
+                'status_effect_target_stat': 'brute_intensity',
+                'status_effect_power': 1,
+                'status_effect_duration': 40,
+            },
+            {
+                'status_effect_target_stat': 'brute_resistance',
+                'status_effect_power': 1,
+                'status_effect_duration': 40,
+            },
+        ],
     },
     {
         'name': 'Honed Archery',
@@ -778,7 +834,8 @@ class Character:
         self.name = name
         self.species = species if species in SPECIES_DATA else "Fox"
         self.current_class = current_class if current_class in CLASS_DATA else "Wandering Spellsword"
-        
+        self.status_effects = [] # Do this early, since it's checked in get_scaled_stats
+
         if level_up_cards is not None:
             self.level_up_cards = list(level_up_cards)
         elif level > 1:
@@ -851,6 +908,13 @@ class Character:
         scaled = {}
         for stat in accessible:
             scaled[stat] = raw_to_scaled(raw.get(stat, 0.0))
+
+        for status_effect in self.status_effects:
+            if status_effect.is_active():
+                if status_effect.stat not in scaled:
+                    scaled[status_effect.stat] = 0
+                scaled[status_effect.stat] += status_effect.value
+
         return scaled
 
     def get_combat_scaled_stat(self, damage_stat_name, stat = ""):
@@ -888,6 +952,21 @@ class Character:
         cl_info = CLASS_DATA.get(self.current_class, {})
         default_cards = list(cl_info.get('default_cards', []))
         return default_cards + self.equipped_cards
+
+    def add_status_effect(self, status_effect):
+        self.status_effects.append(status_effect)
+
+    def advance_action_timer(self, amount):
+        self.action_timer -= amount
+
+        status_effects_to_remove = []
+        for status_effect in self.status_effects:
+            status_effect.advance_action_timer(amount)
+            if not status_effect.is_active():
+                status_effects_to_remove.append(status_effect)
+
+        for status_effect in status_effects_to_remove:
+            self.status_effects.remove(status_effect)
 
     def give_card(self, card_name):
         """Gives a card to character to boost stats and raw level."""
@@ -977,7 +1056,8 @@ class Character:
             'max_hp': self.max_hp,
             'action_timer': self.action_timer,
             'equipped_cards': self.equipped_cards,
-            'is_recruited': getattr(self, 'is_recruited', False)
+            'is_recruited': getattr(self, 'is_recruited', False),
+            'status_effects': [se.to_dict() for se in self.status_effects]
         }
 
     @classmethod
@@ -997,7 +1077,34 @@ class Character:
         c.update_max_hp()
         c.current_hp = d.get('current_hp', c.max_hp)
         c.action_timer = d.get('action_timer', 0)
+        c.status_effects = [StatusEffect.from_dict(sc) for sc in d.get('status_effects', [])]
         return c
+
+
+# --- STAT CHANGE ---
+
+class StatusEffect:
+    def __init__(self, stat, value, action_timer):
+        self.stat = stat
+        self.value = value
+        self.action_timer = action_timer
+
+    def is_active(self):
+        return self.action_timer >= 0
+
+    def advance_action_timer(self, amount):
+        self.action_timer -= amount
+
+    def to_dict(self):
+        return {
+            'stat': self.stat,
+            'value': self.value,
+            'action_timer': self.action_timer
+        }
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(d['stat'], d['value'], d['action_timer'])
 
 
 # --- PARTY & OVERWORLD MAP ---
@@ -1092,7 +1199,7 @@ class CombatEngine:
         active.sort(key=lambda c: c.action_timer)
         return active[0]
 
-    def advance_turn_timers(self):
+    def advance_action_timers(self):
         """Fast-forwards action timers until a living character reaches turn execution."""
         turn_char = self.get_current_turn_character()
         if not turn_char:
@@ -1101,7 +1208,7 @@ class CombatEngine:
         if min_timer > 0:
             for c in self.allies + self.enemies:
                 if c.is_alive():
-                    c.action_timer = max(0, c.action_timer - min_timer)
+                    c.advance_action_timer(min_timer)
 
         print(f"[Combat!] Start of turn: {', '.join([f'{c.name}: {c.action_timer} ticks' for c in self.allies + self.enemies])}")
         return turn_char
@@ -1134,13 +1241,25 @@ class CombatEngine:
         rec = ((4 * card.get('recovery_cost', 10)) - nimble) / 4
         enemy.action_timer += int(round(rec))
 
-    def apply_card_effect(self, actor, card, target):
+    def apply_card_effect(self, actor, card, target, is_effect = False):
         """Calculates and applies card damage or healing."""
         actor_stats = actor.get_scaled_stats()
         card_name = card['name']
 
         if card.get('is_wait'):
             self.combat_log.append(f"{actor.name} waited to recover energy.")
+
+        targets = []
+        if card.get('target') == 'all_enemies':
+            targets = [e for e in (self.enemies if actor in self.allies else self.allies)]
+        elif card.get('target') == 'all_allies':
+            targets = [e for e in (self.allies if actor in self.allies else self.enemies)]
+        elif card.get('target') == 'self':
+            targets = [actor]
+        elif target:
+            targets = [target]
+
+        print(f"[Combat!] Applying card {card_name} to {targets}")
 
         # Heal calculation
         if 'heal_power' in card:
@@ -1150,11 +1269,6 @@ class CombatEngine:
                 heal_stat = actor_stats.get(heal_stat_name, actor_stats.get('brute_intensity', 2))
                 heal_amount = int(round(heal_amount * heal_stat))
             
-            if card.get('target') in ['all_allies', 'all_enemies']:
-                targets = self.allies if actor in self.allies else self.enemies
-            else:
-                targets = [target] if target else [actor]
-
             for t in targets:
                 if t and t.is_alive():
                     t.current_hp = min(t.max_hp, t.current_hp + heal_amount)
@@ -1167,12 +1281,6 @@ class CombatEngine:
 
             # Attacker stat
             atk_val = actor.get_combat_scaled_stat(dmg_type)
-
-            targets = []
-            if card.get('target') in ['all_enemies', 'all_allies']:
-                targets = [e for e in (self.enemies if actor in self.allies else self.allies) if e.is_alive()]
-            elif target:
-                targets = [target]
 
             for t in targets:
                 if not t or not t.is_alive():
@@ -1193,17 +1301,47 @@ class CombatEngine:
                     t.is_recruited = True
                     self.combat_log.append(f"> {t.name} was successfully recruited!")
 
+        # status effect caclulatoin
+        if 'status_effect_target_stat' in card:
+            target_stat = card['status_effect_target_stat']
+            status_effect_power = card.get('status_effect_power', 1)
+            status_effect_type = card.get('status_effect_type')
+            status_effect_duration = card.get('status_effect_duration', 1)
+            status_effect_duration_type = card.get('status_effect_duration_type')
+            
+            status_effect_val = status_effect_power
+            if status_effect_type:
+                status_effect_val = int(round(actor.get_combat_scaled_stat(status_effect_type) * status_effect_val))
+
+            status_effect_duration_val = status_effect_duration
+            if status_effect_duration_type:
+                status_effect_duration_val = int(round(actor.get_combat_scaled_stat(status_effect_duration_type) * status_effect_duration_val))
+            
+            for t in targets:
+                if not t or not t.is_alive():
+                    continue
+                
+                effect = StatusEffect(target_stat, status_effect_val, status_effect_duration)
+                t.add_status_effect(effect)
+
+                if status_effect_val > 0:
+                    self.combat_log.append(f"{actor.name} used {card_name} on {t.name}, {stat_name(target_stat)} has been increased by {status_effect_val}!")
+                else:
+                    self.combat_log.append(f"{actor.name} used {card_name} on {t.name}, {stat_name(target_stat)} has been decreased by {status_effect_val}!")
+
         # recur onto bonus effects
         for effect in card.get('effects', []):
             effect = dict(effect)
             if not 'name' in effect:
                 effect['name'] = card_name
             if not 'target' in effect:
-                effect['target'] = target
+                effect['target'] = card.get('target')
 
-            self.apply_card_effect(actor, effect, target)
+            self.apply_card_effect(actor, effect, target, True)
 
-        print(f"[Combat!] Turn complete: {', '.join([f'{c.name}: {c.action_timer} ticks' for c in self.allies + self.enemies])}")
+        # Using "description as a proxy for cards vs. card effects"
+        if not is_effect:
+            print(f"[Combat!] Turn complete: {', '.join([f'{c.name}: {c.action_timer} ticks' for c in self.allies + self.enemies])}")
 
     def execute_player_turn(self, actor, card_name, target_id):
         """Processes player character turn using card_name and target_id."""

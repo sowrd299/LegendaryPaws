@@ -184,7 +184,7 @@ def game_index(request):
         combat_dict = state.get('combat')
         if combat_dict:
             engine = CombatEngine.from_dict(combat_dict)
-            turn_char = engine.advance_turn_timers()
+            turn_char = engine.advance_action_timers()
             context['combat_engine'] = engine
             context['combat_engine_hand_cards'] = [ name_to_card(name) for name in ['Wait'] + engine.hand ]
             context['turn_char'] = turn_char
@@ -367,7 +367,7 @@ def handle_action(request):
 
                 # Process subsequent enemy turns automatically until player turn or combat end
                 while not engine.is_over:
-                    next_char = engine.advance_turn_timers()
+                    next_char = engine.advance_action_timers()
                     if not next_char:
                         break
                     if next_char in engine.enemies:

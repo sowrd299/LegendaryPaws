@@ -70,21 +70,62 @@
     }
 
     .unit-card.turn .turn-label {
-        display: block;
+        display: inline;
     }
 
     .action-timer-label {
-        display: block;
+        display: inline;
     }
 
     .unit-card.turn .action-timer-label {
         display: none;
     }
+
+    .status_effect_container {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: var(--panel-bg-transparent);
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: left;
+        align-items: center;
+        font-size: 0.78rem;
+    }
+
+    .unit-card.dead .status_effect_container {
+        display: none;
+    }
+
+    .status-effect {
+        width: fit-content;
+        margin-bottom: 6px;
+    }
+
+    .status-effect.positive {
+        color: var(--accent-green);
+    }
+
+    .status-effect.negative {
+        color: var(--accent-red);
+    }
 </style>
 
 <div class="unit-card {{ char_class }} {%if not char.is_alive %}dead{% endif %} {%if char == turn_char%}turn{% endif %}" data-id="{{ char.id }}" onclick="selectTarget('{{ char.id }}')">
-    <img class="char-illust" src="{% static char.illust %}" style="width: 100%; margin-top: -40px;" />
-    {% if not char.is_alive %}
+    <div style="position: relative;">
+        <img class="char-illust" src="{% static char.illust %}" style="width: 100%; margin-top: -40px;" />
+        <div class="status_effect_container">
+            {% for status_effect in char.status_effects %}
+            {% if status_effect.value > 0 %}
+            <div class="status-effect positive">[+{{ status_effect.value }} {{ status_effect.stat|short_stat_name }} <span style="color: var(--accent-cyan);">{{ status_effect.action_timer }}⧗</span>]</div>
+            {% else %}
+            <div class="status-effect negative">[{{ status_effect.value }} {{ status_effect.stat|short_stat_name }} <span style="color: var(--accent-cyan);">{{ status_effect.action_timer }}⧗</span>]</div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
     {% if char.is_recruited %}
     {% if party_len < max_party_size %} <p class="card-illust dead-illust">{{ signed_scroll_illust|illust }}</p>
         {% else %}
@@ -92,7 +133,6 @@
         {% endif %}
         {% else %}
         <p class="card-illust dead-illust">{{ dead_illust|illust }}</p>
-        {% endif %}
         {% endif %}
         <div class="name">
             <strong>{{ char.name }}</strong>

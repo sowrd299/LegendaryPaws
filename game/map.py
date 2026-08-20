@@ -61,6 +61,7 @@ SHOP_DATA = [
         'items': [
             ('Honed Slash', 40),
             ('Honed Archery', 40),
+            ('Shield', 15),
             ('Wax', 15),
             ('Potion', 5),
         ],
@@ -86,8 +87,10 @@ SHOP_DATA = [
     {
         'title': 'Sally\'s School Supplies',
         'items': [
-            ('Simple Trap', 60),
+            ('Training', 50),
+            ('Study', 50),
             ('Elementary Magic', 60),
+            ('Simple Trap', 60),
             ('Bargain', 15),
         ],
         'illust': """
@@ -149,10 +152,12 @@ DEFAULT_CHARACTER_NAMES = [
 
 DEFAULT_CLASS_STARTER_CARDS = {
     'Student': {
+        'trinket': ['Study'],
         'scroll': ['Elementary Magic', 'Wain', 'Wax', 'Singe', 'Chill'],
     },
     'Squire': {
         'weapon': ['Favorite Slash', 'Favorite Heavy Slash', 'Favorite Light Slash'],
+        'trinket': ['Training', 'First Aid'],
     },
     'Scout': {
         'trinket': ['First Aid'],
