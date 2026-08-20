@@ -156,12 +156,12 @@ DEFAULT_CLASS_STARTER_CARDS = {
         'scroll': ['Elementary Magic', 'Wain', 'Wax', 'Singe', 'Chill'],
     },
     'Squire': {
-        'weapon': ['Favorite Slash', 'Favorite Heavy Slash', 'Favorite Light Slash'],
+        'weapon': ['Favored Slash', 'Favored Heavy Slash', 'Favored Light Slash'],
         'trinket': ['Training', 'First Aid'],
     },
     'Scout': {
         'trinket': ['First Aid'],
-        'weapon': ['Favorite Archery', 'Simple Trap'],
+        'weapon': ['Favored Archery', 'Simple Trap'],
     },
 }
 
