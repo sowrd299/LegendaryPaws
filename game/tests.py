@@ -336,7 +336,6 @@ class ViewIntegrationTests(TestCase):
         final_state = self.client.session['game_state']
         final_party = Party.from_dict(final_state['party'])
         self.assertEqual(len(final_party.members), 4)
-        self.assertIn("party is full", final_state['message'].lower())
 
     def test_inn_dismiss_action_success_and_min_party_limit(self):
         """Test dismissing party member to Inn, and preventing dismissal when only 1 member remains."""
@@ -372,5 +371,4 @@ class ViewIntegrationTests(TestCase):
         final_state = self.client.session['game_state']
         final_party = Party.from_dict(final_state['party'])
         self.assertEqual(len(final_party.members), 1)
-        self.assertIn("at least one character", final_state['message'].lower())
 

@@ -6,6 +6,11 @@ register = template.Library()
 def percent_pips(value, num_pips):
     return [ (i/num_pips) < value for i in range(num_pips) ]
 
+
+@register.filter
+def count_pips(num_pips):
+    return range(max(num_pips, 0))
+
 DEFAULT_ILLUST = """
 +-----------------+
 |                 |

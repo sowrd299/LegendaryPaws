@@ -2,7 +2,7 @@ import random
 from django.shortcuts import render, redirect
 from django.http import HttpResponseBadRequest
 from .engine import (
-    create_initial_game_state, Party, Character, CombatEngine,
+    create_initial_game_state, Party, Character, CombatEngine, Message,
     CORE_STATS, DECK_MINIMUM_SIZE
 )
 from .cards import *
@@ -82,6 +82,11 @@ def game_index(request):
     """Renders main game screen based on current session state."""
     state = get_game_state(request)
     party = Party.from_dict(state['party'])
+    log = [Message.from_dict(d) for d in state['log']]
+
+    if len(log) > 15:
+        log = log[-15:]
+
     screen = state.get('screen', 'voinara_intro')
 
     party_inventory_cards = [ (name_to_card(name), count) for name,count in list_to_unique_counts(party.inventory) ]
@@ -96,6 +101,7 @@ def game_index(request):
         'state': state,
         'screen': screen,
         'party': party,
+        'log': log,
         'party_inventory_cards': party_inventory_cards,
         'party_inventory_len': len(party.inventory),
         'inventory_max_size': INVENTORY_MAX_SIZE,
@@ -190,6 +196,7 @@ def game_index(request):
             context['combat_engine_hand_cards'] = [ name_to_card(name) for name in ['Wait'] + engine.hand ]
             context['turn_char'] = turn_char
             context['is_player_turn'] = (turn_char in engine.allies) if turn_char else False
+            context['log'] += engine.combat_log
 
     return render(request, 'game/game.html', context)
 
@@ -201,13 +208,14 @@ def handle_action(request):
 
     state = get_game_state(request)
     party = Party.from_dict(state['party'])
+    log = [Message.from_dict(d) for d in state['log']]
     action_type = request.POST.get('action_type')
 
     if action_type == 'voinara_advance':
         step = state.get('voinara_step', 0) + 1
         if step >= len(VOINARA_DIALOGUE):
             state['screen'] = 'overworld'
-            state['message'] = "You look upon the strange lands Voinara spoke of."
+            log.append(Message(1, "You peer through Voinara's mirror, and see Yew standing on the Strange Lands she spoke of..."))
         else:
             state['voinara_step'] = step
 
@@ -230,14 +238,14 @@ def handle_action(request):
         # Check tile interaction / encounter
         if current_tile == 'S':
             state['screen'] = 'shop'
-            state['message'] = "You enter the roadside shop."
+            log.append(Message(1, 'You enter a shop.'))
         elif current_tile == 'I':
             # Inn auto heals party
             for m in party.members:
                 m.current_hp = m.max_hp
             state['current_inn_id'] = get_inn_id(new_x, new_y)
             state['screen'] = 'inn'
-            state['message'] = "You rest at the inn. Party HP fully restored!"
+            log.append(Message(1, '<span style="color:var(--accent-green)">After resting at the inn, your party is fully healed!</span>'))
         else:
             # Chance for wild combat encounter based on terrain
             enemies, is_recruitable = get_random_encounter(new_x, new_y)
@@ -246,9 +254,12 @@ def handle_action(request):
                 engine.start_combat()
                 state['combat'] = engine.to_dict()
                 state['screen'] = 'combat'
-                state['message'] = f"Encountered wild enemy forces on the {TILE_DESCRIPTIONS.get(current_tile, ('tile', ''))[0]}!"
+                if is_recruitable:
+                    log.append(Message(1, f"Encountered another brigand on the {TILE_DESCRIPTIONS.get(current_tile, ('tile', ''))[0]}; unsure if you can trust eachother, you draw weapons!"))
+                else:
+                    log.append(Message(1, f"The Rot descends upon your party on the {TILE_DESCRIPTIONS.get(current_tile, ('tile', ''))[0]}!"))
             else:
-                state['message'] = f"Traveled to {TILE_DESCRIPTIONS.get(current_tile, ('tile', ''))[0]}."
+                log.append(Message(-1, f"Traveled to {TILE_DESCRIPTIONS.get(current_tile, ('tile', ''))[0]}."  ))
 
     elif action_type == 'open_menu':
         if state['screen'] in ['overworld', 'shop', 'inn']:
@@ -282,31 +293,33 @@ def handle_action(request):
             success, msg = char.give_card(card_name)
             if success:
                 party.inventory.remove(card_name)
-            state['message'] = msg
+            log.append(Message(0, msg))
 
     elif action_type == 'remove_deck':
         card_name = request.POST.get('card_name')
         if card_name in party.shared_deck:
             party.shared_deck.remove(card_name)
             party.inventory.append(card_name)
-            state['message'] = f"Removed {card_name} from your party's deck."
+            log.append(Message(0, f"Removed {card_name} from your party's deck."))
 
     elif action_type == 'add_deck':
         card_name = request.POST.get('card_name')
         if card_name in party.inventory:
             party.inventory.remove(card_name)
             party.shared_deck.append(card_name)
-            state['message'] = f"Added {card_name} to your party's deck."
+            log.append(Message(0, f"Added {card_name} to your party's deck."))
 
     elif action_type == 'shop_buy':
         card_name = request.POST.get('card_name')
         cost = int(request.POST.get('cost', 10))
-        if party.gold >= cost and len(party.inventory) < INVENTORY_MAX_SIZE:
+        if party.gold < cost:
+            log.append(Message(2, "<span style='color:var(--accent-red)'>You can't afford that!</span>"))
+        elif len(party.inventory) >= INVENTORY_MAX_SIZE:
+            log.append(Message(2, "<span style='color:var(--accent-red)'>Your inventory is full!</span>"))
+        else:
             party.gold -= cost
             party.inventory.append(card_name)
-            state['message'] = f"Purchased {card_name} for {cost} gold!"
-        else:
-            state['message'] = "Not enough gold or inventory full!"
+            log.append(Message(1, f"Purchased {card_name} for {cost} gold!"))
 
     elif action_type == 'inn_recruit':
         inn_id = state.get('current_inn_id') or get_inn_id(party.x, party.y) or 'inn_0'
@@ -318,13 +331,13 @@ def handle_action(request):
             char_idx = -1
 
         if len(party.members) >= 4:
-            state['message'] = "Your party is full (maximum 4 members)!"
+            log.append(Message(2, "<span style='color:var(--accent-red)'>Your party is already full!</span>"))
         elif 0 <= char_idx < len(inn_chars):
             char_dict = inn_chars.pop(char_idx)
             recruited_char = Character.from_dict(char_dict)
             recruited_char.current_hp = recruited_char.max_hp
             party.members.append(recruited_char)
-            state['message'] = f"Recruited {recruited_char.name} into your party!"
+            log.append(Message(0, f"Recruited {recruited_char.name} into your party!"))
 
     elif action_type == 'inn_dismiss':
         inn_id = state.get('current_inn_id') or get_inn_id(party.x, party.y) or 'inn_0'
@@ -335,12 +348,12 @@ def handle_action(request):
             char_idx = -1
 
         if len(party.members) <= 1:
-            state['message'] = "You must keep at least one person in your party!"
+            log.append(Message(2, "<span style='color:var(--accent-red)'>You must keep at least one person in your party!</span>"))
         elif 0 <= char_idx < len(party.members):
             dismissed_char = party.members.pop(char_idx)
             dismissed_char.current_hp = dismissed_char.max_hp
             inns_dict.setdefault(inn_id, []).append(dismissed_char.to_dict())
-            state['message'] = f"Left {dismissed_char.name} resting at the Inn."
+            log.append(Message(0, f"Left {dismissed_char.name} resting at the Inn."))
 
     elif action_type == 'combat_action':
         # Two-phase combat action: card_name + target_id in one request
@@ -432,16 +445,17 @@ def handle_action(request):
 
                     recruited_str = (" " + " ".join(recruited_msgs)) if recruited_msgs else ""
                     state['screen'] = 'overworld'
-                    state['message'] = f"Victory! Gained {earned_gold} gold and a '{reward_card}' card!{recruited_str}"
+                    log.append(Message(3,f"Victory! Gained {earned_gold} gold and a '{reward_card}' card!{recruited_str}", reward_card))
                 else:
                     # Fully restore party on defeat & return to safe town position
                     for m in party.members:
                         m.current_hp = m.max_hp
                     party.x, party.y = 7, 5
                     state['screen'] = 'overworld'
-                    state['message'] = "The Rot has overwhelmed your party! You safely retreated to town."
+                    log.append(Message(3, "The Rot has overwhelmed your party! You flead back to town."))
 
     state['party'] = party.to_dict()
+    state['log'] = [m.to_dict() for m in log]
     save_game_state(request, state)
     return redirect('game_index')
 

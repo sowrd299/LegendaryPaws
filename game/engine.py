@@ -596,7 +596,7 @@ class CombatEngine:
         card_name = card['name']
 
         if card.get('is_wait'):
-            self.combat_log.append(f"{actor.name} waited to recover energy.")
+            self.combat_log.append(CombatMessage(0, f"{actor.name} waited."))
 
         targets = []
         if card.get('target') == 'all_enemies':
@@ -621,7 +621,7 @@ class CombatEngine:
             for t in targets:
                 if t and t.is_alive():
                     t.current_hp = min(t.max_hp, t.current_hp + heal_amount)
-                    self.combat_log.append(f"{actor.name} used {card_name} on {t.name}, healing {heal_amount} HP!")
+                    self.combat_log.append(CombatMessage(0, f"{actor.name} used {card_name} on {t.name}, healing {heal_amount} HP!", card_name))
 
         # Damage calculation
         if 'damage_power' in card:
@@ -644,11 +644,11 @@ class CombatEngine:
 
                 dmg = max(1, int(round(raw_dmg)))
                 t.current_hp = max(0, t.current_hp - dmg)
-                self.combat_log.append(f"{actor.name} used {card_name} on {t.name} for {dmg} damage!")
+                self.combat_log.append(CombatMessage(0, f"{actor.name} used {card_name} on {t.name} for {dmg} damage!", card_name))
 
                 if t.current_hp == 0 and card.get('can_recruit') and getattr(self, 'is_recruitable', False):
                     t.is_recruited = True
-                    self.combat_log.append(f"> {t.name} was successfully recruited!")
+                    self.combat_log.append(CombatMessage(1, f"{t.name} was successfully recruited!"))
 
         # status effect caclulatoin
         if 'status_effect_target_stat' in card:
@@ -674,9 +674,9 @@ class CombatEngine:
                 t.add_status_effect(effect)
 
                 if status_effect_val > 0:
-                    self.combat_log.append(f"{actor.name} used {card_name} on {t.name}, {stat_name(target_stat)} has been increased by {status_effect_val}!")
+                    self.combat_log.append(CombatMessage(0, f"{actor.name} used {card_name} on {t.name}, {stat_name(target_stat)} has been increased by {status_effect_val}!", card_name))
                 else:
-                    self.combat_log.append(f"{actor.name} used {card_name} on {t.name}, {stat_name(target_stat)} has been decreased by {status_effect_val}!")
+                    self.combat_log.append(CombatMessage(0, f"{actor.name} used {card_name} on {t.name}, {stat_name(target_stat)} has been decreased by {status_effect_val}!", card_name))
 
         # recur onto bonus effects
         for effect in card.get('effects', []):
@@ -694,7 +694,7 @@ class CombatEngine:
 
     def execute_player_turn(self, actor, card_name, target_id):
         """Processes player character turn using card_name and target_id."""
-        self.combat_log = []
+        self.combat_log.append(CombatMessage(3, f"<span style='color:var(--accent-cyan)'>{actor.name}\'s Turn!</span>"))
         if card_name == 'Wait':
             card = CARDS['Wait']
             target = actor
@@ -727,12 +727,12 @@ class CombatEngine:
         if not enemies_alive:
             self.is_over = True
             self.victory = True
-            self.combat_log.append("> Victory! All enemies were defeated! Take a momment to catch your breath, and venture on.")
+            self.combat_log.append(CombatMessage(2, "All enemies were defeated! Take a momment to catch your breath, and venture on."))
             return True
         elif not allies_alive:
             self.is_over = True
             self.victory = False
-            self.combat_log.append("> Defeat! All party members were downed.")
+            self.combat_log.append(CombatMessage(1, "All party members were downed, there's nothing left to do but flee."))
             return True
         return False
 
@@ -742,7 +742,7 @@ class CombatEngine:
             'enemies': [e.to_dict() for e in self.enemies],
             'shared_deck': self.shared_deck,
             'is_recruitable': getattr(self, 'is_recruitable', False),
-            'combat_log': self.combat_log,
+            'combat_log': [msg.to_dict() for msg in self.combat_log],
             'is_over': self.is_over,
             'victory': self.victory,
             'draw_pile': self.draw_pile,
@@ -755,13 +755,52 @@ class CombatEngine:
         allies = [Character.from_dict(a) for a in d.get('allies', [])]
         enemies = [Character.from_dict(e) for e in d.get('enemies', [])]
         engine = cls(allies, enemies, d.get('shared_deck', []), is_recruitable=d.get('is_recruitable', False))
-        engine.combat_log = d.get('combat_log', [])
+        engine.combat_log = [CombatMessage.from_dict(msg) for msg in d.get('combat_log', [])]
         engine.is_over = d.get('is_over', False)
         engine.victory = d.get('victory', False)
         engine.draw_pile = d.get('draw_pile', [])
         engine.discard_pile = d.get('discard_pile', [])
         engine.hand = d.get('hand', [])
         return engine
+
+
+class Message:
+    def __init__(self, importance, text, card_name=None):
+        self.importance = importance
+        self.text = text
+        self.card_name = card_name
+
+    @property
+    def card(self):
+        if self.card_name:
+            return CARDS[self.card_name]
+        else:
+            return None
+    
+    def to_dict(self):
+        return {
+            'importance': self.importance,
+            'text': self.text,
+            'card_name': self.card_name
+        }
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(d['importance'], d['text'], d.get('card_name'))
+
+class CombatMessage(Message):
+
+    MIN_RARITY = 'odd'
+
+    def __init__(self, importance, text, card_name=None):
+        super().__init__(importance, text, card_name)
+
+    @property
+    def card(self):
+        if self.card_name and RARITIES.index(CARDS[self.card_name].get('rarity')) < RARITIES.index(self.MIN_RARITY):
+            return None
+        else:
+            return super().card
 
 
 # --- HELPER: INITIAL GAME STATE CREATION ---
@@ -794,5 +833,5 @@ def create_initial_game_state():
         'inns': {},
         'active_menu': None,  # None, 'character_menu', 'shop', 'inn', 'combat'
         'combat': None,
-        'message': "Welcome to Legs on Strange Lands."
+        'log': [Message(1, "...").to_dict()],
     }

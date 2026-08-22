@@ -207,6 +207,25 @@
             line-height: 1.2;
             white-space-collapse: preserve;
         }
+
+        .log-container {
+            max-width: 300px;
+            height: 90vh;
+            margin-left: 24px;
+        }
+
+        .log-container .dialogue-box {
+            margin-left: -20px;
+            margin-right: -20px;
+            margin-bottom: -20px;
+            height: 100%;
+            overflow-y: hidden;
+        }
+
+        .log-container p,
+        .log-container .card-rect {
+            margin-bottom: 16px;
+        }
     </style>
 </head>
 
@@ -248,10 +267,6 @@
         </div>
 
         <div class="dialogue-box" style="font-size: 0.9rem;">
-            <!-- STATUS MESSAGE -->
-            {% if state.message %}
-            <p> >&nbsp;{{ state.message }} </p>
-            {% endif %}
             <!-- MAP DESCRIPTION -->
             <p>{{ tile_desc }}</p>
         </div>
@@ -650,13 +665,6 @@
                 </div>
             </div>
 
-            <!-- COMBAT LOG -->
-            <div class="dialogue-box" style="font-size: 0.82rem;">
-                {% for entry in combat_engine.combat_log %}
-                <div>{{ entry }}</div>
-                {% endfor %}
-            </div>
-
             <!-- HAND OF CARDS (TWO-PHASE COMBAT FORM) -->
             {% if is_player_turn %}
             <h4 style="color: var(--accent-amber); font-size: 0.9rem;">
@@ -679,6 +687,23 @@
             {% endif %}
         </div>
         {% endif %}
+    </div>
+
+    <div class="terminal-container log-container">
+        <h2 style="color: var(--text-muted); font-size: 1.1rem;">Wander Log</h2>
+        <div class="dialogue-box" style="font-size: 0.9rem; position: relative;">
+            <div style="position: absolute; bottom: 0;">
+                {% for entry in log %}
+                <p {% if entry.importance < 0 %} style="color: var(--text-muted);" {% endif %}>
+                    <span style="font-weight: bold;">{% for i in entry.importance|count_pips %}>{% endfor %}</span>
+                    {{ entry.text|safe }}
+                </p>
+                {% if entry.card %}
+                {% include "game/card.html" with card=entry.card %}
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
     </div>
 
     <!-- JS INTERCEPTOR & TWO-PHASE COMBAT SELECTION -->
