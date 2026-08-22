@@ -25,7 +25,7 @@ TILE_DESCRIPTIONS = {
     '^': ('Mountain Pass', 'Rugged, high-altitude mountain terrain filled with treacherous wild beasts.'),
     '↟': ('Dense Forest', 'Dark whispering woods where monsters stalk from the shadows.'),
     '.': ('Open Field', 'Quiet open grasslands along the main adventuring path.'),
-    '_': ('In Town', 'Peaceful, well defended flagstone paths. The Rot won\'t get you here.'),
+    '_': ('New Dunton Village', 'Peaceful, well defended flagstone paths. The Rot won\'t get you here.'),
 }
 
 SHOP_DATA = [
@@ -35,6 +35,7 @@ SHOP_DATA = [
             ('Sour Potion', 30),
             ('Syrupy Potion', 20),
             ('Potion', 10),
+            ('Bargain', 50),
         ],
         'illust': """
 +--------------------------------------------------------/-----------------------------------------+
@@ -61,7 +62,6 @@ SHOP_DATA = [
         'items': [
             ('Honed Slash', 40),
             ('Honed Archery', 40),
-            ('Shield', 15),
             ('Wax', 15),
             ('Potion', 5),
         ],
@@ -91,7 +91,6 @@ SHOP_DATA = [
             ('Study', 50),
             ('Elementary Magic', 60),
             ('Simple Trap', 60),
-            ('Bargain', 15),
         ],
         'illust': """
 +--------------------------------------------------------------------------------------------------+
@@ -133,8 +132,8 @@ INN_DATA = [
 +--------------------------------------------------------------------------------------------------+
 """,
         'dialogues': [
-            ("Innkeeper Barnaby", "Welcome, weary travelers! Rest your head, heal your wounds, and organize your company."),
-            ("Innkeeper Barnaby", "The Rot might be fierce outside, but our hearth is warm and safe."),
+            ("Innkeeper", "Welcome, weary travelers! Rest your heads, heal your wounds, and organize your company."),
+            ("Innkeeper", "The Rot might be fierce outside, but our hearth is warm and safe, I promise."),
         ]
     },
 ]
@@ -147,28 +146,29 @@ ALL_PLAYABLE_SPECIES = [
 DEFAULT_CHARACTER_NAMES = [
     'Twig', 'Lily', 'Pip', 'Moss', 'Bramble', 'Clover', 'Hazel', 'Fern',
     'Rowan', 'Acorn', 'Willow', 'Pebble', 'Finley', 'Copper', 'Oat',
-    'Thistle', 'Sedge', 'Cedar', 'Birch', 'Briar', 'Plum', 'Pippin', 'Sprout'
+    'Thistle', 'Sedge', 'Cedar', 'Birch', 'Briar', 'Plum', 'Pippin', 'Sprout',
+    'Thimble', 
 ]
 
 DEFAULT_CLASS_STARTER_CARDS = {
     'Student': {
-        'trinket': ['Study'],
-        'scroll': ['Elementary Magic', 'Wain', 'Wax', 'Singe', 'Chill'],
+        'scroll': ['Elementary Magic', 'Wain', 'Singe', 'Chill'],
+        'armor': ['Favored Clothes', 'Student\'s Robes'],
     },
     'Squire': {
         'weapon': ['Favored Slash', 'Favored Heavy Slash', 'Favored Light Slash'],
-        'trinket': ['Training', 'First Aid'],
+        'armor': ['Favored Clothes', 'Shield', 'Shield Spike'],
     },
     'Scout': {
-        'trinket': ['First Aid'],
         'weapon': ['Favored Archery', 'Simple Trap'],
+        'trinket': ['First Aid', 'Quiver Quickdraw'],
     },
 }
 
 ENCOUNTER_DATA = {
     '.': [
         {
-            'chance': 0.1,
+            'chance': 0.2,
             'min_enemies': 1,
             'max_enemies': 1,
             'species': ALL_PLAYABLE_SPECIES,
@@ -179,10 +179,10 @@ ENCOUNTER_DATA = {
             'names': DEFAULT_CHARACTER_NAMES,
         },
         {
-            'chance': 0.2,
+            'chance': 0.1,
             'min_enemies': 2,
             'max_enemies': 2,
-            'species': ['Badger', 'Cat', 'Fox', 'Rabbit', 'Owl'],
+            'species': ['Cat', 'Fox', 'Rabbit', 'Owl', 'Raven', 'Dragonling'],
             'classes': ['Husk']
         },
         {
@@ -198,17 +198,24 @@ ENCOUNTER_DATA = {
             'chance': 1,
             'min_enemies': 3,
             'max_enemies': 4,
-            'species': ['Badger', 'Cat', 'Fox', 'Rabbit', 'Owl'],
-            'classes': ['Husk', 'Soul', 'Rotmonger']
+            'species': ['Badger', 'Cat', 'Fox', 'Rabbit', 'Raven', 'Giant'],
+            'classes': ['Husk', 'Rotmonger']
         },
     ],
     '^': [
         {
-            'chance': 0.6,
+            'chance': 0.3,
             'min_enemies': 2,
             'max_enemies': 4,
             'species': ['Badger', 'Cat', 'Fox', 'Rabbit', 'Owl'],
             'classes': ['Husk', 'Soul', 'Rotmonger']
+        },
+        {
+            'chance': 0.3,
+            'min_enemies': 2,
+            'max_enemies': 4,
+            'species': ['Cat', 'Fox', 'Rabbit', 'Giant'],
+            'classes': ['Husk']
         }
     ],
     '↟': [

@@ -61,24 +61,16 @@
             <span style="color: var(--accent-cyan)">{{ card.recovery_cost }}⧗</span>
             {% for effect in card|all_unique_effects %}
             {% if effect.damage_power %}
-            | <span style="color: var(--accent-red)">{{ effect.damage_power|floatformat }}{%if effect.damage_type %}×{% endif %}
-                {{ effect.damage_type|damage_type }}
-            </span>
+            | <span style="color: var(--accent-red)">{{ effect.damage_power|floatformat }}{%if effect.damage_type %}×{% endif %}&nbsp;{{ effect.damage_type|damage_type }}</span>
             {% endif %}
             {% if effect.heal_power %}
-            | <span style="color: var(--accent-green)">{{ effect.heal_power|floatformat }}{%if effect.heal_stat %}×{% endif %}
-                {{ effect.heal_stat|damage_type }}
-            </span>
+            | <span style="color: var(--accent-green)">{{ effect.heal_power|floatformat }}{%if effect.heal_stat %}×{% endif %}&nbsp;{{ effect.heal_stat|damage_type }}</span>
             {% endif %}
             {% if effect.status_effect_power %}
-            | <span style="color: var(--accent-purple)">{{ effect.status_effect_power|floatformat }}{% if effect.status_effect_stat %}×{% endif %}
-                {{ effect.status_effect_stat|damage_type }}
-            </span>
+            | <span style="color: var(--accent-purple)">{{ effect.status_effect_power|floatformat }}{% if effect.status_effect_stat %}×{% endif %}&nbsp;{{ effect.status_effect_stat|damage_type }}</span>
             {% endif %}
             {% if effect.status_effect_duration %}
-            | <span style="color: var(--accent-cyan)">{{ effect.status_effect_duration|floatformat }}{% if effect.status_effect_duration_stat %}×{% endif %}
-                {{ effect.status_effect_duration_stat|damage_type }}
-            </span>
+            | <span style="color: var(--accent-cyan)">{{ effect.status_effect_duration|floatformat }}{% if effect.status_effect_duration_stat %}×{% endif %}&nbsp;{{ effect.status_effect_duration_stat|damage_type }}</span>
             {% endif %}
             {% endfor %}
         </div>

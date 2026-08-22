@@ -410,7 +410,7 @@
                     {% for card in known_cards %}
                     {% include "game/card.html" with card=card %}
                     {% empty %}
-                    <p style="color: var(--text-muted)">{{ selected_char.name }} knows no cards yet.</p>
+                    <p style="color: var(--text-muted); width: max-content">{{ selected_char.name }} knows no cards yet.</p>
                     {% endfor %}
                 </div>
             </div>
@@ -575,7 +575,7 @@
                         </form>
                     </div>
                     {% empty %}
-                    <p style="font-size: 0.85rem; color: var(--text-muted); width: max-content;">No guests currently staying at this inn.</p>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); width: max-content;">No guests are currently staying at this inn.</p>
                     {% endfor %}
                 </div>
             </div>

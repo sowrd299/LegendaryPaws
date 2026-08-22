@@ -53,15 +53,22 @@ SPECIES_DATA = {
     'Dew Sprite': {'moon_intensity': 5.0, 'moon_resistance': 4.0, 'haleness': 1.0, 'brute_intensity': 0},
     'Loss Sprite': {'void_intensity': 3.0, 'void_resistance': 4.0, 'haleness': 0.0, 'brute_intensity': 0, 'nimbleness': 3.0},
     'Clockwork': {'brute_intensity': 15, 'brute_resistance': 5.0, 'nimbleness': 2.0, 'haleness': 4.0,
-                  'star_intensity': -3.0, 'moon_intensity': -3.0, 'void_intensity': -3.0}
+                  'star_intensity': -3.0, 'moon_intensity': -3.0, 'void_intensity': -3.0},
+
+    # Enemy specific species
+    'Giant': {'brute_itentsity': 15, 'brute_resistance': 15.0, 'haleness': 8.0},
 }
 
 CLASS_DATA = {
     'Wandering Spellsword': {
         'bonus_stats': ['melee_damage', 'moon_intensity', 'diplomacy'],
         'stat_mods': {'melee_damage': 3.0, 'moon_intensity': 3.0, 'diplomacy': 2.0, 'brute_intensity': 5},
-        'default_cards': []
+        'default_cards': [],
+        'req_class': ['Knight'],
+        'req_card': ['Wain', 'Wax', 'Waxing Moonlight'],
     },
+
+    # MAGIC CLASSES
     'Student': {
         'bonus_stats': ['star_intensity', 'moon_intensity', 'void_intensity'],
         'stat_mods': {'star_intensity': 2.0, 'moon_intensity': 2.0, 'void_intensity': 2.0},
@@ -71,7 +78,7 @@ CLASS_DATA = {
     'Day Mage': {
         'bonus_stats': ['star_intensity', 'moon_resistance', 'void_vulnerability'],
         'stat_mods': {'star_intensity': 4.0, 'moon_resistance': 3.0, 'void_vulnerability': 1.0},
-        'default_cards': [],
+        'default_cards': ['Singeing Sunlight'],
         'req_class': ['Student'],
         'req_card': ['Singe'],
         'req_level': 4,
@@ -79,7 +86,7 @@ CLASS_DATA = {
     'Night Mage': {
         'bonus_stats': ['moon_intensity', 'void_resistance', 'star_vulnerability'],
         'stat_mods': {'moon_intensity': 4.0, 'void_resistance': 3.0, 'star_vulnerability': 1.0},
-        'default_cards': [],
+        'default_cards': ['Waxing Moonlight'],
         'req_class': ['Student'],
         'req_card': ['Wax', 'Wain'],
         'req_level': 4,
@@ -87,11 +94,13 @@ CLASS_DATA = {
     'Passage Mage': {
         'bonus_stats': ['void_intensity', 'star_resistance', 'moon_vulnerability'],
         'stat_mods': {'void_intensity': 4.0, 'star_resistance': 3.0, 'moon_vulnerability': 1.0},
-        'default_cards': [],
+        'default_cards': ['Call to the Void'],
         'req_class': ['Student'],
         'req_card': ['Chill'],
         'req_level': 4,
     },
+
+    # SURVIVAL CLASSES
     'Warlock': {
         'bonus_stats': ['void_intensity', 'star_resistance', 'melee_resistance', 'moon_vulnerability'],
         'stat_mods': {'void_intensity': 4.0, 'star_resistance': 3.0, 'melee_resistance': 2.0},
@@ -111,21 +120,23 @@ CLASS_DATA = {
         'req_level': 6,
     },
     'Blackcloak': {
-        'bonus_stats': ['moon_intensity', 'survival_intensity', 'melee_resistance', 'void_resistance'],
-        'stat_mods': {'moon_intensity': 3.0, 'survival_intensity': 3.0, 'melee_resistance': 2.0},
+        'bonus_stats': ['moon_intensity', 'survival_intensity', 'void_resistance'],
+        'stat_mods': {'moon_intensity': 3.0, 'survival_intensity': 3.0, 'void_resistance': 2.0},
         'default_cards': [],
         'req_class': ['Scout'],
-        'req_card': ['Wax'],
-        'req_level': 6,
+        'req_card': ['Wain', 'Wax'],
     },
+
+    # MELEE CLASSES
     'Squire': {
         'bonus_stats': ['melee_damage', 'melee_resistance', 'star_vulnerability', 'moon_vulnerability'],
         'stat_mods': {'melee_damage': 3.0, 'melee_resistance': 3.0},
-        'default_cards': []
+        'default_cards': [],
+        'req_card': ['Training']
     },
     'Knight': {
         'bonus_stats': ['melee_damage', 'melee_resistance', 'ranged_resistance', 'star_vulnerability'],
-        'stat_mods': {'melee_damage': 4.0, 'melee_resistance': 4.0},
+        'stat_mods': {'level': 2, 'haleness': 2, 'melee_damage': 5.0, 'melee_resistance': 5.0},
         'default_cards': [],
         'req_class': ['Squire'],
         'req_level': 6,
@@ -135,8 +146,17 @@ CLASS_DATA = {
         'stat_mods': {'melee_damage': 4.0, 'star_intensity': 3.0, 'melee_resistance': 3.0},
         'default_cards': ['Burning Blade']
     },
+    'Fencer': {
+        'bonus_stats': ['melee_damage', 'nimbleness', 'moon_vulnerability', 'void_vulnerability'],
+        'stat_mods': {'melee_damage': 4.0, 'nimbleness': 3.0, 'moon_vulnerability': 2.0, 'void_vulnerability': 2.0},
+        'default_cards': ['Parry'],
+        'req_card': ['Flowering Stab'],
+    },
 
-    # Enemy specific classes
+    # ====================================================================================================
+    # ENEMY CLASSES
+    # ====================================================================================================
+    
     'Husk': {
         'bonus_stats': ['ranged_damage', 'star_vulnerability'],
         'stat_mods': {'brute_intensity' : -2, 'brute_resistance': -1, 'nimbleness': -3, 'haleness': -5.0,},
@@ -634,13 +654,13 @@ class CombatEngine:
         if 'status_effect_target_stat' in card:
             target_stat = card['status_effect_target_stat']
             status_effect_power = card.get('status_effect_power', 1)
-            status_effect_type = card.get('status_effect_type')
+            status_effect_stat = card.get('status_effect_stat')
             status_effect_duration = card.get('status_effect_duration', 1)
             status_effect_duration_type = card.get('status_effect_duration_type')
             
             status_effect_val = status_effect_power
-            if status_effect_type:
-                status_effect_val = int(round(actor.get_combat_scaled_stat(status_effect_type) * status_effect_val))
+            if status_effect_stat:
+                status_effect_val = int(round(actor.get_combat_scaled_stat(status_effect_stat) * status_effect_val))
 
             status_effect_duration_val = status_effect_duration
             if status_effect_duration_type:
@@ -764,7 +784,7 @@ def create_initial_game_state():
         ['Bargain'] +
         ['Slash'] * 4 +
         ['Potion'] * 2 +
-        ['Woe'] * 2
+        ['Woe'] * 3
     )
 
     return {

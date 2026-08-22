@@ -387,7 +387,25 @@ def handle_action(request):
                 if engine.victory:
                     earned_gold = random.randint(5, 10)
                     party.gold += earned_gold
-                    reward_card = random.choice(['Slash', 'Light Slash', 'Archery', 'First Aid', 'Wax', 'Wain', 'Pull of Tides', 'Singe', 'Singe Breath', 'Chill', 'Chill Breath'])
+                    reward_card = random.choice([
+                        'Slash', 
+                        'Light Slash', 
+                        'Light Clothes', 
+                        'Shield',
+                        'Archery', 
+                        'First Aid', 
+                        'Wain', 
+                        'Wax', 
+                        'Waxing Moonlight',
+                        'Singe', 
+                        'Singe Breath', 
+                        'Singeing Sunlight',
+                        'Chill', 
+                        'Chill Breath',
+                        'Call to the Void',
+                        'Battlesong',
+                        'Flowering Stab',
+                    ])
 
                     if len(party.inventory) < INVENTORY_MAX_SIZE:
                         party.inventory.append(reward_card)

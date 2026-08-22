@@ -1,4 +1,9 @@
 CARD_DATA = [
+
+# ==================================================================================================
+# NOTHINGNESS
+# ==================================================================================================
+
     {
         'name': 'Wait',
         'type': 'nothingness',
@@ -37,6 +42,11 @@ CARD_DATA = [
 +                 +
 """
     },
+
+# ==================================================================================================
+# POTIONS 
+# ==================================================================================================
+
     {
         'name': 'Potion',
         'type': 'trinket',
@@ -100,6 +110,11 @@ CARD_DATA = [
 +-----------------+
 """
     },
+
+# ==================================================================================================
+# ARMOR
+# ==================================================================================================
+
     {
         'name': 'Shield',
         'type': 'armor',
@@ -121,6 +136,81 @@ CARD_DATA = [
 +-----------------+
 """
     },
+    {
+        'name': 'Shield Spike',
+        'type': 'armor',
+        'rarity': 'interesting',
+        'target': 'enemy',
+        'recovery_cost': 12,
+        'description': 'Spikes an enemy while shielding the user.',
+        'damage_type': 'melee_damage',
+        'damage_power': 1.0,
+        'stat_boosts': {'brute_resistance': 0.3},
+        'effects': [
+            {
+                'target': 'self',
+                'status_effect_target_stat': 'brute_resistance',
+                'status_effect_power': 2,
+                'status_effect_duration': 15,
+            },
+        ],
+        'illust': """
++-----------------+
+|      ------     |
+|     />/--\>\    |
+|     | | >| |    |
+|     \ >\/> /    |
+|      \____/     |
++-----------------+
+"""
+    },
+    {
+        'name': 'Light Clothes',
+        'type': 'armor',
+        'rarity': 'mundane',
+        'target': 'self',
+        'recovery_cost': 5,
+        'description': 'Protective and nimble garments.',
+        'stat_boosts': {'brute_resistance': 0.2, 'melee_resistance': 0.3, 'ranged_resistance': 0.3, 'nimbleness': 0.2},
+        'effects': [
+            {
+                'status_effect_target_stat': 'brute_resistance',
+                'status_effect_power': 1,
+                'status_effect_duration': 40,
+            },
+            {
+                'status_effect_target_stat': 'nimbleness',
+                'status_effect_power': 1,
+                'status_effect_duration': 40,
+            }
+        ]
+    },
+    {
+        'name': 'Favored Clothes',
+        'type': 'armor',
+        'rarity': 'interesting',
+        'target': 'self',
+        'recovery_cost': 5,
+        'description': 'Protective and nimble garments.',
+        'stat_boosts': {'brute_resistance': 0.2, 'melee_resistance': 0.3, 'ranged_resistance': 0.3, 'nimbleness': 0.2},
+        'effects': [
+            {
+                'status_effect_target_stat': 'brute_resistance',
+                'status_effect_power': 1,
+                'status_effect_duration': 40,
+            },
+            {
+                'status_effect_target_stat': 'nimbleness',
+                'status_effect_power': 1,
+                'status_effect_duration': 40,
+            }
+        ]
+    },
+
+# ==================================================================================================
+# MELEE DAMAGE 
+# ==================================================================================================
+
     {
         'name': 'Slash',
         'type': 'weapon',
@@ -242,14 +332,85 @@ CARD_DATA = [
 """
     },
     {
-        'name': 'Light Clothes',
-        'type': 'armor',
-        'rarity': 'mundane',
-        'target': 'ally',
-        'recovery_cost': 5,
-        'description': 'Protective garments.',
-        'stat_boosts': {'brute_resistance': 0.15, 'melee_resistance': 0.3, 'ranged_resistance': 0.3}
+        'name': 'Honed Slash',
+        'type': 'weapon',
+        'rarity': 'interesting',
+        'target': 'enemy',
+        'recovery_cost': 14,
+        'damage_type': 'melee_damage',
+        'damage_power': 3,
+        'description': 'Powerful attack.',
+        'stat_boosts': {'melee_damage': 0.5},
+        'illust': """
++-----------------+
+\     - -   _.    |
+\      - - / |    |
+|    -  . ///     \\
+|        \//      \\
+|       //\.      |
++-------*---------+
+"""
     },
+    {
+        'name': 'Flowering Stab',
+        'type': 'weapon',
+        'rarity': 'interesting',
+        'target': 'enemy',
+        'recovery_cost': 10,
+        'damage_type': 'melee_damage',
+        'damage_power': 1,
+        'description': 'A quick attack that boosts the next.',
+        'stat_boosts': {'melee_damage': 0.3, 'nimbleness': 0.3},
+        'effects': [
+            {
+                'target': 'self',
+                'status_effect_target_stat': 'melee_damage',
+                'status_effect_power': 2,
+                'status_effect_duration': 15,
+            },
+        ],
+        'illust': """
++-----------------+
+|       \  \      |
+|     l,          |
+|  o==D)=======>  |
+|     l`          |
+|       /  /      |
++-----------------+
+"""
+    },
+    {
+        'name': 'Parry',
+        'type': 'weapon',
+        'rarity': 'interesting',
+        'target': 'self',
+        'recovery_cost': 5,
+        'description': 'A quick boost to the user\'s defenses.',
+        'stat_boosts': {'brute_resistance': 0.3, 'melee_damage': 0.3, 'nimbleness': 0.3},
+        'effects': [
+            {
+                'status_effect_target_stat': 'brute_resistance',
+                'status_effect_power': 1,
+                'status_effect_stat': 'melee_damage',
+                'status_effect_duration': 10,
+            },
+        ],
+        'illust': """
++-----------------+
+|       \  \      |
+|     l,          |
+|  o==D)=======>  |
+|     l`          |
+|       /  /      |
++-----------------+
+"""
+    },
+
+
+# ==================================================================================================
+# RANGED DAMAGE
+# ==================================================================================================
+
     {
         'name': 'Archery',
         'type': 'weapon',
@@ -291,6 +452,31 @@ CARD_DATA = [
 """
     },
     {
+        'name': 'Honed Archery',
+        'type': 'weapon',
+        'rarity': 'interesting',
+        'target': 'enemy',
+        'recovery_cost': 14,
+        'damage_type': 'ranged_damage',
+        'damage_power': 3,
+        'description': 'Precise attack.',
+        'stat_boosts': {'ranged_damage': 0.5},
+        'illust': """
++-----------------+
+|               >>=
+|   >>======>     |
+=>                |
+|       >>======> |
+|                 |
++-----------------+
+"""
+    },
+
+# ==================================================================================================
+# SURVIVAL INTENSITY
+# ==================================================================================================
+
+    {
         'name': 'Simple Trap',
         'type': 'weapon',
         'rarity': 'interesting',
@@ -319,8 +505,22 @@ CARD_DATA = [
         'heal_power': 1.0,
         'heal_stat': 'survival_intensity',
         'description': 'Heals an ally.',
-        'stat_boosts': {'survival_intensity': 0.3, 'haleness': 0.2}
+        'stat_boosts': {'survival_intensity': 0.3, 'haleness': 0.2},
+        'illust': """
++-----------------+
+|_____    /\      |
+|-----\-\/ //-----|
+|      %(&n)%     |
+|------/|u/\------|
+|       |/   \____|
++-----------------+
+"""
     },
+
+# ==================================================================================================
+# MAGIC
+# ==================================================================================================
+
     {
         'name': 'Elementary Magic',
         'type': 'scroll',
@@ -353,6 +553,11 @@ CARD_DATA = [
 +-----------------+
 """
     },
+
+# ==================================================================================================
+# MOON INTENSITY
+# ==================================================================================================
+
     {
         'name': 'Woe',
         'type': 'scroll',
@@ -414,6 +619,26 @@ CARD_DATA = [
 """
     },
     {
+        'name': 'Waxing Moonlight',
+        'type': 'scroll',
+        'rarity': 'odd',
+        'target': 'all_allies',
+        'recovery_cost': 25,
+        'heal_power': 2.0,
+        'heal_stat': 'moon_intensity',
+        'description': 'Magic spell healing all allies.',
+        'stat_boosts': {'moon_intensity': 0.4, 'moon_resistance': 0.3, 'star_vulnerability': 0.3},
+        'illust': """
++-----------------+
+| *       \  O \  |
+|         | o  |' |
+|         /  0 /  |
+|        _/'.//   |
+|      ./_//'    *|
++-----------------+
+"""
+    },
+    {   # Pull of tides is a historical card, not currently the direction for cards I currently want to ship
         'name': 'Pull of Tides',
         'type': 'scroll',
         'rarity': 'odd',
@@ -433,6 +658,11 @@ CARD_DATA = [
 +-----------------+
 """
     },
+
+# ==================================================================================================
+# STAR INTENSITY
+# ==================================================================================================
+
     {
         'name': 'Singe',
         'type': 'scroll',
@@ -455,6 +685,31 @@ CARD_DATA = [
         'description': 'Magic spell dealing damage to all enemies.',
         'stat_boosts': {'star_intensity': 0.2, 'star_resistance': 0.3, 'void_vulnerability': 0.3}
     },
+    {   
+        'name': 'Singeing Sunlight',
+        'type': 'scroll',
+        'rarity': 'odd',
+        'target': 'all_enemies',
+        'recovery_cost': 25,
+        'damage_type': 'star_intensity',
+        'damage_power': 2.0,
+        'description': 'Magic spell dealing damage to all enemies.',
+        'stat_boosts': {'star_intensity': 0.4, 'star_resistance': 0.3, 'void_vulnerability': 0.3},
+        'illust': """
++-----------------+
+|--             --|
+|~~S/ /      \ \~~|
+| S/  S/ $| \S \S |
+|S/   S/ |$ \S  \S|
+|    S/  $|  \S   |
++-----------------+
+"""
+    },
+
+# ==================================================================================================
+# VOID INTENSITY
+# ==================================================================================================
+
     {
         'name': 'Chill',
         'type': 'scroll',
@@ -496,8 +751,35 @@ CARD_DATA = [
 """
     },
     {
+        'name': 'Call to the Void',
+        'type': 'scroll',
+        'rarity': 'odd',
+        'recovery_cost': 15,
+        'description': 'Winnows enemies & quickens allies.',
+        'stat_boosts': {'void_intensity': 0.4, 'void_resistance': 0.3, 'moon_vulnerability': 0.3},
+        'effects':[
+            {
+                'target': 'all_enemies',
+                'damage_type': 'void_intensity',
+                'damage_power': 1,
+            },
+            {
+                'target': 'all_allies',
+                'status_effect_target_stat': 'nimbleness',
+                'status_effect_power': 1,
+                'status_effect_stat': 'void_intensity',
+                'status_effect_duration': 10,
+            },
+        ]
+    },
+
+# ==================================================================================================
+# STATUS EFFECTS
+# ==================================================================================================
+
+    {
         'name': 'Study',
-        'type': 'trinket',
+        'type': 'scroll',
         'rarity': 'interesting',
         'target': 'self',
         'recovery_cost': 10,
@@ -522,8 +804,34 @@ CARD_DATA = [
         ]
     },
     {
+        'name': 'Student\'s Robes',
+        'type': 'armor',
+        'rarity': 'interesting',
+        'target': 'self',
+        'recovery_cost': 10,
+        'description': 'A student\'s robes, boosting magical stats.',
+        'stat_boosts': {'star_intensity': 0.2, 'moon_intensity': 0.2, 'void_intensity': 0.2},
+        'effects': [
+            {
+                'status_effect_target_stat': 'star_intensity',
+                'status_effect_power': 2,
+                'status_effect_duration': 30,
+            },
+            {
+                'status_effect_target_stat': 'moon_intensity',
+                'status_effect_power': 2,
+                'status_effect_duration': 30,
+            },
+            {
+                'status_effect_target_stat': 'void_intensity',
+                'status_effect_power': 2,
+                'status_effect_duration': 30,
+            },
+        ]
+    },
+    {
         'name': 'Training',
-        'type': 'trinket',
+        'type': 'scroll',
         'rarity': 'interesting',
         'target': 'self',
         'recovery_cost': 10,
@@ -548,45 +856,57 @@ CARD_DATA = [
         ],
     },
     {
-        'name': 'Honed Archery',
-        'type': 'weapon',
+        'name': 'Quiver Quickdraw',
+        'type': 'trinket',
         'rarity': 'interesting',
-        'target': 'enemy',
-        'recovery_cost': 14,
-        'damage_type': 'ranged_damage',
-        'damage_power': 3,
-        'description': 'Precise attack.',
-        'stat_boosts': {'ranged_damage': 0.5},
-        'illust': """
-+-----------------+
-|               >>=
-|   >>======>     |
-=>                |
-|       >>======> |
-|                 |
-+-----------------+
-"""
+        'target': 'self',
+        'recovery_cost': 10,
+        'description': 'A quiver that boosts the user\'s archery and nimbleness.',
+        'stat_boosts': {'ranged_damage': 0.3, 'nimbleness': 0.2},
+        'effects': [
+            {
+                'status_effect_target_stat': 'ranged_damage',
+                'status_effect_power': 1,
+                'status_effect_duration': 40,
+            },
+            {
+                'status_effect_target_stat': 'nimbleness',
+                'status_effect_power': 1,
+                'status_effect_duration': 40,
+            },
+        ],
     },
     {
-        'name': 'Honed Slash',
-        'type': 'weapon',
-        'rarity': 'interesting',
-        'target': 'enemy',
-        'recovery_cost': 14,
-        'damage_type': 'melee_damage',
-        'damage_power': 3,
-        'description': 'Powerful attack.',
-        'stat_boosts': {'melee_damage': 0.5},
-        'illust': """
-+-----------------+
-\     - -   _.    |
-\      - - / |    |
-|    -  . ///     \\
-|        \//      \\
-|       //\.      |
-+-----------------+
-"""
+        'name':  'Battlesong',
+        'type': 'scroll',
+        'rarity': 'odd',
+        'target': 'self',
+        'recovery_cost': 10,
+        'description': 'Musters courage for an attack, boosting physical stats.',
+        'stat_boosts': {'melee_damage': 0.4, 'ranged_damage': 0.4, 'brute_resistance': 0.4},
+        'effects': [
+            {
+                'status_effect_target_stat': 'melee_damage',
+                'status_effect_power': 4,
+                'status_effect_duration': 15,
+            },
+            {
+                'status_effect_target_stat': 'ranged_damage',
+                'status_effect_power': 4,
+                'status_effect_duration': 15,
+            },
+            {
+                'status_effect_target_stat': 'brute_resistance',
+                'status_effect_power': 4,
+                'status_effect_duration': 15,
+            },
+        ],
     },
+
+# ==================================================================================================
+# WIP
+# ==================================================================================================
+
     {
         'name': 'Burning Blade',
         'type': 'weapon',
@@ -620,28 +940,11 @@ CARD_DATA = [
         'description': 'Day Mage signature spell searing enemies.',
         'stat_boosts': {'star_intensity': 0.6}
     },
-    {
-        'name': 'Moonlight',
-        'type': 'scroll',
-        'rarity': 'exceptional',
-        'target': 'all_allies',
-        'recovery_cost': 12,
-        'heal_power': 4.0,
-        'heal_stat': 'moon_intensity',
-        'description': 'Bathes allies in healing moonlight.',
-        'stat_boosts': {'moon_intensity': 0.6, 'moon_resistance': 0.6}
-    },
-    {
-        'name': 'Call to the Void',
-        'type': 'scroll',
-        'rarity': 'exceptional',
-        'target': 'all_enemies',
-        'recovery_cost': 14,
-        'damage_type': 'void_intensity',
-        'damage_power': 1.2,
-        'description': 'Strikes all enemies with void energy.',
-        'stat_boosts': {'void_intensity': 0.8}
-    },
+    
+# ==================================================================================================
+# DIPLOMACY
+# ==================================================================================================
+
     {
         'name': 'Bargain',
         'type': 'scroll',

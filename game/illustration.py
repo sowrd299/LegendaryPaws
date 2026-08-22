@@ -17,7 +17,12 @@ ILLUSTRATION_DATA = [
     {
         'name': 'badger_husk',
         'species': ['Badger'],
-        'classes': ['Husk', 'Rotmonger'],
+        'classes': ['Husk'],
+    },
+    {
+        'name': 'badger_rotmonger',
+        'species': ['Badger'],
+        'classes': ['Rotmonger'],
     },
     {
         'name': 'fox_soul',
@@ -27,7 +32,12 @@ ILLUSTRATION_DATA = [
     {
         'name': 'fox_husk',
         'species': ['Fox'],
-        'classes': ['Husk', 'Rotmonger'],
+        'classes': ['Husk'],
+    },
+    {
+        'name': 'fox_rotmonger',
+        'species': ['Fox'],
+        'classes': ['Rotmonger'],
     },
     {
         'name': 'rabbit_soul',
@@ -78,6 +88,26 @@ ILLUSTRATION_DATA = [
         'name': 'fox_squire',
         'species': ['Fox'],
         'classes': ['Squire'],
+    },
+    {
+        'name': 'raven_husk',
+        'species': ['Raven'],
+        'classes': ['Husk'],
+    },
+    {
+        'name': 'raven_rotmonger',
+        'species': ['Raven'],
+        'classes': ['Rotmonger'],
+    },
+    {
+        'name': 'dragonling_husk',
+        'species': ['Dragonling'],
+        'classes': ['Husk', 'Rotmonger'],
+    },
+    {
+        'name': 'bear_husk',
+        'species': ['Giant'],
+        'classes': ['Husk', 'Rotmonger'],
     },
     {
         'name': 'blackcloak',
