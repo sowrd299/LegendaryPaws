@@ -434,6 +434,7 @@ def handle_action(request):
                         if getattr(e, 'is_recruited', False):
                             e.current_hp = e.max_hp
                             e.is_recruited = False
+                            e.status_effects = []
                             if len(party.members) < 4:
                                 party.members.append(e)
                                 recruited_msgs.append(f"Recruited {e.name} into your party!")
