@@ -82,7 +82,8 @@ SHOP_DATA = [
             ("Badgy", "Welcome in! You know, brigands like yourself are becoming awfully popular with this Rot about. " +
             "I'm trying to stay stock with what you lot like. I hear there are lots of brigands out in the woods; " +
             "Maybe you all should team up, fight the Rot together." )
-        ]
+        ],
+        'should_reset_losable_gold': True
     },
     {
         'title': 'Sally\'s School Supplies',
@@ -110,7 +111,8 @@ SHOP_DATA = [
             "some these things and you just might not recognize yourself."),
             ("Sally", "Oh! You're a brigand! Well I never! Don't you worry, I'm sure we can find " + 
             "something that'll make you a new person in no time!")
-        ]
+        ],
+        'should_reset_losable_gold': True,
     },
 ]
 
@@ -134,7 +136,8 @@ INN_DATA = [
         'dialogues': [
             ("Innkeeper", "Welcome, weary travelers! Rest your heads, heal your wounds, and organize your company."),
             ("Innkeeper", "The Rot might be fierce outside, but our hearth is warm and safe, I promise."),
-        ]
+        ], 
+        'should_reset_losable_gold': True,
     },
 ]
 
@@ -241,6 +244,20 @@ ENCOUNTER_DATA = {
     '_': [ ]
 }
 
+def should_reset_losable_gold(x, y):
+    if WORLD_MAP[y][x] == '_':
+        return True
+    
+    shop = get_shop(x, y)
+    if shop and shop.get('should_reset_losable_gold', False):
+        return True
+
+    inn = get_inn(x, y)
+    if inn and inn.get('should_reset_losable_gold', False):
+        return True
+
+    return False
+
 def get_shop(shop_x, shop_y):
 
     map = WORLD_MAP
@@ -248,21 +265,23 @@ def get_shop(shop_x, shop_y):
 
     for y in range(len(map)):
         for x in range(len(map[y])):
-            if x == shop_x and y == shop_y:
-                return SHOP_DATA[min(idx, len(SHOP_DATA)-1)]
-            elif map[y][x] == 'S': 
+            if map[y][x] == 'S':
+                if x == shop_x and y == shop_y:
+                    return SHOP_DATA[min(idx, len(SHOP_DATA)-1)]
                 idx += 1
+
+    return None
 
 def get_inn(inn_x, inn_y):
     map_grid = WORLD_MAP
     idx = 0
     for y in range(len(map_grid)):
         for x in range(len(map_grid[y])):
-            if x == inn_x and y == inn_y:
-                inn_info = dict(INN_DATA[min(idx, len(INN_DATA) - 1)])
-                inn_info['index'] = idx
-                return inn_info
-            elif map_grid[y][x] == 'I':
+            if map_grid[y][x] == 'I':
+                if x == inn_x and y == inn_y:
+                    inn_info = dict(INN_DATA[min(idx, len(INN_DATA) - 1)])
+                    inn_info['index'] = idx
+                    return inn_info
                 idx += 1
     return None
 

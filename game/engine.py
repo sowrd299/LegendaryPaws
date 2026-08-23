@@ -464,6 +464,7 @@ class Party:
         self.inventory = []  # list of card names (up to 20)
         self.shared_deck = []  # list of card names (up to 10)
         self.gold = 50
+        self.losable_gold = 0
         self.x = 7
         self.y = 5
 
@@ -473,6 +474,7 @@ class Party:
             'inventory': self.inventory,
             'shared_deck': self.shared_deck,
             'gold': self.gold,
+            'losable_gold': self.losable_gold,
             'x': self.x,
             'y': self.y
         }
@@ -484,6 +486,7 @@ class Party:
         p.inventory = d.get('inventory', [])
         p.shared_deck = d.get('shared_deck', [])
         p.gold = d.get('gold', 50)
+        p.losable_gold = d.get('losable_gold', 0)
         p.x = d.get('x', 7)
         p.y = d.get('y', 5)
         return p

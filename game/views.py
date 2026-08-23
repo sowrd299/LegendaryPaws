@@ -8,7 +8,7 @@ from .engine import (
 from .cards import *
 from .map import (
     WORLD_MAP, MAP_WIDTH, MAP_HEIGHT, TILE_DESCRIPTIONS,
-    get_shop, get_inn, get_inn_id, get_nearest_inn_id, get_random_encounter
+    should_reset_losable_gold, get_shop, get_inn, get_inn_id, get_nearest_inn_id, get_random_encounter
 )
 
 VOINARA_DIALOGUE = [
@@ -235,6 +235,9 @@ def handle_action(request):
         party.x, party.y = new_x, new_y
         current_tile = WORLD_MAP[new_y][new_x]
 
+        if should_reset_losable_gold(new_x, new_y):
+            party.losable_gold = 0
+
         # Check tile interaction / encounter
         if current_tile == 'S':
             state['screen'] = 'shop'
@@ -400,6 +403,7 @@ def handle_action(request):
                 if engine.victory:
                     earned_gold = random.randint(5, 10)
                     party.gold += earned_gold
+                    party.losable_gold += earned_gold
                     reward_card = random.choice([
                         'Slash', 
                         'Light Slash', 
@@ -453,7 +457,10 @@ def handle_action(request):
                         m.current_hp = m.max_hp
                     party.x, party.y = 7, 5
                     state['screen'] = 'overworld'
-                    log.append(Message(3, "The Rot has overwhelmed your party! You flead back to town."))
+                    log.append(Message(3, f"The Rot has overwhelmed your party! You flead back to town and lost {party.losable_gold} gold!"))
+                    party.gold -= party.losable_gold
+                    party.gold = max(party.gold, 0)
+                    party.losable_gold = 0
 
     state['party'] = party.to_dict()
     state['log'] = [m.to_dict() for m in log]
