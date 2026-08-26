@@ -1,22 +1,31 @@
+# NOTE FOR TEST MAINTAINERS:
+# Avoid hardcoding exact map coordinates or content strings that are not explicitly provided within
+# the test cases themselves. Game content and layout will update frequently, so tests should look up
+# data dynamically (e.g. using get_inn_coords or helper functions) rather than using fixed magic numbers.
+
 from django.test import TestCase, Client
 from django.urls import reverse
 from game.engine import (
     raw_to_scaled, Character, Party, CombatEngine, CARDS, create_initial_game_state
 )
-from game.map import generate_random_enemies, DEFAULT_CHARACTER_NAMES, get_inn_id, get_inn, get_nearest_inn_id
+from game.map import (
+    generate_random_enemies, DEFAULT_CHARACTER_NAMES, get_inn_id, get_inn, get_nearest_inn_id,
+    calculate_map_pan, DEFAULT_START_INN_ID, get_inn_coords
+)
 
 class EngineTests(TestCase):
     def test_inn_reading_order_and_nearest_resolution(self):
         """Test reading-order ID assignment and nearest Inn resolution."""
-        inn_id = get_inn_id(8, 5)
-        self.assertEqual(inn_id, 'inn_0')
+        start_x, start_y = get_inn_coords(DEFAULT_START_INN_ID)
+        inn_id = get_inn_id(start_x, start_y)
+        self.assertEqual(inn_id, DEFAULT_START_INN_ID)
 
-        inn_data = get_inn(8, 5)
+        inn_data = get_inn(start_x, start_y)
         self.assertIsNotNone(inn_data)
-        self.assertEqual(inn_data['id'], 'inn_0')
+        self.assertEqual(inn_data['id'], DEFAULT_START_INN_ID)
 
-        nearest = get_nearest_inn_id(7, 5)
-        self.assertEqual(nearest, 'inn_0')
+        nearest = get_nearest_inn_id(start_x, start_y)
+        self.assertEqual(nearest, DEFAULT_START_INN_ID)
 
     def test_character_generation_default_names(self):
         """Test character generation picks names from DEFAULT_CHARACTER_NAMES including Twig and Lily."""
@@ -200,7 +209,8 @@ class ViewIntegrationTests(TestCase):
         state = create_initial_game_state()
         state['screen'] = 'overworld'
         session['game_state'] = state
-        session.save()
+        initial_party = Party.from_dict(state['party'])
+        initial_x = initial_party.x
 
         response = self.client.post(reverse('handle_action'), {
             'action_type': 'move',
@@ -211,7 +221,7 @@ class ViewIntegrationTests(TestCase):
         # Verify position changed in session
         updated_state = self.client.session['game_state']
         updated_party = Party.from_dict(updated_state['party'])
-        self.assertEqual(updated_party.x, 6)
+        self.assertEqual(updated_party.x, initial_x - 1)
 
     def test_reset_session_clears_session_data(self):
         """Test visiting secret reset page clears game_state and session."""
@@ -362,7 +372,6 @@ class ViewIntegrationTests(TestCase):
         self.assertEqual(len(updated_state['inns']['inn_0']), 1)
         self.assertEqual(updated_state['inns']['inn_0'][0]['name'], "Party Companion")
 
-        # Attempt to dismiss last member
         response = self.client.post(reverse('handle_action'), {
             'action_type': 'inn_dismiss',
             'char_index': 0
@@ -371,4 +380,68 @@ class ViewIntegrationTests(TestCase):
         final_state = self.client.session['game_state']
         final_party = Party.from_dict(final_state['party'])
         self.assertEqual(len(final_party.members), 1)
+
+    def test_start_position_at_default_inn(self):
+        """Test initial game state sets party start position and respawn_inn_id to DEFAULT_START_INN_ID."""
+        state = create_initial_game_state()
+        party = Party.from_dict(state['party'])
+        expected_x, expected_y = get_inn_coords(DEFAULT_START_INN_ID)
+        self.assertEqual(party.x, expected_x)
+        self.assertEqual(party.y, expected_y)
+        self.assertEqual(state.get('respawn_inn_id'), DEFAULT_START_INN_ID)
+
+    def test_visiting_inn_updates_respawn_inn_id(self):
+        """Test visiting an inn updates respawn_inn_id in game state."""
+        session = self.client.session
+        state = create_initial_game_state()
+        state['screen'] = 'overworld'
+        
+        # Position party adjacent to an inn tile and move onto it
+        inn_x, inn_y = get_inn_coords(DEFAULT_START_INN_ID)
+        party = Party.from_dict(state['party'])
+        party.x = inn_x - 1
+        party.y = inn_y
+        state['party'] = party.to_dict()
+        session['game_state'] = state
+        session.save()
+
+        response = self.client.post(reverse('handle_action'), {
+            'action_type': 'move',
+            'direction': 'right'
+        })
+        self.assertEqual(response.status_code, 302)
+
+        updated_state = self.client.session['game_state']
+        self.assertEqual(updated_state.get('respawn_inn_id'), DEFAULT_START_INN_ID)
+
+    def test_combat_defeat_respawns_at_respawn_inn_position(self):
+        """Test combat defeat respawns party at the coordinates of respawn_inn_id."""
+        session = self.client.session
+        state = create_initial_game_state()
+        state['screen'] = 'combat'
+        state['respawn_inn_id'] = DEFAULT_START_INN_ID
+        
+        party = Party.from_dict(state['party'])
+        party.x = 0
+        party.y = 0
+        
+        enemy = Character(name="Defeating Enemy", species="Fox", current_class="Squire")
+        engine = CombatEngine(party.members, [enemy])
+        engine.is_over = True
+        engine.victory = False
+        
+        state['combat'] = engine.to_dict()
+        state['party'] = party.to_dict()
+        session['game_state'] = state
+        session.save()
+
+        response = self.client.post(reverse('handle_action'), {'action_type': 'combat_end'})
+        self.assertEqual(response.status_code, 302)
+
+        updated_state = self.client.session['game_state']
+        updated_party = Party.from_dict(updated_state['party'])
+        expected_x, expected_y = get_inn_coords(DEFAULT_START_INN_ID)
+        self.assertEqual(updated_party.x, expected_x)
+        self.assertEqual(updated_party.y, expected_y)
+
 

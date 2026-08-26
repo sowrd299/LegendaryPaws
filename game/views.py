@@ -8,7 +8,9 @@ from .engine import (
 from .cards import *
 from .map import (
     WORLD_MAP, MAP_WIDTH, MAP_HEIGHT, TILE_DESCRIPTIONS,
-    should_reset_losable_gold, get_shop, get_inn, get_inn_id, get_nearest_inn_id, get_random_encounter
+    VIEWPORT_MAX_WIDTH, VIEWPORT_MAX_HEIGHT, calculate_map_pan,
+    should_reset_losable_gold, get_shop, get_inn, get_inn_id, get_inn_coords,
+    get_nearest_inn_id, get_random_encounter, DEFAULT_START_INN_ID
 )
 
 VOINARA_DIALOGUE = [
@@ -127,14 +129,23 @@ def game_index(request):
         current_tile = WORLD_MAP[y][x]
         tile_info = TILE_DESCRIPTIONS.get(current_tile, ('Unknown', 'A mysterious land.'))
 
+        pan_x, pan_y = calculate_map_pan(x, y, state.get('pan_x'), state.get('pan_y'))
+        state['pan_x'] = pan_x
+        state['pan_y'] = pan_y
+        save_game_state(request, state)
+
+        vw = min(VIEWPORT_MAX_WIDTH, MAP_WIDTH)
+        vh = min(VIEWPORT_MAX_HEIGHT, MAP_HEIGHT)
+
         map_lines = []
-        for r_idx, row in enumerate(WORLD_MAP):
+        for r_idx in range(pan_y, pan_y + vh):
+            row = WORLD_MAP[r_idx]
             line_chars = []
-            for c_idx, cell in enumerate(row):
+            for c_idx in range(pan_x, pan_x + vw):
                 if r_idx == y and c_idx == x:
                     line_chars.append('*')
                 else:
-                    line_chars.append(cell)
+                    line_chars.append(row[c_idx])
             map_lines.append(" ".join(line_chars))
 
         context['map_grid'] = map_lines
@@ -246,7 +257,9 @@ def handle_action(request):
             # Inn auto heals party
             for m in party.members:
                 m.current_hp = m.max_hp
-            state['current_inn_id'] = get_inn_id(new_x, new_y)
+            inn_id = get_inn_id(new_x, new_y) or DEFAULT_START_INN_ID
+            state['current_inn_id'] = inn_id
+            state['respawn_inn_id'] = inn_id
             state['screen'] = 'inn'
             log.append(Message(1, '<span style="color:var(--accent-green)">After resting at the inn, your party is fully healed!</span>'))
         else:
@@ -452,12 +465,15 @@ def handle_action(request):
                     state['screen'] = 'overworld'
                     log.append(Message(3,f"Victory! Gained {earned_gold} gold and a '{reward_card}' card!{recruited_str}", reward_card))
                 else:
-                    # Fully restore party on defeat & return to safe town position
+                    # Fully restore party on defeat & return to respawn Inn position
                     for m in party.members:
                         m.current_hp = m.max_hp
-                    party.x, party.y = 7, 5
+                    respawn_inn_id = state.get('respawn_inn_id') or DEFAULT_START_INN_ID
+                    rx, ry = get_inn_coords(respawn_inn_id)
+                    party.x, party.y = rx, ry
+                    state['pan_x'], state['pan_y'] = calculate_map_pan(party.x, party.y)
                     state['screen'] = 'overworld'
-                    log.append(Message(3, f"The Rot has overwhelmed your party! You flead back to town and lost {party.losable_gold} gold!"))
+                    log.append(Message(3, f"The Rot has overwhelmed your party! You fled back to the inn and lost {party.losable_gold} gold!"))
                     party.gold -= party.losable_gold
                     party.gold = max(party.gold, 0)
                     party.losable_gold = 0

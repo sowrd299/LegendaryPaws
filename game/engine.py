@@ -460,13 +460,15 @@ class StatusEffect:
 
 class Party:
     def __init__(self):
+        from .map import DEFAULT_START_INN_ID, get_inn_coords
+        start_x, start_y = get_inn_coords(DEFAULT_START_INN_ID)
         self.members = []
         self.inventory = []  # list of card names (up to 20)
         self.shared_deck = []  # list of card names (up to 10)
         self.gold = 50
         self.losable_gold = 0
-        self.x = 7
-        self.y = 5
+        self.x = start_x
+        self.y = start_y
 
     def to_dict(self):
         return {
@@ -487,8 +489,8 @@ class Party:
         p.shared_deck = d.get('shared_deck', [])
         p.gold = d.get('gold', 50)
         p.losable_gold = d.get('losable_gold', 0)
-        p.x = d.get('x', 7)
-        p.y = d.get('y', 5)
+        p.x = d.get('x', p.x)
+        p.y = d.get('y', p.y)
         return p
 
 
@@ -810,10 +812,17 @@ class CombatMessage(Message):
 
 def create_initial_game_state():
     """Initializes standard starting game state per gdd.txt."""
+    from .map import DEFAULT_START_INN_ID, get_inn_coords, calculate_map_pan
+
+    start_x, start_y = get_inn_coords(DEFAULT_START_INN_ID)
+    pan_x, pan_y = calculate_map_pan(start_x, start_y)
+
     # Starting character: 1 Level 1 Fox Wandering Spellsword
     hero = Character(name="Yew", species="Fox", current_class="Wandering Spellsword")
     
     party = Party()
+    party.x = start_x
+    party.y = start_y
     party.members.append(hero)
     
     # Starting cards per GDD: 5 health potions, 6 slashes, 3 light clothes
@@ -832,8 +841,12 @@ def create_initial_game_state():
     return {
         'screen': 'voinara_intro',  # Start at Voinara dialogue screen
         'voinara_step': 0,
+        'pan_x': pan_x,
+        'pan_y': pan_y,
         'party': party.to_dict(),
         'inns': {},
+        'current_inn_id': DEFAULT_START_INN_ID,
+        'respawn_inn_id': DEFAULT_START_INN_ID,
         'active_menu': None,  # None, 'character_menu', 'shop', 'inn', 'combat'
         'combat': None,
         'log': [Message(1, "...").to_dict()],

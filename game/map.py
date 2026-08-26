@@ -2,21 +2,72 @@ import random
 from .engine import Character
 
 WORLD_MAP = [
-    ["^", "S", "^", "^", "^", ".", ".", ".", ".", ".", ".", ".", ".", "↟", "↟"],
-    ["R", "R", "^", "^", ".", ".", ".", ".", ".", ".", ".", ".", "↟", "↟", "↟"],
-    ["^", "^", "^", "^", ".", ".", ".", ".", ".", ".", ".", ".", "↟", "↟", "↟"],
-    ["^", "^", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "↟", "↟"],
-    ["^", ".", ".", ".", ".", ".", "_", "_", "_", ".", ".", ".", ".", "↟", "↟"],
-    ["^", ".", ".", ".", ".", ".", "S", "_", "I", ".", ".", ".", ".", "↟", "↟"],
-    ["^", ".", ".", ".", ".", ".", "S", "_", "_", ".", ".", ".", ".", ".", "↟"],
-    ["^", "^", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "↟", "↟"],
-    ["^", "^", "^", ".", ".", ".", ".", ".", ".", ".", ".", "R", "↟", "↟", "↟"],
-    ["^", "^", "^", "^", ".", ".", ".", ".", ".", ".", ".", "↟", "R", "↟", "↟"],
-    ["^", "^", "^", "^", "^", ".", ".", ".", ".", ".", "↟", "↟", "↟", "↟", "↟"],
+    "^^^^^^^^....↟..↟↟↟↟",
+    "^^^^^^^^^.....↟↟↟↟↟",
+    "^^^^R^^^...↟...↟↟↟↟",
+    "^R^S^^^........↟↟↟↟",
+    "^^RR^^........↟↟↟↟↟",
+    "R^^^^^........↟↟↟↟↟",
+    "^^^^...........↟↟↟↟",
+    "^^^.....___....↟↟↟↟",
+    "^^^.....S_I....↟↟↟↟",
+    "^^^.....S__.....↟↟↟",
+    "^^^^...........↟↟↟↟",
+    "^.^^^........R↟↟↟↟↟",
+    "^..^^^.......↟R↟↟↟↟",
+    "..^^^^^.....↟↟↟.↟↟↟",
+    "..^^^^.....↟↟↟...↟↟",
+    "..^^^.....↟↟↟↟↟.↟↟↟",
+    "..^^..^..↟↟↟↟↟↟↟↟↟↟",
 ]
 
 MAP_WIDTH = len(WORLD_MAP[0])
 MAP_HEIGHT = len(WORLD_MAP)
+
+VIEWPORT_MAX_WIDTH = 15
+VIEWPORT_MAX_HEIGHT = 15
+
+def calculate_map_pan(party_x, party_y, current_pan_x=None, current_pan_y=None):
+    """Calculates viewport pan_x and pan_y keeping player within a 5x5 center deadzone of the viewport."""
+    vw = min(VIEWPORT_MAX_WIDTH, MAP_WIDTH)
+    vh = min(VIEWPORT_MAX_HEIGHT, MAP_HEIGHT)
+
+    max_pan_x = max(0, MAP_WIDTH - vw)
+    max_pan_y = max(0, MAP_HEIGHT - vh)
+
+    # Center box definition (5 wide x 5 high centered inside viewport)
+    center_x = vw // 2
+    min_cx = center_x - 2
+    max_cx = center_x + 2
+
+    center_y = vh // 2
+    min_cy = center_y - 2
+    max_cy = center_y + 2
+
+    # Calculate pan_x
+    if current_pan_x is None:
+        pan_x = max(0, min(max_pan_x, party_x - center_x))
+    else:
+        pan_x = current_pan_x
+        local_x = party_x - pan_x
+        if local_x < min_cx:
+            pan_x = max(0, party_x - min_cx)
+        elif local_x > max_cx:
+            pan_x = min(max_pan_x, party_x - max_cx)
+
+    # Calculate pan_y
+    if current_pan_y is None:
+        pan_y = max(0, min(max_pan_y, party_y - center_y))
+    else:
+        pan_y = current_pan_y
+        local_y = party_y - pan_y
+        if local_y < min_cy:
+            pan_y = max(0, party_y - min_cy)
+        elif local_y > max_cy:
+            pan_y = min(max_pan_y, party_y - max_cy)
+
+    return pan_x, pan_y
+
 
 TILE_DESCRIPTIONS = {
     'S': ('Shop', 'A bustling roadside merchant shop selling valuable items and move cards.'),
@@ -140,6 +191,8 @@ INN_DATA = [
         'should_reset_losable_gold': True,
     },
 ]
+
+DEFAULT_START_INN_ID = 'inn_0'
 
 ALL_PLAYABLE_SPECIES = [
     'Fox', 'Cat', 'Badger', 'Rabbit', 'Owl', 'Raven',
@@ -288,6 +341,24 @@ def get_inn(inn_x, inn_y):
 def get_inn_id(inn_x, inn_y):
     inn_info = get_inn(inn_x, inn_y)
     return inn_info.get('id') if inn_info else None
+
+def get_inn_coords(inn_id):
+    """Finds the (x, y) coordinates of an Inn on WORLD_MAP by its id."""
+    map_grid = WORLD_MAP
+    idx = 0
+    for y in range(len(map_grid)):
+        for x in range(len(map_grid[y])):
+            if map_grid[y][x] == 'I':
+                current_id = INN_DATA[min(idx, len(INN_DATA) - 1)].get('id')
+                if current_id == inn_id:
+                    return (x, y)
+                idx += 1
+    # Fallback to the first inn's coordinates on the map
+    for y in range(len(map_grid)):
+        for x in range(len(map_grid[y])):
+            if map_grid[y][x] == 'I':
+                return (x, y)
+    return (0, 0)
 
 def get_nearest_inn_id(px, py):
     map_grid = WORLD_MAP
