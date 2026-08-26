@@ -21,19 +21,24 @@ WORLD_MAP = [
     "..^^..^..↟↟↟↟↟↟↟↟↟↟",
 ]
 
-MAP_WIDTH = len(WORLD_MAP[0])
-MAP_HEIGHT = len(WORLD_MAP)
-
 VIEWPORT_MAX_WIDTH = 15
 VIEWPORT_MAX_HEIGHT = 15
 
+
 def calculate_map_pan(party_x, party_y, current_pan_x=None, current_pan_y=None):
     """Calculates viewport pan_x and pan_y keeping player within a 5x5 center deadzone of the viewport."""
-    vw = min(VIEWPORT_MAX_WIDTH, MAP_WIDTH)
-    vh = min(VIEWPORT_MAX_HEIGHT, MAP_HEIGHT)
+    min_x = get_map_min_x()
+    max_x = get_map_max_x()
+    min_y = get_map_min_y()
+    max_y = get_map_max_y()
+    map_w = max_x - min_x
+    map_h = max_y - min_y
 
-    max_pan_x = max(0, MAP_WIDTH - vw)
-    max_pan_y = max(0, MAP_HEIGHT - vh)
+    vw = min(VIEWPORT_MAX_WIDTH, map_w)
+    vh = min(VIEWPORT_MAX_HEIGHT, map_h)
+
+    max_pan_x = max(min_x, max_x - vw)
+    max_pan_y = max(min_y, max_y - vh)
 
     # Center box definition (5 wide x 5 high centered inside viewport)
     center_x = vw // 2
@@ -46,27 +51,28 @@ def calculate_map_pan(party_x, party_y, current_pan_x=None, current_pan_y=None):
 
     # Calculate pan_x
     if current_pan_x is None:
-        pan_x = max(0, min(max_pan_x, party_x - center_x))
+        pan_x = max(min_x, min(max_pan_x, party_x - center_x))
     else:
         pan_x = current_pan_x
         local_x = party_x - pan_x
         if local_x < min_cx:
-            pan_x = max(0, party_x - min_cx)
+            pan_x = max(min_x, party_x - min_cx)
         elif local_x > max_cx:
             pan_x = min(max_pan_x, party_x - max_cx)
 
     # Calculate pan_y
     if current_pan_y is None:
-        pan_y = max(0, min(max_pan_y, party_y - center_y))
+        pan_y = max(min_y, min(max_pan_y, party_y - center_y))
     else:
         pan_y = current_pan_y
         local_y = party_y - pan_y
         if local_y < min_cy:
-            pan_y = max(0, party_y - min_cy)
+            pan_y = max(min_y, party_y - min_cy)
         elif local_y > max_cy:
             pan_y = min(max_pan_y, party_y - max_cy)
 
     return pan_x, pan_y
+
 
 
 TILE_DESCRIPTIONS = {
@@ -297,85 +303,268 @@ ENCOUNTER_DATA = {
     '_': [ ]
 }
 
+
+class MapZone:
+    def __init__(self, grid, offset_x=0, offset_y=0, shop_data=None, inn_data=None, encounter_data=None, tile_descriptions=None):
+        self.grid = grid
+        self.offset_x = offset_x
+        self.offset_y = offset_y
+        self.shop_data = shop_data if shop_data is not None else []
+        self.inn_data = inn_data if inn_data is not None else []
+        self.encounter_data = encounter_data if encounter_data is not None else {}
+        self.tile_descriptions = tile_descriptions if tile_descriptions is not None else {}
+
+    @property
+    def width(self):
+        return len(self.grid[0]) if self.grid else 0
+
+    @property
+    def height(self):
+        return len(self.grid) if self.grid else 0
+
+    def defines_space(self, x, y):
+        lx = x - self.offset_x
+        ly = y - self.offset_y
+        if 0 <= ly < len(self.grid) and 0 <= lx < len(self.grid[ly]):
+            return self.grid[ly][lx] != ' '
+        return False
+
+    def get_tile(self, x, y):
+        lx = x - self.offset_x
+        ly = y - self.offset_y
+        if 0 <= ly < len(self.grid) and 0 <= lx < len(self.grid[ly]):
+            return self.grid[ly][lx]
+        return ' '
+
+    def get_tile_description(self, x, y):
+        tile = self.get_tile(x, y)
+        return self.tile_descriptions.get(tile, ('Unknown', 'A mysterious land.'))
+
+    def should_reset_losable_gold(self, x, y):
+        if self.get_tile(x, y) == '_':
+            return True
+        shop = self.get_shop(x, y)
+        if shop and shop.get('should_reset_losable_gold', False):
+            return True
+        inn = self.get_inn(x, y)
+        if inn and inn.get('should_reset_losable_gold', False):
+            return True
+        return False
+
+    def get_shop(self, shop_x, shop_y):
+        idx = 0
+        for ly in range(len(self.grid)):
+            for lx in range(len(self.grid[ly])):
+                if self.grid[ly][lx] == 'S':
+                    gx = lx + self.offset_x
+                    gy = ly + self.offset_y
+                    if gx == shop_x and gy == shop_y:
+                        if self.shop_data:
+                            return self.shop_data[min(idx, len(self.shop_data) - 1)]
+                        return None
+                    idx += 1
+        return None
+
+    def get_inn(self, inn_x, inn_y):
+        idx = 0
+        for ly in range(len(self.grid)):
+            for lx in range(len(self.grid[ly])):
+                if self.grid[ly][lx] == 'I':
+                    gx = lx + self.offset_x
+                    gy = ly + self.offset_y
+                    if gx == inn_x and gy == inn_y:
+                        if self.inn_data:
+                            inn_info = dict(self.inn_data[min(idx, len(self.inn_data) - 1)])
+                            inn_info['index'] = idx
+                            return inn_info
+                        return None
+                    idx += 1
+        return None
+
+    def get_inn_id(self, inn_x, inn_y):
+        inn_info = self.get_inn(inn_x, inn_y)
+        return inn_info.get('id') if inn_info else None
+
+    def get_inn_coords(self, inn_id):
+        idx = 0
+        for ly in range(len(self.grid)):
+            for lx in range(len(self.grid[ly])):
+                if self.grid[ly][lx] == 'I':
+                    gx = lx + self.offset_x
+                    gy = ly + self.offset_y
+                    if self.inn_data:
+                        current_id = self.inn_data[min(idx, len(self.inn_data) - 1)].get('id')
+                        if current_id == inn_id:
+                            return (gx, gy)
+                    idx += 1
+        return None
+
+    def get_nearest_inn_id(self, px, py):
+        idx = 0
+        nearest_id = None
+        min_dist = float('inf')
+        for ly in range(len(self.grid)):
+            for lx in range(len(self.grid[ly])):
+                if self.grid[ly][lx] == 'I':
+                    gx = lx + self.offset_x
+                    gy = ly + self.offset_y
+                    dist = abs(px - gx) + abs(py - gy)
+                    if dist < min_dist:
+                        min_dist = dist
+                        if self.inn_data:
+                            nearest_id = self.inn_data[min(idx, len(self.inn_data) - 1)].get('id')
+                    idx += 1
+        return min_dist, nearest_id
+
+    def get_random_encounter(self, encounter_x, encounter_y):
+        terrain = self.get_tile(encounter_x, encounter_y)
+        encounter_data = self.encounter_data.get(terrain, [])
+        r = random.random()
+        for encounter in encounter_data:
+            if r < encounter['chance']:
+                enemies = generate_random_enemies(encounter)
+                return enemies, encounter.get('is_recruitable', False)
+            r -= encounter['chance']
+        return [], False
+
+
+DEFAULT_ZONE = MapZone(
+    grid=WORLD_MAP,
+    offset_x=0,
+    offset_y=0,
+    shop_data=SHOP_DATA,
+    inn_data=INN_DATA,
+    encounter_data=ENCOUNTER_DATA,
+    tile_descriptions=TILE_DESCRIPTIONS,
+)
+
+MAP_ZONES = [DEFAULT_ZONE]
+
+
+def get_zone_for_space(x, y):
+    for zone in MAP_ZONES:
+        if zone.defines_space(x, y):
+            return zone
+    return None
+
+
+def get_map_min_x():
+    if not MAP_ZONES:
+        return 0
+    return min(zone.offset_x for zone in MAP_ZONES)
+
+
+def get_map_max_x():
+    if not MAP_ZONES:
+        return 0
+    return max(zone.offset_x + zone.width for zone in MAP_ZONES)
+
+
+def get_map_min_y():
+    if not MAP_ZONES:
+        return 0
+    return min(zone.offset_y for zone in MAP_ZONES)
+
+
+def get_map_max_y():
+    if not MAP_ZONES:
+        return 0
+    return max(zone.offset_y + zone.height for zone in MAP_ZONES)
+
+
+def get_map_width():
+    return get_map_max_x() - get_map_min_x()
+
+
+def get_map_height():
+    return get_map_max_y() - get_map_min_y()
+
+
+def get_tile(x, y):
+    zone = get_zone_for_space(x, y)
+    if zone:
+        return zone.get_tile(x, y)
+    return ' '
+
+
+def get_tile_description(x, y):
+    zone = get_zone_for_space(x, y)
+    if zone:
+        return zone.get_tile_description(x, y)
+    return ('Unknown', 'A mysterious land.')
+
+
 def should_reset_losable_gold(x, y):
-    if WORLD_MAP[y][x] == '_':
-        return True
-    
-    shop = get_shop(x, y)
-    if shop and shop.get('should_reset_losable_gold', False):
-        return True
-
-    inn = get_inn(x, y)
-    if inn and inn.get('should_reset_losable_gold', False):
-        return True
-
+    zone = get_zone_for_space(x, y)
+    if zone:
+        return zone.should_reset_losable_gold(x, y)
     return False
 
+
 def get_shop(shop_x, shop_y):
-
-    map = WORLD_MAP
-    idx = 0
-
-    for y in range(len(map)):
-        for x in range(len(map[y])):
-            if map[y][x] == 'S':
-                if x == shop_x and y == shop_y:
-                    return SHOP_DATA[min(idx, len(SHOP_DATA)-1)]
-                idx += 1
-
+    zone = get_zone_for_space(shop_x, shop_y)
+    if zone:
+        return zone.get_shop(shop_x, shop_y)
     return None
+
 
 def get_inn(inn_x, inn_y):
-    map_grid = WORLD_MAP
-    idx = 0
-    for y in range(len(map_grid)):
-        for x in range(len(map_grid[y])):
-            if map_grid[y][x] == 'I':
-                if x == inn_x and y == inn_y:
-                    inn_info = dict(INN_DATA[min(idx, len(INN_DATA) - 1)])
-                    inn_info['index'] = idx
-                    return inn_info
-                idx += 1
+    zone = get_zone_for_space(inn_x, inn_y)
+    if zone:
+        return zone.get_inn(inn_x, inn_y)
     return None
 
+
 def get_inn_id(inn_x, inn_y):
-    inn_info = get_inn(inn_x, inn_y)
-    return inn_info.get('id') if inn_info else None
+    zone = get_zone_for_space(inn_x, inn_y)
+    if zone:
+        return zone.get_inn_id(inn_x, inn_y)
+    return None
+
 
 def get_inn_coords(inn_id):
-    """Finds the (x, y) coordinates of an Inn on WORLD_MAP by its id."""
-    map_grid = WORLD_MAP
-    idx = 0
-    for y in range(len(map_grid)):
-        for x in range(len(map_grid[y])):
-            if map_grid[y][x] == 'I':
-                current_id = INN_DATA[min(idx, len(INN_DATA) - 1)].get('id')
-                if current_id == inn_id:
-                    return (x, y)
-                idx += 1
-    # Fallback to the first inn's coordinates on the map
-    for y in range(len(map_grid)):
-        for x in range(len(map_grid[y])):
-            if map_grid[y][x] == 'I':
-                return (x, y)
+    for zone in MAP_ZONES:
+        coords = zone.get_inn_coords(inn_id)
+        if coords:
+            gx, gy = coords
+            if get_zone_for_space(gx, gy) == zone:
+                return (gx, gy)
+    # Fallback to first inn on map where space is defined by its zone
+    for zone in MAP_ZONES:
+        for ly in range(len(zone.grid)):
+            for lx in range(len(zone.grid[ly])):
+                if zone.grid[ly][lx] == 'I':
+                    gx = lx + zone.offset_x
+                    gy = ly + zone.offset_y
+                    if get_zone_for_space(gx, gy) == zone:
+                        return (gx, gy)
     return (0, 0)
 
+
 def get_nearest_inn_id(px, py):
-    map_grid = WORLD_MAP
-    idx = 0
     nearest_id = None
     min_dist = float('inf')
-    
-    for y in range(len(map_grid)):
-        for x in range(len(map_grid[y])):
-            if map_grid[y][x] == 'I':
-                dist = abs(px - x) + abs(py - y)
-                if dist < min_dist:
-                    min_dist = dist
-                    inn_info = INN_DATA[min(idx, len(INN_DATA) - 1)]
-                    nearest_id = inn_info.get('id')
-                idx += 1
-    return nearest_id or INN_DATA[0].get('id', 'inn_0')
+    fallback_id = None
+
+    for zone in MAP_ZONES:
+        idx = 0
+        for ly in range(len(zone.grid)):
+            for lx in range(len(zone.grid[ly])):
+                if zone.grid[ly][lx] == 'I':
+                    gx = lx + zone.offset_x
+                    gy = ly + zone.offset_y
+                    if get_zone_for_space(gx, gy) == zone:
+                        if zone.inn_data:
+                            i_id = zone.inn_data[min(idx, len(zone.inn_data) - 1)].get('id')
+                            if fallback_id is None:
+                                fallback_id = i_id
+                            dist = abs(px - gx) + abs(py - gy)
+                            if dist < min_dist:
+                                min_dist = dist
+                                nearest_id = i_id
+                    idx += 1
+
+    return nearest_id or fallback_id or 'inn_0'
 
 
 def generate_random_enemies(encounter_data):
@@ -415,13 +604,10 @@ def generate_random_enemies(encounter_data):
         enemies.append(enemy)
     return enemies
 
+
 def get_random_encounter(encounter_x, encounter_y):
-    terrain = WORLD_MAP[encounter_y][encounter_x]
-    encounter_data = ENCOUNTER_DATA.get(terrain, [])
-    r = random.random()
-    for encounter in encounter_data:
-        if r < encounter['chance']:
-            enemies = generate_random_enemies(encounter)
-            return enemies, encounter.get('is_recruitable', False)
-        r -= encounter['chance']
+    zone = get_zone_for_space(encounter_x, encounter_y)
+    if zone:
+        return zone.get_random_encounter(encounter_x, encounter_y)
     return [], False
+

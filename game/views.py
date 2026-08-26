@@ -7,7 +7,8 @@ from .engine import (
 )
 from .cards import *
 from .map import (
-    WORLD_MAP, MAP_WIDTH, MAP_HEIGHT, TILE_DESCRIPTIONS,
+    get_tile, get_tile_description, get_map_width, get_map_height,
+    get_map_min_x, get_map_min_y, get_map_max_x, get_map_max_y,
     VIEWPORT_MAX_WIDTH, VIEWPORT_MAX_HEIGHT, calculate_map_pan,
     should_reset_losable_gold, get_shop, get_inn, get_inn_id, get_inn_coords,
     get_nearest_inn_id, get_random_encounter, DEFAULT_START_INN_ID
@@ -126,26 +127,25 @@ def game_index(request):
     elif screen == 'overworld':
         # Render ASCII Map viewport with player location highlighted as '*'
         x, y = party.x, party.y
-        current_tile = WORLD_MAP[y][x]
-        tile_info = TILE_DESCRIPTIONS.get(current_tile, ('Unknown', 'A mysterious land.'))
+        current_tile = get_tile(x, y)
+        tile_info = get_tile_description(x, y)
 
         pan_x, pan_y = calculate_map_pan(x, y, state.get('pan_x'), state.get('pan_y'))
         state['pan_x'] = pan_x
         state['pan_y'] = pan_y
         save_game_state(request, state)
 
-        vw = min(VIEWPORT_MAX_WIDTH, MAP_WIDTH)
-        vh = min(VIEWPORT_MAX_HEIGHT, MAP_HEIGHT)
+        vw = min(VIEWPORT_MAX_WIDTH, get_map_width())
+        vh = min(VIEWPORT_MAX_HEIGHT, get_map_height())
 
         map_lines = []
         for r_idx in range(pan_y, pan_y + vh):
-            row = WORLD_MAP[r_idx]
             line_chars = []
             for c_idx in range(pan_x, pan_x + vw):
                 if r_idx == y and c_idx == x:
                     line_chars.append('*')
                 else:
-                    line_chars.append(row[c_idx])
+                    line_chars.append(get_tile(c_idx, r_idx))
             map_lines.append(" ".join(line_chars))
 
         context['map_grid'] = map_lines
@@ -234,17 +234,17 @@ def handle_action(request):
         direction = request.POST.get('direction')
         new_x, new_y = party.x, party.y
 
-        if direction == 'up' and party.y > 0:
+        if direction == 'up' and party.y > get_map_min_y():
             new_y -= 1
-        elif direction == 'down' and party.y < MAP_HEIGHT - 1:
+        elif direction == 'down' and party.y < get_map_max_y() - 1:
             new_y += 1
-        elif direction == 'left' and party.x > 0:
+        elif direction == 'left' and party.x > get_map_min_x():
             new_x -= 1
-        elif direction == 'right' and party.x < MAP_WIDTH - 1:
+        elif direction == 'right' and party.x < get_map_max_x() - 1:
             new_x += 1
 
         party.x, party.y = new_x, new_y
-        current_tile = WORLD_MAP[new_y][new_x]
+        current_tile = get_tile(new_x, new_y)
 
         if should_reset_losable_gold(new_x, new_y):
             party.losable_gold = 0
@@ -265,17 +265,18 @@ def handle_action(request):
         else:
             # Chance for wild combat encounter based on terrain
             enemies, is_recruitable = get_random_encounter(new_x, new_y)
+            tile_desc = get_tile_description(new_x, new_y)
             if enemies:
                 engine = CombatEngine(party.members, enemies, party.shared_deck, is_recruitable=is_recruitable)
                 engine.start_combat()
                 state['combat'] = engine.to_dict()
                 state['screen'] = 'combat'
                 if is_recruitable:
-                    log.append(Message(1, f"Encountered another brigand on the {TILE_DESCRIPTIONS.get(current_tile, ('tile', ''))[0]}; unsure if you can trust eachother, you draw weapons!"))
+                    log.append(Message(1, f"Encountered another brigand on the {tile_desc[0]}; unsure if you can trust eachother, you draw weapons!"))
                 else:
-                    log.append(Message(1, f"The Rot descends upon your party on the {TILE_DESCRIPTIONS.get(current_tile, ('tile', ''))[0]}!"))
+                    log.append(Message(1, f"The Rot descends upon your party on the {tile_desc[0]}!"))
             else:
-                log.append(Message(-1, f"Traveled to {TILE_DESCRIPTIONS.get(current_tile, ('tile', ''))[0]}."  ))
+                log.append(Message(-1, f"Traveled to {tile_desc[0]}."))
 
     elif action_type == 'open_menu':
         if state['screen'] in ['overworld', 'shop', 'inn']:

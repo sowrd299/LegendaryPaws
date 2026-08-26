@@ -445,3 +445,116 @@ class ViewIntegrationTests(TestCase):
         self.assertEqual(updated_party.y, expected_y)
 
 
+from game.map import (
+    MapZone, MAP_ZONES, DEFAULT_ZONE, get_tile, get_tile_description,
+    get_map_min_x, get_map_min_y, get_map_max_x, get_map_max_y,
+    get_map_width, get_map_height, should_reset_losable_gold, get_shop,
+    get_random_encounter
+)
+
+class MapZoneTests(TestCase):
+    def setUp(self):
+        self.original_zones = list(MAP_ZONES)
+
+    def tearDown(self):
+        MAP_ZONES.clear()
+        MAP_ZONES.extend(self.original_zones)
+
+    def test_map_zone_defines_space_and_offsets(self):
+        grid = [
+            "R^ ",
+            " S."
+        ]
+        zone = MapZone(grid=grid, offset_x=5, offset_y=10)
+        self.assertEqual(zone.width, 3)
+        self.assertEqual(zone.height, 2)
+
+        # Inside zone, non-space
+        self.assertTrue(zone.defines_space(5, 10))  # 'R'
+        self.assertTrue(zone.defines_space(6, 10))  # '^'
+        self.assertFalse(zone.defines_space(7, 10)) # ' ' (space char)
+
+        # Out of bounds
+        self.assertFalse(zone.defines_space(4, 10))
+        self.assertFalse(zone.defines_space(5, 9))
+        self.assertFalse(zone.defines_space(8, 10))
+
+    def test_negative_offsets_and_dynamic_bounds(self):
+        grid1 = ["^^^", "^^^"] # 3x2 at (0, 0)
+        grid2 = ["...", "..."] # 3x2 at (-5, -4)
+        zone1 = MapZone(grid=grid1, offset_x=0, offset_y=0)
+        zone2 = MapZone(grid=grid2, offset_x=-5, offset_y=-4)
+
+        MAP_ZONES.clear()
+        MAP_ZONES.extend([zone1, zone2])
+
+        self.assertEqual(get_map_min_x(), -5)
+        self.assertEqual(get_map_max_x(), 3)
+        self.assertEqual(get_map_min_y(), -4)
+        self.assertEqual(get_map_max_y(), 2)
+        self.assertEqual(get_map_width(), 8)
+        self.assertEqual(get_map_height(), 6)
+
+        self.assertTrue(zone2.defines_space(-5, -4))
+        self.assertEqual(get_tile(-5, -4), '.')
+        self.assertEqual(get_tile(0, 0), '^')
+
+    def test_overlapping_zones_priority_and_empty_space_fallthrough(self):
+        # Zone 1 at (0, 0) has ' ' at (1, 0)
+        grid1 = [
+            "^ .",
+            "..."
+        ]
+        # Zone 2 at (0, 0) has 'R' at (1, 0) and '_' at (0, 0)
+        grid2 = [
+            "_R_",
+            "___"
+        ]
+        zone1 = MapZone(grid=grid1, offset_x=0, offset_y=0)
+        zone2 = MapZone(grid=grid2, offset_x=0, offset_y=0)
+
+        MAP_ZONES.clear()
+        MAP_ZONES.extend([zone1, zone2])
+
+        # At (0, 0), Zone 1 defines '^', taking priority over Zone 2's '_'
+        self.assertEqual(get_tile(0, 0), '^')
+
+        # At (1, 0), Zone 1 has ' ', so it falls through to Zone 2's 'R'
+        self.assertEqual(get_tile(1, 0), 'R')
+
+    def test_zone_getters_and_tile_descriptions(self):
+        shop_data = [{'title': 'Custom Shop', 'items': [('Potion', 5)]}]
+        inn_data = [{'id': 'custom_inn_1', 'title': 'Custom Inn'}]
+        tile_descs = {'X': ('Custom Tile', 'A test tile.')}
+        grid = [
+            "XSI"
+        ]
+        zone = MapZone(
+            grid=grid,
+            offset_x=10,
+            offset_y=20,
+            shop_data=shop_data,
+            inn_data=inn_data,
+            tile_descriptions=tile_descs
+        )
+
+        MAP_ZONES.clear()
+        MAP_ZONES.append(zone)
+
+        self.assertEqual(get_tile(10, 20), 'X')
+        self.assertEqual(get_tile_description(10, 20), ('Custom Tile', 'A test tile.'))
+
+        shop = get_shop(11, 20)
+        self.assertIsNotNone(shop)
+        self.assertEqual(shop['title'], 'Custom Shop')
+
+        inn = get_inn(12, 20)
+        self.assertIsNotNone(inn)
+        self.assertEqual(inn['id'], 'custom_inn_1')
+
+        self.assertEqual(get_inn_id(12, 20), 'custom_inn_1')
+        self.assertEqual(get_inn_coords('custom_inn_1'), (12, 20))
+        self.assertEqual(get_nearest_inn_id(10, 20), 'custom_inn_1')
+
+
+
