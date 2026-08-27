@@ -1,25 +1,6 @@
 import random
 from .engine import Character
 
-WORLD_MAP = [
-    "^^^^^^^^....↟..↟↟↟↟",
-    "^^^^^^^^^.....↟↟↟↟↟",
-    "^^^^R^^^...↟...↟↟↟↟",
-    "^R^S^^^........↟↟↟↟",
-    "^^RR^^........↟↟↟↟↟",
-    "R^^^^^........↟↟↟↟↟",
-    "^^^^...........↟↟↟↟",
-    "^^^.....___....↟↟↟↟",
-    "^^^.....S_I....↟↟↟↟",
-    "^^^.....S__.....↟↟↟",
-    "^^^^...........↟↟↟↟",
-    "^.^^^........R↟↟↟↟↟",
-    "^..^^^.......↟R↟↟↟↟",
-    "..^^^^^.....↟↟↟.↟↟↟",
-    "..^^^^.....↟↟↟...↟↟",
-    "..^^^.....↟↟↟↟↟.↟↟↟",
-    "..^^..^..↟↟↟↟↟↟↟↟↟↟",
-]
 
 VIEWPORT_MAX_WIDTH = 15
 VIEWPORT_MAX_HEIGHT = 15
@@ -74,129 +55,18 @@ def calculate_map_pan(party_x, party_y, current_pan_x=None, current_pan_y=None):
     return pan_x, pan_y
 
 
-
-TILE_DESCRIPTIONS = {
+DEFAULT_TILE_DESCRIPTIONS = {
     'S': ('Shop', 'A bustling roadside merchant shop selling valuable items and move cards.'),
     'I': ('Inn', 'A cozy inn offering a place to rest, fully restore party HP, and organize companions.'),
     'R': ('Ancient Ruins', 'Dangerous crumbling stone ruins. Hostile forces and rare artifacts await!'),
     '^': ('Mountain Pass', 'Rugged, high-altitude mountain terrain filled with treacherous wild beasts.'),
     '↟': ('Dense Forest', 'Dark whispering woods where monsters stalk from the shadows.'),
     '.': ('Open Field', 'Quiet open grasslands along the main adventuring path.'),
-    '_': ('New Dunton Village', 'Peaceful, well defended flagstone paths. The Rot won\'t get you here.'),
 }
 
 SHOP_DATA = [
-    {
-        'title': 'Wandering Potion Tortoise',
-        'items': [
-            ('Sour Potion', 30),
-            ('Syrupy Potion', 20),
-            ('Potion', 10),
-            ('Bargain', 50),
-        ],
-        'illust': """
-+--------------------------------------------------------/-----------------------------------------+
-|                          /\                           /                        "                 |
-|                         / `\_                        /  "                      "  "              |
-|                        / ` ` \          /\          /  "            "                            |
-|                       / ` \`` \        /``\        /                   "        "          "     |
-|                      /~~~u~\~u~\      /~~~~\      /            ‖    ‖                            |
-|                     /       \   \   _/  _   \    /  "  >%@====(O)==(O)========‖=====@%<   "      |
-|                    /         \_  \ /   /     \_ /       /            ‖       (O)   / "           |
-|                   /            \  \        __ _/ ___ >%@============(_)===========@%<     "      |
-|                  /              \  \      / "" "" "   " "                                        |
-+------------------------------------------/-------------------------------------------------------+
-""",
-        'dialogues': [
-            ("Telly", "What am I doing up on this mountain? The kind of unlucky fool up here pays a lot more for " + 
-            "their potions, he he he."),
-            ("Telly", "Would you like a potion? They're delicious."),
-            ("Telly", "Isn't that view gorgeous. Now if it weren't for all this Rot."),
-        ]
-    },
-    {
-        'title': 'Badgy\'s General Store',
-        'items': [
-            ('Honed Slash', 40),
-            ('Honed Archery', 40),
-            ('Wax', 15),
-            ('Potion', 5),
-        ],
-        'illust': """
-+--------------------------------------------------------------------------------------------------+
-| | || |                        \---/                                              |\|             |
-|_|U||U|____                    |   |                                            . |/| .           |
-|___________}                  / *   \                                         @=J=====J=@         |
-|      \&/                    | o * * |                         __                | | |            |
-|       U                     |   * o |                      __((@)_              | $ |            |
-|                          ____\_____/______________________((@)-((@)__           | | |            |
-|                         {____________________________________________}          | | |            |
-|                          \|             |                    |     |/           |   |            |
-|                           |       |                          @     |            |   |            |
-+--------------------------------------------------------------------------------------------------+
-""",
-        'dialogues': [
-            ("Badgy", "Welcome in! You know, brigands like yourself are becoming awfully popular with this Rot about. " +
-            "I'm trying to stay stock with what you lot like. I hear there are lots of brigands out in the woods; " +
-            "Maybe you all should team up, fight the Rot together." )
-        ],
-        'should_reset_losable_gold': True
-    },
-    {
-        'title': 'Sally\'s School Supplies',
-        'items': [
-            ('Training', 50),
-            ('Study', 50),
-            ('Elementary Magic', 60),
-            ('Simple Trap', 60),
-        ],
-        'illust': """
-+--------------------------------------------------------------------------------------------------+
-| | || |                        \---/                                              |\|             |
-|_|U||U|____                    |   |                                            . |/| .           |
-|___________}                  / *   \                                         @=J=====J=@         |
-|      \&/                    | o * * |                         __                | | |            |
-|       U                     |   * o |                      __((@)_              | $ |            |
-|                          ____\_____/______________________((@)-((@)__           | | |            |
-|                         {____________________________________________}          | | |            |
-|                          \|             |                    |     |/           |   |            |
-|                           |       |                          @     |            |   |            |
-+--------------------------------------------------------------------------------------------------+
-""",
-        'dialogues': [
-            ("Sally", "Learning's a wonderful thing, isn't it? Be carefuly though; get too close to " + 
-            "some these things and you just might not recognize yourself."),
-            ("Sally", "Oh! You're a brigand! Well I never! Don't you worry, I'm sure we can find " + 
-            "something that'll make you a new person in no time!")
-        ],
-        'should_reset_losable_gold': True,
-    },
 ]
 
-INN_DATA = [
-    {
-        'id': 'inn_0',
-        'title': 'The Cozy Salmon Inn',
-        'illust': """
-+--------------------------------------------------------------------------------------------------+
-|                                                                                   ==)===)========|
-|                                                                                     O   O        |
-|                                                                                    ()  ()        |
-|                                                                                   /-n---n-\      |
-|                                                                                   |  INN  |      |
-|                                                                                   |  ===  /      |
-|                                                                                   +------/       |
-|                                                                                                  |
-|                                                                                                  |
-+--------------------------------------------------------------------------------------------------+
-""",
-        'dialogues': [
-            ("Innkeeper", "Welcome, weary travelers! Rest your heads, heal your wounds, and organize your company."),
-            ("Innkeeper", "The Rot might be fierce outside, but our hearth is warm and safe, I promise."),
-        ], 
-        'should_reset_losable_gold': True,
-    },
-]
 
 DEFAULT_START_INN_ID = 'inn_0'
 
@@ -227,7 +97,7 @@ DEFAULT_CLASS_STARTER_CARDS = {
     },
 }
 
-ENCOUNTER_DATA = {
+DEFAULT_ENCOUNTER_DATA = {
     '.': [
         {
             'chance': 0.2,
@@ -428,17 +298,229 @@ class MapZone:
         return [], False
 
 
-DEFAULT_ZONE = MapZone(
-    grid=WORLD_MAP,
-    offset_x=0,
-    offset_y=0,
-    shop_data=SHOP_DATA,
-    inn_data=INN_DATA,
-    encounter_data=ENCOUNTER_DATA,
-    tile_descriptions=TILE_DESCRIPTIONS,
-)
+MAP_ZONES = [
+    
+    # The Starting Zone
+    MapZone(
+        grid=[
+            "^^^^^^^^....↟..↟↟↟↟",
+            "^^^^^^^^^.....↟↟↟↟↟",
+            "^^^^R^^^...↟...↟↟↟↟",
+            "^R^S^^^........↟↟↟↟",
+            "^^RR^^........↟↟↟↟",
+            "R^^^^^........↟↟↟↟",
+            "^^^^...........↟↟↟↟",
+            "^^^.....___....↟↟↟↟",
+            "^^^.....S_I....↟↟↟↟",
+            "^^^.....___.....↟↟↟",
+            "^^^^...........↟↟↟↟",
+            "^.^^^........R↟↟↟↟↟",
+            "^..^^^.......↟R↟↟↟↟",
+            "..^^^^^.....↟↟↟.↟↟↟",
+            "..^^^^.....↟↟↟...↟↟",
+            "..^^^.....↟↟↟↟↟.↟↟↟",
+            "..^^..^..↟↟↟↟↟↟↟↟↟↟",
+        ],
+        offset_x=0,
+        offset_y=0,
+        shop_data=[
+            {
+                'title': 'Wandering Potion Tortoise',
+                'items': [
+                    ('Sour Potion', 30),
+                    ('Syrupy Potion', 20),
+                    ('Potion', 10),
+                    ('Bargain', 50),
+                ],
+                'illust': """
++--------------------------------------------------------/-----------------------------------------+
+|                          /\                           /                        "                 |
+|                         / `\_                        /  "                      "  "              |
+|                        / ` ` \          /\          /  "            "                            |
+|                       / ` \`` \        /``\        /                   "        "          "     |
+|                      /~~~u~\~u~\      /~~~~\      /            ‖    ‖                            |
+|                     /       \   \   _/  _   \    /  "  >%@====(O)==(O)========‖=====@%<   "      |
+|                    /         \_  \ /   /     \_ /       /            ‖       (O)   / "           |
+|                   /            \  \        __ _/ ___ >%@============(_)===========@%<     "      |
+|                  /              \  \      / "" "" "   " "                                        |
++------------------------------------------/-------------------------------------------------------+
+""",
+                'dialogues': [
+                    ("Telly", "What am I doing up on this mountain? The kind of unlucky fool up here pays a lot more for " + 
+                    "their potions, he he he."),
+                    ("Telly", "Would you like a potion? They're delicious."),
+                    ("Telly", "Isn't that view gorgeous. Now if it weren't for all this Rot."),
+                ]
+            },
+            {
+                'title': 'Badgy\'s General Store',
+                'items': [
+                    ('Honed Slash', 40),
+                    ('Honed Archery', 40),
+                    ('Wax', 15),
+                    ('Potion', 5),
+                ],
+                'illust': """
++--------------------------------------------------------------------------------------------------+
+| | || |                        \---/                                              |\|             |
+|_|U||U|____                    |   |                                            . |/| .           |
+|___________}                  / *   \                                         @=J=====J=@         |
+|      \&/                    | o * * |                         __                | | |            |
+|       U                     |   * o |                      __((@)_              | $ |            |
+|                          ____\_____/______________________((@)-((@)__           | | |            |
+|                         {____________________________________________}          | | |            |
+|                          \|             |                    |     |/           |   |            |
+|                           |       |                          @     |            |   |            |
++--------------------------------------------------------------------------------------------------+
+""",
+                'dialogues': [
+                    ("Badgy", "Welcome in! You know, brigands like yourself are becoming awfully popular with this Rot about. " +
+                    "I'm trying to stay stock with what you lot like. I hear there are lots of brigands out in the woods; " +
+                    "Maybe you all should team up, fight the Rot together." )
+                ],
+                'should_reset_losable_gold': True
+            }
+        ],
+        inn_data=[
+            {
+                'id': 'inn_0',
+                'title': 'The Cozy Salmon Inn',
+                'illust': """
++--------------------------------------------------------------------------------------------------+
+|                                                                                   ==)===)========|
+|                                                                                     O   O        |
+|                                                                                    ()  ()        |
+|                                                                                   /-n---n-\      |
+|                                                                                   |  INN  |      |
+|                                                                                   |  ===  /      |
+|                                                                                   +------/       |
+|                                                                                                  |
+|                                                                                                  |
++--------------------------------------------------------------------------------------------------+
+""",
+                'dialogues': [
+                    ("Innkeeper", "Welcome, weary travelers! Rest your heads, heal your wounds, and organize your company."),
+                    ("Innkeeper", "The Rot might be fierce outside, but our hearth is warm and safe, I promise."),
+                ], 
+                'should_reset_losable_gold': True,
+            },
+        ],
+        encounter_data=DEFAULT_ENCOUNTER_DATA,
+        tile_descriptions=dict(DEFAULT_TILE_DESCRIPTIONS, **{
+            '_': ('New Dunton Village', 'Peaceful, well defended flagstone paths. The Rot won\'t get you here.'),
+        }),
+    ),
 
-MAP_ZONES = [DEFAULT_ZONE]
+    # The zone across the mountains from Dunton
+    MapZone(
+        grid=[
+                "..................^",
+                ".........______....",
+                "........._S_SI_...^",
+                ".........______...^",
+                "...................",
+                "..................^",
+                ".................^^",
+                "................^^^",
+                "................^^^",
+                "................^^^",
+                "...............^.^^",
+                ".................^^",
+                "..................^",
+                "................^^.",
+                "................^..",
+                "...................",
+                "...................",
+        ],
+        offset_x=-19,
+        offset_y=0,
+        shop_data=[
+            {
+                'title': 'Sally\'s School Supplies',
+                'items': [
+                    ('Training', 50),
+                    ('Study', 50),
+                    ('Elementary Magic', 60),
+                    ('Simple Trap', 60),
+                ],
+                'illust': """
++--------------------------------------------------------------------------------------------------+
+| | || |                        \---/                                              |\|             |
+|_|U||U|____                    |   |                                            . |/| .           |
+|___________}                  / *   \                                         @=J=====J=@         |
+|      \&/                    | o * * |                         __                | | |            |
+|       U                     |   * o |                      __((@)_              | $ |            |
+|                          ____\_____/______________________((@)-((@)__           | | |            |
+|                         {____________________________________________}          | | |            |
+|                          \|             |                    |     |/           |   |            |
+|                           |       |                          @     |            |   |            |
++--------------------------------------------------------------------------------------------------+
+""",
+                'dialogues': [
+                    ("Sally", "Learning's a wonderful thing, isn't it? Be carefuly though; get too close to " + 
+                    "some these things and you just might not recognize yourself."),
+                    ("Sally", "Oh! You're a brigand! Well I never! Don't you worry, I'm sure we can find " + 
+                    "something that'll make you a new person in no time!")
+                ],
+                'should_reset_losable_gold': True,
+            },
+            {
+                'title': 'Hemlock\'s Miscellany',
+                'items': [
+                    ('Light Clothes', 10),
+                    ('Shield', 10),
+                    ('Potion', 5),
+                ],
+                'illust': """
++--------------------------------------------------------------------------------------------------+
+| | || |                        \---/                                              |\|             |
+|_|U||U|____                    |   |                                            . |/| .           |
+|___________}                  / *   \                                         @=J=====J=@         |
+|      \&/                    | o * * |                         __                | | |            |
+|       U                     |   * o |                      __((@)_              | $ |            |
+|                          ____\_____/______________________((@)-((@)__           | | |            |
+|                         {____________________________________________}          | | |            |
+|                          \|             |                    |     |/           |   |            |
+|                           |       |                          @     |            |   |            |
++--------------------------------------------------------------------------------------------------+
+""",
+                'dialogues': [
+                    ("Old Man Hemlock", "Oh, you came from Dunton you say? Not many people cross the little mountains now that they're all covered in Rot. " +
+                    "Just brigands that mad tortoise by my count."),
+                ],
+                'should_reset_losable_gold': True
+            }
+        ],
+        inn_data=[
+            {
+                'id': 'inn_1',
+                'title': 'The Quilted Dragonfly Inn',
+                'illust': """
++--------------------------------------------------------------------------------------------------+
+|                                                                                   ==)===)========|
+|                                                                                     O   O        |
+|                                                                                    ()  ()        |
+|                                                                                   /-n---n-\      |
+|                                                                                   |  INN  |      |
+|                                                                                   |  ===  /      |
+|                                                                                   +------/       |
+|                                                                                                  |
+|                                                                                                  |
++--------------------------------------------------------------------------------------------------+
+""",
+                'dialogues': [
+                    ("Innkeeper", "Welcome, weary travelers! Rest your heads, heal your wounds, and organize your company."),
+                    ("Innkeeper", "The Rot might be fierce outside, but our hearth is warm and safe, I promise."),
+                ], 
+                'should_reset_losable_gold': True,
+            },
+        ],
+        encounter_data=DEFAULT_ENCOUNTER_DATA,
+        tile_descriptions=dict(DEFAULT_TILE_DESCRIPTIONS, **{
+            '_': ('The Village of Yonder', 'A quiet village in the shadow of the little mountains.'),
+        }),
+    ),
+]
 
 
 def get_zone_for_space(x, y):
