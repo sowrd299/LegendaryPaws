@@ -498,11 +498,13 @@ class Party:
 # --- COMBAT ENGINE ---
 
 class CombatEngine:
-    def __init__(self, allies, enemies, shared_deck = [], is_recruitable = False):
+    def __init__(self, allies, enemies, shared_deck = [], is_recruitable = False, reward_card = None, reward_gold = 0):
         self.allies = allies  # List of Character objects
         self.enemies = enemies  # List of Character objects (built using Character class!)
         self.shared_deck = shared_deck
         self.is_recruitable = is_recruitable
+        self.reward_card = reward_card
+        self.reward_gold = reward_gold
         self.combat_log = []
         self.is_over = False
         self.victory = False
@@ -748,6 +750,8 @@ class CombatEngine:
             'enemies': [e.to_dict() for e in self.enemies],
             'shared_deck': self.shared_deck,
             'is_recruitable': getattr(self, 'is_recruitable', False),
+            'reward_card': getattr(self, 'reward_card', None),
+            'reward_gold': getattr(self, 'reward_gold', 0),
             'combat_log': [msg.to_dict() for msg in self.combat_log],
             'is_over': self.is_over,
             'victory': self.victory,
@@ -760,7 +764,7 @@ class CombatEngine:
     def from_dict(cls, d):
         allies = [Character.from_dict(a) for a in d.get('allies', [])]
         enemies = [Character.from_dict(e) for e in d.get('enemies', [])]
-        engine = cls(allies, enemies, d.get('shared_deck', []), is_recruitable=d.get('is_recruitable', False))
+        engine = cls(allies, enemies, d.get('shared_deck', []), is_recruitable=d.get('is_recruitable', False), reward_card=d.get('reward_card'), reward_gold=d.get('reward_gold'))
         engine.combat_log = [CombatMessage.from_dict(msg) for msg in d.get('combat_log', [])]
         engine.is_over = d.get('is_over', False)
         engine.victory = d.get('victory', False)

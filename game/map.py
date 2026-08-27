@@ -97,6 +97,28 @@ DEFAULT_CLASS_STARTER_CARDS = {
     },
 }
 
+DEFAULT_REWARD_CARDS = [
+    'Slash', 
+    'Light Slash', 
+    'Light Clothes', 
+    'Shield',
+    'Archery', 
+    'First Aid', 
+    'Wain', 
+    'Wax', 
+    'Singe', 
+    'Singe Breath', 
+    'Chill', 
+    'Chill Breath',
+]
+
+DEFAULT_ODD_REWARD_CARDS = [
+    'Waxing Moonlight',
+    'Singeing Sunlight',
+    'Call to the Void',
+    'Battlesong',
+]
+
 DEFAULT_ENCOUNTER_DATA = {
     '.': [
         {
@@ -131,7 +153,8 @@ DEFAULT_ENCOUNTER_DATA = {
             'min_enemies': 3,
             'max_enemies': 4,
             'species': ['Badger', 'Cat', 'Fox', 'Rabbit', 'Raven', 'Giant'],
-            'classes': ['Husk', 'Rotmonger']
+            'classes': ['Husk', 'Rotmonger'],
+            'reward_cards': DEFAULT_ODD_REWARD_CARDS,
         },
     ],
     '^': [
@@ -140,14 +163,16 @@ DEFAULT_ENCOUNTER_DATA = {
             'min_enemies': 2,
             'max_enemies': 4,
             'species': ['Badger', 'Cat', 'Fox', 'Rabbit', 'Owl'],
-            'classes': ['Husk', 'Soul', 'Rotmonger']
+            'classes': ['Husk', 'Soul', 'Rotmonger'],
+            'reward_cards': DEFAULT_REWARD_CARDS + DEFAULT_ODD_REWARD_CARDS,
         },
         {
             'chance': 0.3,
             'min_enemies': 2,
             'max_enemies': 4,
             'species': ['Cat', 'Fox', 'Rabbit', 'Giant'],
-            'classes': ['Husk']
+            'classes': ['Husk'],
+            'reward_cards': DEFAULT_REWARD_CARDS + DEFAULT_ODD_REWARD_CARDS,
         }
     ],
     '↟': [
@@ -167,7 +192,8 @@ DEFAULT_ENCOUNTER_DATA = {
             'min_enemies': 2,
             'max_enemies': 4,
             'species': ['Badger', 'Cat', 'Fox', 'Rabbit', 'Owl'],
-            'classes': ['Husk', 'Soul', 'Rotmonger']
+            'classes': ['Husk', 'Soul', 'Rotmonger'],
+            'reward_cards': DEFAULT_REWARD_CARDS + ['Flowering Stab'],
         }
     ],
     '_': [ ]
@@ -293,9 +319,12 @@ class MapZone:
         for encounter in encounter_data:
             if r < encounter['chance']:
                 enemies = generate_random_enemies(encounter)
-                return enemies, encounter.get('is_recruitable', False)
+                reward_card = random.choice(encounter.get('reward_cards', DEFAULT_REWARD_CARDS))
+                reward_gold = random.randint(encounter.get('reward_min_gold', 5), encounter.get('reward_max_gold', 10))
+
+                return enemies, encounter.get('is_recruitable', False), reward_card, reward_gold
             r -= encounter['chance']
-        return [], False
+        return [], False, None, 0
 
 
 MAP_ZONES = [
@@ -307,8 +336,8 @@ MAP_ZONES = [
             "^^^^^^^^^.....↟↟↟↟↟",
             "^^^^R^^^...↟...↟↟↟↟",
             "^R^S^^^........↟↟↟↟",
-            "^^RR^^........↟↟↟↟",
-            "R^^^^^........↟↟↟↟",
+            "^^RR^^...   ..↟↟↟↟",
+            "R^^^^^...   ..↟↟↟↟",
             "^^^^...........↟↟↟↟",
             "^^^.....___....↟↟↟↟",
             "^^^.....S_I....↟↟↟↟",
@@ -409,6 +438,27 @@ MAP_ZONES = [
         tile_descriptions=dict(DEFAULT_TILE_DESCRIPTIONS, **{
             '_': ('New Dunton Village', 'Peaceful, well defended flagstone paths. The Rot won\'t get you here.'),
         }),
+    ),
+
+    # The "rotten egg dragonslings" map zone
+    MapZone(
+        grid = ["...", "..."],
+        offset_x = 9,
+        offset_y = 4,
+        encounter_data = {
+            '.': [
+                {
+                    'chance': .5,
+                    'min_enemies': 2,
+                    'max_enemies': 3,
+                    'species': ['Dragonling'],
+                    'classes': ['Husk'],
+                    'reward_cards': ["Rotten Egg"],
+                },
+            ],
+       },
+       
+       tile_descriptions = DEFAULT_TILE_DESCRIPTIONS, 
     ),
 
     # The zone across the mountains from Dunton
@@ -692,5 +742,5 @@ def get_random_encounter(encounter_x, encounter_y):
     zone = get_zone_for_space(encounter_x, encounter_y)
     if zone:
         return zone.get_random_encounter(encounter_x, encounter_y)
-    return [], False
+    return [], False, None, 0
 

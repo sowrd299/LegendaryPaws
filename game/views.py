@@ -264,10 +264,10 @@ def handle_action(request):
             log.append(Message(1, '<span style="color:var(--accent-green)">After resting at the inn, your party is fully healed!</span>'))
         else:
             # Chance for wild combat encounter based on terrain
-            enemies, is_recruitable = get_random_encounter(new_x, new_y)
+            enemies, is_recruitable, reward_card, reward_gold = get_random_encounter(new_x, new_y)
             tile_desc = get_tile_description(new_x, new_y)
             if enemies:
-                engine = CombatEngine(party.members, enemies, party.shared_deck, is_recruitable=is_recruitable)
+                engine = CombatEngine(party.members, enemies, party.shared_deck, is_recruitable=is_recruitable, reward_card=reward_card, reward_gold=reward_gold)
                 engine.start_combat()
                 state['combat'] = engine.to_dict()
                 state['screen'] = 'combat'
@@ -415,31 +415,17 @@ def handle_action(request):
             engine = CombatEngine.from_dict(combat_dict)
             if engine.is_over:
                 if engine.victory:
-                    earned_gold = random.randint(5, 10)
+                    earned_gold = engine.reward_gold
                     party.gold += earned_gold
                     party.losable_gold += earned_gold
-                    reward_card = random.choice([
-                        'Slash', 
-                        'Light Slash', 
-                        'Light Clothes', 
-                        'Shield',
-                        'Archery', 
-                        'First Aid', 
-                        'Wain', 
-                        'Wax', 
-                        'Waxing Moonlight',
-                        'Singe', 
-                        'Singe Breath', 
-                        'Singeing Sunlight',
-                        'Chill', 
-                        'Chill Breath',
-                        'Call to the Void',
-                        'Battlesong',
-                        'Flowering Stab',
-                    ])
+                    reward_card = engine.reward_card 
 
+                    reward_string = f"Gained {earned_gold} gold, <span style='color:var(--accent-red)'>but your inventory is full.</span>"
                     if len(party.inventory) < INVENTORY_MAX_SIZE:
                         party.inventory.append(reward_card)
+                        reward_string = f"Gained {earned_gold} gold and a '{reward_card}' card!"
+                    else:
+                        reward_card = None
 
                     # Copy character's HP stat out of combat, since the combat engine is a shallow copy
                     for m in party.members:
@@ -464,7 +450,7 @@ def handle_action(request):
 
                     recruited_str = (" " + " ".join(recruited_msgs)) if recruited_msgs else ""
                     state['screen'] = 'overworld'
-                    log.append(Message(3,f"Victory! Gained {earned_gold} gold and a '{reward_card}' card!{recruited_str}", reward_card))
+                    log.append(Message(3,f"Victory! {reward_string}{recruited_str}", reward_card))
                 else:
                     # Fully restore party on defeat & return to respawn Inn position
                     for m in party.members:
