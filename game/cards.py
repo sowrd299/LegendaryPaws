@@ -110,6 +110,28 @@ CARD_DATA = [
 +-----------------+
 """
     },
+    {
+        'name': 'Rotten Egg',
+        'type': 'trinket',
+        'rarity': 'mundane',
+        'target': 'ally',
+        'recovery_cost': 5,
+        'heal_power': 3,
+        'give_heal_power': 3,
+        'revive': True,
+        'description': 'Rot that repels even death. Consumed on use.',
+        'stat_boosts': {},
+        'is_consumable': True,
+        'illust': """
++-----------------+
+|      ,/`\,      |
+|     / *   \     |
+|    | #   ZZ|    |
+|    ( *  /##)    |
+|     \  ###/     |
++-----------------+
+"""
+    },
 
 # ==================================================================================================
 # ARMOR

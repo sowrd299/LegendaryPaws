@@ -467,9 +467,10 @@ MAP_ZONES = [
             {
                 'title': 'Hemlock\'s Miscellany',
                 'items': [
-                    ('Light Clothes', 10),
-                    ('Shield', 10),
+                    ('Light Clothes', 15),
+                    ('Shield', 15),
                     ('Potion', 5),
+                    ('Rotten Egg', 20)
                 ],
                 'illust': """
 +--------------------------------------------------------------------------------------------------+

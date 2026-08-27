@@ -354,9 +354,10 @@ class Character:
         # Re-evaluate max HP
         old_max = self.max_hp
         self.update_max_hp()
-        self.current_hp = min(self.max_hp, self.current_hp + (self.max_hp - old_max))
 
-        self.current_hp = min(self.max_hp, self.current_hp + int(card.get('give_heal_power', 0)))
+        if self.is_alive() or card.get('revive'):
+            self.current_hp = min(self.max_hp, self.current_hp + (self.max_hp - old_max))
+            self.current_hp = min(self.max_hp, self.current_hp + int(card.get('give_heal_power', 0)))
 
         return True, f"Gave {card_name} to {self.name}! Level is now {self.level}."
 
@@ -624,7 +625,7 @@ class CombatEngine:
                 heal_amount = int(round(heal_amount * heal_stat))
             
             for t in targets:
-                if t and t.is_alive():
+                if t and t.is_alive() or card.get('revive'):
                     t.current_hp = min(t.max_hp, t.current_hp + heal_amount)
                     self.combat_log.append(CombatMessage(0, f"{actor.name} used {card_name} on {t.name}, healing {heal_amount} HP!", card_name))
 
