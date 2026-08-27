@@ -226,3 +226,23 @@ They begin in the center of the town area on the map.
         2) Dialogue from the Innkeeper
         3) A x-scrollable row of the characterts staying at the Inn, each with their portait name, level, species, and class, and a "Recruit" button
         4) a second, same-format (and code) row of characters in the player's party, with a "Dismiss" button
+
+=== QUESTS ===
+
+The game defines a number of quests, each consisting of a number of steps. The first step is starting the quest, so the player is always at least step 0 of each quest.
+
+Each step defines:
+- Where the player must be to complete that step (e.g. an inn id or the id of a shop)
+- Card(s) the user must have in their inventory (and will lose) to complete the step
+- Dialogue (with speaker, text, title, illustration, responses per dialog entry) (for now, all responses just advance the dialogue)
+- The card rewards for that step
+- The gold reward for that step
+
+As soon as a player meets all the conditions for their current step of any quest, instead of whichever screen they would have seen, they see the dialog screen.
+The user gets the rewards (card and gold) for the step they completed, and the quest advances to the next step.
+
+The dialog screen has an ASCII illustrion; either the illustration for the current dialog step (if any) or for the shop/inn the user is in, or none otherwise.
+The title for the screen should be the override from the current dialog entry; otherwise, borrow the title from the shop/inn the user is in. Otherwise, borrow the title
+from the map screen (id est, location: <tile name>).
+
+For robustness, each quest should also have a non-user facing ID that is used when saving the player's progress. 

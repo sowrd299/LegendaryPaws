@@ -231,19 +231,29 @@
 
 <body>
     <div class="terminal-container">
-        <!-- SCREEN: VOINARA INTRO -->
-        {% if screen == 'voinara_intro' %}
+        <!-- SCREEN: DIALOG -->
+        {% if screen == 'dialog' %}
         <!-- HEADER -->
-        <div class="header">
-            <h1>Wanderlust Pause</h1>
+        <div>
+            <h2 style="color: var(--text-muted); font-size: 1.1rem;">{{ title|safe }}</h1>
         </div>
 
         <div class="dialogue-box">
+
+            {% if illust %}
+            <p class="card-illust" style="color: var(--text-muted)">{{ illust|illust }}</p>
+            {% endif %}
             <p><span style="color: var(--text-muted)">{{ speaker }}:</span> {{ text }}</p>
-            <form id="voinaraForm" method="POST" action="{% url 'handle_action' %}" style="margin-top: 16px;">
+            <form id="dialogForm" method="POST" action="{% url 'handle_action' %}" style="margin-top: 16px;">
                 {% csrf_token %}
-                <input type="hidden" name="action_type" value="voinara_advance">
-                {% include "game/button.html" with key="_" label="..." %}
+                <input type="hidden" name="action_type" value="dialog_advance">
+                <div class="btn-group">
+                    {% for choice in responses %}
+                    {% include "game/button.html" with key="_" label=choice %}
+                    {% empty %}
+                    {% include "game/button.html" with key="_" label="..." %}
+                    {% endfor %}
+                </div>
             </form>
         </div>
 
@@ -747,10 +757,10 @@
         document.addEventListener('keydown', function (event) {
             const screen = "{{ screen }}";
 
-            if (screen === 'voinara_intro') {
+            if (screen === 'dialog') {
                 if (event.code === 'Space' || event.key === ' ') {
                     event.preventDefault();
-                    document.getElementById('voinaraForm').submit();
+                    document.getElementById('dialogForm').submit();
                 }
             } else if (screen === 'overworld') {
                 if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(event.code)) {

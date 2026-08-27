@@ -14,14 +14,7 @@ from .map import (
     get_nearest_inn_id, get_random_encounter, DEFAULT_START_INN_ID
 )
 
-VOINARA_DIALOGUE = [
-    "Oh!, oh no, somethings have gone very strange...",
-    "...I, have I lost you? That would be bad, who would know where that would be be... Oh! I see someone. It is you? It is Yew it seems. Where are they? " +
-    "This little lost traveler has found themself somewhere very strange. I think you are about to witness quite the adventure.",
-    "Something seems.... rotten, I think, in this place. It sounds like the locals call it the \"Death Rot\" whatever it is... " +
-    "I just can't tell what it is that is rotting in the first place.",
-    "Make good decisions please, this little traveler's future depends on it. Tell me what Yew finds... wherever this is."
-]
+from .quests import QUESTS, check_quest_triggers
 
 INVENTORY_MAX_SIZE = 20
 
@@ -90,7 +83,7 @@ def game_index(request):
     if len(log) > 15:
         log = log[-15:]
 
-    screen = state.get('screen', 'voinara_intro')
+    screen = state.get('screen', 'dialog')
 
     party_inventory_cards = [ (name_to_card(name), count) for name,count in list_to_unique_counts(party.inventory) ]
     party_inventory_cards.sort(key = lambda card : CARD_DATA.index(CARDS[card[0]['name']]))
@@ -118,11 +111,53 @@ def game_index(request):
         'max_party_size': 4,
     }
 
-    if screen == 'voinara_intro':
-        step = state.get('voinara_step', 0)
-        context['speaker'] = "Voinara"
-        context['text'] = VOINARA_DIALOGUE[min(step, len(VOINARA_DIALOGUE) - 1)]
-        context['voinara_is_last'] = (step >= len(VOINARA_DIALOGUE) - 1)
+    if screen == 'dialog':
+        active_dialogue = state.get('active_dialogue')
+        if active_dialogue:
+            quest_id = active_dialogue.get('quest_id')
+            step_idx = active_dialogue.get('step', 0)
+            dialogue_idx = active_dialogue.get('dialogue_index', 0)
+
+            quest = QUESTS.get(quest_id, {})
+            steps = quest.get('steps', [])
+            if step_idx < len(steps):
+                step_data = steps[step_idx]
+                dialogue_list = step_data.get('dialogue', [])
+                if dialogue_idx < len(dialogue_list):
+                    entry = dialogue_list[dialogue_idx]
+                    speaker = entry.get('speaker', '')
+                    text = entry.get('text', '')
+                    responses = entry.get('responses', ['...'])
+
+                    # Title resolution hierarchy
+                    title = entry.get('title') or step_data.get('title')
+                    shop_data = get_shop(party.x, party.y)
+                    inn_data = get_inn(party.x, party.y)
+                    if not title:
+                        if shop_data:
+                            title = shop_data.get('title')
+                        elif inn_data:
+                            title = inn_data.get('title')
+                        else:
+                            tile_info = get_tile_description(party.x, party.y)
+                            title = f"Location: {tile_info[0]}"
+
+                    # Illustration resolution hierarchy
+                    illust = entry.get('illust') or step_data.get('illust')
+                    if not illust:
+                        if shop_data:
+                            illust = shop_data.get('illust', '')
+                        elif inn_data:
+                            illust = inn_data.get('illust', '')
+                        else:
+                            illust = ''
+
+                    context['speaker'] = speaker
+                    context['text'] = text
+                    context['title'] = title
+                    context['illust'] = illust
+                    context['responses'] = responses
+                    context['dialogue_is_last'] = (dialogue_idx >= len(dialogue_list) - 1)
 
     elif screen == 'overworld':
         # Render ASCII Map viewport with player location highlighted as '*'
@@ -222,13 +257,34 @@ def handle_action(request):
     log = [Message.from_dict(d) for d in state['log']]
     action_type = request.POST.get('action_type')
 
-    if action_type == 'voinara_advance':
-        step = state.get('voinara_step', 0) + 1
-        if step >= len(VOINARA_DIALOGUE):
-            state['screen'] = 'overworld'
-            log.append(Message(1, "You peer through Voinara's mirror, and see Yew standing on the Strange Lands she spoke of..."))
-        else:
-            state['voinara_step'] = step
+    if action_type == 'dialog_advance':
+        active_dialogue = state.get('active_dialogue')
+        if active_dialogue:
+            quest_id = active_dialogue.get('quest_id')
+            step_idx = active_dialogue.get('step', 0)
+            dialogue_idx = active_dialogue.get('dialogue_index', 0)
+
+            quest = QUESTS.get(quest_id, {})
+            steps = quest.get('steps', [])
+            if step_idx < len(steps):
+                step_data = steps[step_idx]
+                dialogue_list = step_data.get('dialogue', [])
+                next_idx = dialogue_idx + 1
+
+                if next_idx < len(dialogue_list):
+                    state['active_dialogue']['dialogue_index'] = next_idx
+                else:
+                    # Step completed!
+                    state['quests'][quest_id] = step_idx + 1
+                    state['active_dialogue'] = None
+                    state['screen'] = 'overworld'
+
+                    completion_log = step_data.get('completion_log')
+                    if completion_log:
+                        log.append(Message(1, completion_log))
+
+                    # Re-check quest triggers
+                    check_quest_triggers(state, party)
 
     elif action_type == 'move':
         direction = request.POST.get('direction')
@@ -253,6 +309,7 @@ def handle_action(request):
         if current_tile == 'S':
             state['screen'] = 'shop'
             log.append(Message(1, 'You enter a shop.'))
+            check_quest_triggers(state, party)
         elif current_tile == 'I':
             # Inn auto heals party
             for m in party.members:
@@ -262,6 +319,7 @@ def handle_action(request):
             state['respawn_inn_id'] = inn_id
             state['screen'] = 'inn'
             log.append(Message(1, '<span style="color:var(--accent-green)">After resting at the inn, your party is fully healed!</span>'))
+            check_quest_triggers(state, party)
         else:
             # Chance for wild combat encounter based on terrain
             enemies, is_recruitable, reward_card, reward_gold = get_random_encounter(new_x, new_y)
@@ -277,6 +335,8 @@ def handle_action(request):
                     log.append(Message(1, f"The Rot descends upon your party on the {tile_desc[0]}!"))
             else:
                 log.append(Message(-1, f"Traveled to {tile_desc[0]}."))
+                check_quest_triggers(state, party)
+
 
     elif action_type == 'open_menu':
         if state['screen'] in ['overworld', 'shop', 'inn']:
@@ -451,6 +511,7 @@ def handle_action(request):
                     recruited_str = (" " + " ".join(recruited_msgs)) if recruited_msgs else ""
                     state['screen'] = 'overworld'
                     log.append(Message(3,f"Victory! {reward_string}{recruited_str}", reward_card))
+                    check_quest_triggers(state, party)
                 else:
                     # Fully restore party on defeat & return to respawn Inn position
                     for m in party.members:
@@ -464,6 +525,7 @@ def handle_action(request):
                     party.gold -= party.losable_gold
                     party.gold = max(party.gold, 0)
                     party.losable_gold = 0
+                    check_quest_triggers(state, party)
 
     state['party'] = party.to_dict()
     state['log'] = [m.to_dict() for m in log]

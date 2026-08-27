@@ -188,19 +188,23 @@ class ViewIntegrationTests(TestCase):
         self.client = Client()
 
     def test_game_index_initial_state(self):
-        """Test initial game load starts at Voinara intro screen."""
+        """Test initial game load starts at Voinara intro quest on dialog screen."""
         response = self.client.get(reverse('game_index'))
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['screen'], 'dialog')
         self.assertContains(response, "Voinara:")
 
     def test_voinara_dialogue_progression(self):
-        """Test advancing Voinara dialogue lines."""
-        response = self.client.post(reverse('handle_action'), {'action_type': 'voinara_advance'})
-        self.assertEqual(response.status_code, 302)
-        
-        # Follow redirect to game_index
+        """Test advancing Voinara dialogue lines using dialog_advance."""
+        # 4 lines total for voinara_intro quest
+        for _ in range(4):
+            response = self.client.post(reverse('handle_action'), {'action_type': 'dialog_advance'})
+            self.assertEqual(response.status_code, 302)
+
+        # After 4th advance, screen returns to overworld
         response = self.client.get(reverse('game_index'))
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['screen'], 'overworld')
 
     def test_overworld_movement(self):
         """Test moving on overworld grid."""
@@ -208,6 +212,8 @@ class ViewIntegrationTests(TestCase):
         session = self.client.session
         state = create_initial_game_state()
         state['screen'] = 'overworld'
+        state['active_dialogue'] = None
+        state['quests']['voinara_intro'] = 1
         session['game_state'] = state
         initial_party = Party.from_dict(state['party'])
         initial_x = initial_party.x
@@ -228,7 +234,8 @@ class ViewIntegrationTests(TestCase):
         session = self.client.session
         state = create_initial_game_state()
         state['screen'] = 'overworld'
-        state['voinara_step'] = 5
+        state['active_dialogue'] = None
+        state['quests']['voinara_intro'] = 1
         session['game_state'] = state
         session.save()
 
@@ -241,6 +248,7 @@ class ViewIntegrationTests(TestCase):
         # Confirm returning to index starts fresh intro
         index_response = self.client.get(reverse('game_index'))
         self.assertEqual(index_response.status_code, 200)
+        self.assertEqual(index_response.context['screen'], 'dialog')
         self.assertContains(index_response, "Voinara:")
 
     def test_combat_end_recruitment_victory(self):
@@ -446,7 +454,7 @@ class ViewIntegrationTests(TestCase):
 
 
 from game.map import (
-    MapZone, MAP_ZONES, DEFAULT_ZONE, get_tile, get_tile_description,
+    MapZone, MAP_ZONES, get_tile, get_tile_description,
     get_map_min_x, get_map_min_y, get_map_max_x, get_map_max_y,
     get_map_width, get_map_height, should_reset_losable_gold, get_shop,
     get_random_encounter
@@ -555,6 +563,131 @@ class MapZoneTests(TestCase):
         self.assertEqual(get_inn_id(12, 20), 'custom_inn_1')
         self.assertEqual(get_inn_coords('custom_inn_1'), (12, 20))
         self.assertEqual(get_nearest_inn_id(10, 20), 'custom_inn_1')
+
+
+from game.quests import QUESTS, check_quest_triggers
+
+class QuestTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+
+    def test_voinara_quest_proc_immediately(self):
+        """Verify Voinara intro quest procs immediately on game start without requirements."""
+        state = create_initial_game_state()
+        self.assertEqual(state['screen'], 'dialog')
+        self.assertIsNotNone(state.get('active_dialogue'))
+        self.assertEqual(state['active_dialogue']['quest_id'], 'voinara_intro')
+        self.assertEqual(state['active_dialogue']['step'], 0)
+
+    def test_badgy_errand_step_0_proc_at_badgy_shop(self):
+        """Test step 0 of Badgy's quest procs when visiting Badgy's General Store."""
+        session = self.client.session
+        state = create_initial_game_state()
+        # Complete voinara intro
+        state['quests']['voinara_intro'] = 1
+        state['active_dialogue'] = None
+        state['screen'] = 'overworld'
+
+        # Find Badgy's shop location
+        party = Party.from_dict(state['party'])
+        badgy_x, badgy_y = None, None
+        for zone in MAP_ZONES:
+            for ly in range(len(zone.grid)):
+                for lx in range(len(zone.grid[ly])):
+                    if zone.grid[ly][lx] == 'S':
+                        gx = lx + zone.offset_x
+                        gy = ly + zone.offset_y
+                        shop = zone.get_shop(gx, gy)
+                        if shop and shop.get('title') == "Badgy's General Store":
+                            badgy_x, badgy_y = gx, gy
+                            break
+
+        self.assertIsNotNone(badgy_x, "Badgy's General Store coordinates should be found on map")
+        party.x, party.y = badgy_x, badgy_y
+        state['party'] = party.to_dict()
+        session['game_state'] = state
+        session.save()
+
+        # Visit index
+        response = self.client.get(reverse('game_index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['screen'], 'dialog')
+        self.assertEqual(response.context['title'], "Badgy's General Store")
+        self.assertIn("Badgy", response.context['speaker'])
+        self.assertEqual(len(response.context['responses']), 2)
+        self.assertIn("I'd love to help", response.context['responses'][0])
+        self.assertIn("Fine", response.context['responses'][1])
+
+        # Advance dialogue
+        post_response = self.client.post(reverse('handle_action'), {'action_type': 'dialog_advance'})
+        self.assertEqual(post_response.status_code, 302)
+
+        updated_state = self.client.session['game_state']
+        self.assertEqual(updated_state['quests']['badgys_errand'], 1)
+
+    def test_badgy_errand_step_1_card_consumption_and_rewards(self):
+        """Test step 1 of Badgy's quest requires Rotten Egg, consumes it, and grants gold + card reward."""
+        session = self.client.session
+        state = create_initial_game_state()
+        state['quests']['voinara_intro'] = 1
+        state['quests']['badgys_errand'] = 1
+        state['active_dialogue'] = None
+        state['screen'] = 'overworld'
+
+        # Find Badgy's shop location
+        party = Party.from_dict(state['party'])
+        for zone in MAP_ZONES:
+            for ly in range(len(zone.grid)):
+                for lx in range(len(zone.grid[ly])):
+                    if zone.grid[ly][lx] == 'S':
+                        gx = lx + zone.offset_x
+                        gy = ly + zone.offset_y
+                        shop = zone.get_shop(gx, gy)
+                        if shop and shop.get('title') == "Badgy's General Store":
+                            party.x, party.y = gx, gy
+
+        # Without Rotten Egg, trigger returns False
+        state['party'] = party.to_dict()
+        self.assertFalse(check_quest_triggers(state, party))
+
+        # Add Rotten Egg to inventory
+        party.inventory.append('Rotten Egg')
+        initial_gold = party.gold
+        state['party'] = party.to_dict()
+
+        # Trigger quest check
+        triggered = check_quest_triggers(state, party)
+        self.assertTrue(triggered)
+        self.assertNotIn('Rotten Egg', party.inventory)
+        self.assertIn('Honed Slash', party.inventory)
+        self.assertEqual(party.gold, initial_gold + 50)
+        self.assertEqual(state['screen'], 'dialog')
+        self.assertEqual(state['active_dialogue']['quest_id'], 'badgys_errand')
+        self.assertEqual(state['active_dialogue']['step'], 1)
+
+    def test_title_and_illust_fallback_hierarchy(self):
+        """Test title and illustration resolution hierarchy for dialog screen."""
+        session = self.client.session
+        state = create_initial_game_state()
+        party = Party.from_dict(state['party'])
+        # Move party away from any inn/shop to open field
+        party.x = 0
+        party.y = 0
+        state['party'] = party.to_dict()
+        state['screen'] = 'dialog'
+        state['active_dialogue'] = {
+            'quest_id': 'voinara_intro',
+            'step': 0,
+            'dialogue_index': 0
+        }
+        session['game_state'] = state
+        session.save()
+
+        response = self.client.get(reverse('game_index'))
+        self.assertEqual(response.status_code, 200)
+        # Should fallback to map tile location description for title since no shop/inn or entry override
+        self.assertTrue(response.context['title'].startswith("Location:"))
+
 
 
 

@@ -818,6 +818,7 @@ class CombatMessage(Message):
 def create_initial_game_state():
     """Initializes standard starting game state per gdd.txt."""
     from .map import DEFAULT_START_INN_ID, get_inn_coords, calculate_map_pan
+    from .quests import check_quest_triggers
 
     start_x, start_y = get_inn_coords(DEFAULT_START_INN_ID)
     pan_x, pan_y = calculate_map_pan(start_x, start_y)
@@ -843,9 +844,12 @@ def create_initial_game_state():
         ['Woe'] * 3
     )
 
-    return {
-        'screen': 'voinara_intro',  # Start at Voinara dialogue screen
-        'voinara_step': 0,
+    state = {
+        'screen': 'overworld',  # Will be set to 'dialog' by initial quest trigger
+        'quests': {
+            'voinara_intro': 0,
+            'badgys_errand': 0,
+        },
         'pan_x': pan_x,
         'pan_y': pan_y,
         'party': party.to_dict(),
@@ -856,3 +860,9 @@ def create_initial_game_state():
         'combat': None,
         'log': [Message(1, "...").to_dict()],
     }
+
+    # Trigger initial quest check so voinara_intro step 0 procs immediately
+    check_quest_triggers(state, party)
+
+    return state
+
