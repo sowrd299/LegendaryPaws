@@ -481,7 +481,7 @@ CARD_DATA = [
         'recovery_cost': 10,
         'damage_type': 'ranged_damage',
         'damage_power': 1.0,
-        'description': 'Leaves the target vulnerable to melee.',
+        'description': 'Leaves the target vuln. to melee.',
         'stat_boosts': {'ranged_damage': 0.2, 'melee_damage': 0.2},
         'effects': [
             {
@@ -509,7 +509,7 @@ CARD_DATA = [
         'recovery_cost': 14,
         'damage_type': 'ranged_damage',
         'damage_power': 1.0,
-        'description': 'Leaves the target vulnerable at range.',
+        'description': 'Leaves the target vulne. at range.',
         'stat_boosts': {'ranged_damage': 0.4},
         'effects': [
             {
