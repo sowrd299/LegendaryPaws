@@ -257,7 +257,7 @@
             </form>
         </div>
 
-        <!-- SCREEN: OVERWORLD -->
+        <!-- SCREEN: OVERWORLD / QUEST MENU -->
         {% elif screen == 'overworld' %}
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <h2 style="color: var(--text-muted); font-size: 1.1rem;">Location: {{ tile_name }}</h2>
@@ -310,11 +310,54 @@
                 </form>
             </div>
 
+            <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-end;">
+                <form method="POST" action="{% url 'handle_action' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action_type" value="open_menu">
+                    {% include "game/button.html" with key="C" label="Character Menu" %}
+                </form>
+                <form method="POST" action="{% url 'handle_action' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action_type" value="open_quest_menu">
+                    {% include "game/button.html" with key="Q" label="Quest Menu" %}
+                </form>
+            </div>
+        </div>
+
+        <!-- QUEST MENU PANEL -->
+        {% elif screen == 'quest_menu' %}
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="color: var(--text-muted);">Quests in Progress</h2>
             <form method="POST" action="{% url 'handle_action' %}">
                 {% csrf_token %}
-                <input type="hidden" name="action_type" value="open_menu">
-                {% include "game/button.html" with key="C" label="Character Menu" %}
+                <input type="hidden" name="action_type" value="close_menu">
+                {% include "game/button.html" with key="X" label="Close Menu" %}
             </form>
+        </div>
+
+        <div class="dialogue-box" style="margin-top: 12px; overflow-y: hidden; position: relative;">
+            <div class="y-scrollable" style="display: flex; flex-direction: column; gap: 32px;">
+                {% for quest in active_quests %}
+                <div class="quest-item">
+                    <div class="quest-header" style="display: flex; align-items: center; gap: 12px;">
+                        <pre class="quest-checkbox" style="font-family: monospace; line-height: 1; margin: 0; color: var(--accent-amber); font-size: 0.9rem;">+--+
+|  |
++--+</pre>
+                        <h4 style="color: var(--accent-amber); font-size: 1rem; margin: 0;">{{ quest.title }}</h4>
+                    </div>
+                    <div class="quest-body" style="display: flex; gap: 16px; margin-top: 10px; align-items: flex-start;">
+                        {% if quest.illust %}
+                        <pre class="card-illust quest-illust" style="margin: 0; color: var(--text-muted); line-height: 1.2; font-size: 0.78rem; flex-shrink: 0;">{{ quest.illust|illust }}</pre>
+                        {% endif %}
+                        <div class="quest-desc" style="flex: 1; font-size: 0.9rem; color: var(--text-color); line-height: 1.4;">
+                            <p style="margin: 0;">{{ quest.description }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin: 8px 0;">No quests in progress.</p>
+                {% endfor %}
+            </div>
         </div>
 
         <!-- SCREEN: CHARACTER MENU -->
@@ -779,6 +822,14 @@
                 } else if (event.key.toLowerCase() === 'c') {
                     event.preventDefault();
                     submitAction('open_menu');
+                } else if (event.key.toLowerCase() === 'q') {
+                    event.preventDefault();
+                    submitAction('open_quest_menu');
+                }
+            } else if (screen === 'quest_menu') {
+                if (event.key.toLowerCase() === 'x') {
+                    event.preventDefault();
+                    submitAction('close_menu');
                 }
             } else if (screen === 'character_menu' || screen === 'shop' || screen === 'inn') {
                 if (event.key.toLowerCase() === 'x') {
@@ -816,6 +867,27 @@
                 // update the body translation to simulate a scroll
                 element.style.transform = "translate(" + val + "%)";
                 element.dataset.xscroll = val
+            });
+
+            document.querySelectorAll(".y-scrollable").forEach(function (element) {
+
+                if (element.getBoundingClientRect().height <= element.parentNode.getBoundingClientRect().height) {
+                    return;
+                }
+
+                var visiblePercent = element.parentNode.getBoundingClientRect().height / element.getBoundingClientRect().height;
+                var overflowPercent = 1 - visiblePercent;
+                overflowPercent += visiblePercent * 0.1;
+
+                var oldVal = parseFloat(element.dataset.yscroll);
+                if (isNaN(oldVal)) {
+                    oldVal = 0;
+                }
+
+                var val = Math.min(Math.max((oldVal - variation), -100 * overflowPercent / 2), 100 * overflowPercent / 2);
+
+                element.style.transform = "translateY(" + val + "%)";
+                element.dataset.yscroll = val;
             });
 
             return false;

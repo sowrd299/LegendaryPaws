@@ -3,6 +3,7 @@ Quests data architecture and trigger evaluation for Legendary Paws.
 """
 
 from .map import get_shop, get_inn, get_inn_id, get_tile_description
+from .cards import CARDS
 
 VOINARA_ILLUST = """
 +--------------------------------------------------------------------------------------------------+
@@ -21,7 +22,7 @@ VOINARA_ILLUST = """
 QUESTS = {
     'voinara_intro': {
         'id': 'voinara_intro',
-        'title': 'Voinara Intro',
+        'title': 'Voinara\'s Biding',
         'steps': [
             {
                 'location': None,  # Proc anywhere / immediately
@@ -61,12 +62,39 @@ QUESTS = {
                     }
                 ],
                 'completion_log': "You peer through Voinara's mirror, and see Yew standing on the Strange Lands she spoke of..."
+            }, 
+            {
+                'location': None,
+                'required_cards': ['Dragonsbane'],
+                'menu_description': "Explore the Strange Lands, and investigate the Death Rot.",
+                'reward_cards': [],
+                'reward_gold': 0,
+                'dialogue': [
+                    {
+                        'illust': VOINARA_ILLUST,
+                        'speaker': 'Voinara',
+                        'text': 'Oh, I see... it\'s almost like what\'s "rotting" here is Death itself... these poor people really should be long dead, they\'re just, not?',
+                        'responses': [
+                            'Ah, so you are still watching over me, old friend',
+                            'Are you going to just leave here to deal with this by myself?',
+                        ]
+                    },
+                    {
+                        'illust': VOINARA_ILLUST,
+                        'speaker': 'Voinara',
+                        'text': 'Unfortunately, I think it\'s all up to Yew.',
+                        'responses': [
+                            '...',
+                        ]
+                    },
+                ]
+
             }
         ]
     },
     'badgys_errand': {
         'id': 'badgys_errand',
-        'title': "Badgy's Errand",
+        'title': "Badgy's Favor",
         'steps': [
             {
                 'location': "Badgy's General Store",
@@ -91,6 +119,8 @@ QUESTS = {
             },
             {
                 'location': "Badgy's General Store",
+                'menu_description': "Get a rotten egg from the dragonling husks in the field north of New Dunton Village, and give it to Badgy in his store.",
+                'menu_illust': 'Rotten Egg',
                 'required_cards': ['Rotten Egg'],
                 'reward_cards': ['Honed Slash'],
                 'reward_gold': 50,
@@ -189,3 +219,40 @@ def check_quest_triggers(state, party):
                 return True
 
     return False
+
+
+def get_active_quests(state):
+    """
+    Returns a list of active quest dicts that have a menu_description for their current step.
+    Each returned dict has:
+    - 'id': quest_id
+    - 'title': quest_title
+    - 'description': menu_description
+    - 'illust': ASCII illustration string (from CARDS[menu_illust] if referenced, or '')
+    """
+    quests_progress = state.get('quests', {})
+    active = []
+
+    for quest_id, quest_data in QUESTS.items():
+        current_step_idx = quests_progress.get(quest_id, 0)
+        steps = quest_data.get('steps', [])
+
+        if current_step_idx < len(steps):
+            step_data = steps[current_step_idx]
+            menu_desc = step_data.get('menu_description') or step_data.get('description')
+
+            if menu_desc:
+                card_name = step_data.get('menu_illust') or step_data.get('illust_card') or step_data.get('card_name')
+                illust_str = ''
+                if card_name and card_name in CARDS:
+                    illust_str = CARDS[card_name].get('illust', '')
+
+                active.append({
+                    'id': quest_id,
+                    'title': quest_data.get('title', quest_id),
+                    'description': menu_desc,
+                    'illust': illust_str,
+                })
+
+    return active
+

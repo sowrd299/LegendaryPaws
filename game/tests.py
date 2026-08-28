@@ -604,6 +604,7 @@ class QuestTests(TestCase):
 
         self.assertIsNotNone(badgy_x, "Badgy's General Store coordinates should be found on map")
         party.x, party.y = badgy_x, badgy_y
+        check_quest_triggers(state, party)
         state['party'] = party.to_dict()
         session['game_state'] = state
         session.save()
@@ -667,6 +668,7 @@ class QuestTests(TestCase):
 
     def test_title_and_illust_fallback_hierarchy(self):
         """Test title and illustration resolution hierarchy for dialog screen."""
+        from game.quests import QUESTS
         session = self.client.session
         state = create_initial_game_state()
         party = Party.from_dict(state['party'])
@@ -675,8 +677,19 @@ class QuestTests(TestCase):
         party.y = 0
         state['party'] = party.to_dict()
         state['screen'] = 'dialog'
+        
+        # Inject custom step without title override to test fallback hierarchy
+        test_quest_id = 'test_fallback_quest'
+        QUESTS[test_quest_id] = {
+            'id': test_quest_id,
+            'title': 'Test Fallback Quest',
+            'steps': [{
+                'location': None,
+                'dialogue': [{'speaker': 'Tester', 'text': 'Testing fallback', 'responses': ['...']}]
+            }]
+        }
         state['active_dialogue'] = {
-            'quest_id': 'voinara_intro',
+            'quest_id': test_quest_id,
             'step': 0,
             'dialogue_index': 0
         }
@@ -687,6 +700,54 @@ class QuestTests(TestCase):
         self.assertEqual(response.status_code, 200)
         # Should fallback to map tile location description for title since no shop/inn or entry override
         self.assertTrue(response.context['title'].startswith("Location:"))
+
+        # Clean up temporary quest
+        del QUESTS[test_quest_id]
+
+    def test_get_active_quests_filtering_and_illustration(self):
+        """Test get_active_quests filters out steps without menu_description and resolves card illust."""
+        from game.quests import get_active_quests
+        state = create_initial_game_state()
+        state['quests']['voinara_intro'] = 1  # Completed voinara intro
+        state['quests']['badgys_errand'] = 0   # At step 0 of badgy errand (has menu_description & Rotten Egg illust)
+
+        active = get_active_quests(state)
+        self.assertEqual(len(active), 1)
+        quest_item = active[0]
+        self.assertEqual(quest_item['id'], 'badgys_errand')
+        self.assertEqual(quest_item['title'], "Badgy's Favor")
+        self.assertIn("Rotten Egg", quest_item['description'])
+        self.assertIn("(___)", quest_item['illust'])  # Rotten Egg ASCII art contains (___)
+
+    def test_open_quest_menu_action_and_rendering(self):
+        """Test toggling quest menu screen via action and rendering quest menu UI."""
+        session = self.client.session
+        state = create_initial_game_state()
+        state['screen'] = 'overworld'
+        state['quests']['voinara_intro'] = 1
+        state['quests']['badgys_errand'] = 0
+        session['game_state'] = state
+        session.save()
+
+        # Open quest menu
+        response = self.client.post(reverse('handle_action'), {'action_type': 'open_quest_menu'})
+        self.assertEqual(response.status_code, 302)
+
+        # GET game index
+        index_resp = self.client.get(reverse('game_index'))
+        self.assertEqual(index_resp.status_code, 200)
+        self.assertEqual(index_resp.context['screen'], 'quest_menu')
+        self.assertIn('active_quests', index_resp.context)
+        self.assertContains(index_resp, "+-+")
+        self.assertContains(index_resp, "Badgy&#x27;s Favor")
+        self.assertContains(index_resp, "y-scrollable")
+
+        # Close quest menu
+        close_resp = self.client.post(reverse('handle_action'), {'action_type': 'close_menu'})
+        self.assertEqual(close_resp.status_code, 302)
+        updated_state = self.client.session['game_state']
+        self.assertEqual(updated_state['screen'], 'overworld')
+
 
 
 

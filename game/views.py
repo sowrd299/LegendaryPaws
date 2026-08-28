@@ -14,7 +14,7 @@ from .map import (
     get_nearest_inn_id, get_random_encounter, DEFAULT_START_INN_ID
 )
 
-from .quests import QUESTS, check_quest_triggers
+from .quests import QUESTS, check_quest_triggers, get_active_quests
 
 INVENTORY_MAX_SIZE = 20
 
@@ -188,6 +188,9 @@ def game_index(request):
         context['tile_desc'] = tile_info[1]
         context['current_tile'] = current_tile
 
+    elif screen == 'quest_menu':
+        context['active_quests'] = get_active_quests(state)
+
     elif screen == 'character_menu':
         char_idx = state.get('char_index', 0)
         if char_idx >= 0:
@@ -339,13 +342,19 @@ def handle_action(request):
 
 
     elif action_type == 'open_menu':
-        if state['screen'] in ['overworld', 'shop', 'inn']:
+        if state['screen'] in ['overworld', 'quest_menu', 'shop', 'inn']:
             state['screen'] = 'character_menu'
             state['char_index'] = 0
             state['stat_tab'] = True
 
+    elif action_type == 'open_quest_menu':
+        if state['screen'] in ['overworld', 'shop', 'inn']:
+            state['screen'] = 'quest_menu'
+        elif state['screen'] == 'quest_menu':
+            state['screen'] = 'overworld'
+
     elif action_type == 'close_menu':
-        if state['screen'] in ['character_menu', 'shop', 'inn']:
+        if state['screen'] in ['character_menu', 'quest_menu', 'shop', 'inn']:
             state['screen'] = 'overworld'
 
     elif action_type == 'select_char':
