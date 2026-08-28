@@ -283,25 +283,27 @@
 
         <!-- CONTROLS & NAVIGATION -->
         <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div class="btn-group">
-                <form method="POST" action="{% url 'handle_action' %}" inline style="display:inline;">
-                    {% csrf_token %}
-                    <input type="hidden" name="action_type" value="move">
-                    <input type="hidden" name="direction" value="up">
-                    {% include "game/button.html" with key="▲" label="Up" %}
-                </form>
-                <form method="POST" action="{% url 'handle_action' %}" inline style="display:inline;">
-                    {% csrf_token %}
-                    <input type="hidden" name="action_type" value="move">
-                    <input type="hidden" name="direction" value="down">
-                    {% include "game/button.html" with key="▼" label="Down" %}
-                </form>
+            <div class="btn-group" style="align-items: flex-end;">
                 <form method="POST" action="{% url 'handle_action' %}" inline style="display:inline;">
                     {% csrf_token %}
                     <input type="hidden" name="action_type" value="move">
                     <input type="hidden" name="direction" value="left">
                     {% include "game/button.html" with key="◄" label="Left" %}
                 </form>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: center;">
+                    <form method="POST" action="{% url 'handle_action' %}" inline style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action_type" value="move">
+                        <input type="hidden" name="direction" value="up">
+                        {% include "game/button.html" with key="▲" label="Up" %}
+                    </form>
+                    <form method="POST" action="{% url 'handle_action' %}" inline style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action_type" value="move">
+                        <input type="hidden" name="direction" value="down">
+                        {% include "game/button.html" with key="▼" label="Down" %}
+                    </form>
+                </div>
                 <form method="POST" action="{% url 'handle_action' %}" inline style="display:inline;">
                     {% csrf_token %}
                     <input type="hidden" name="action_type" value="move">
