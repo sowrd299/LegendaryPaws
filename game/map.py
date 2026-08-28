@@ -92,18 +92,36 @@ DEFAULT_CLASS_STARTER_CARDS = {
         'armor': ['Favored Clothes', 'Shield', 'Shield Spike'],
     },
     'Scout': {
-        'weapon': ['Favored Archery', 'Simple Trap'],
-        'trinket': ['First Aid', 'Quiver Quickdraw'],
+        'weapon': ['Favored Archery', 'Simple Trap', 'Pinning Shot'],
+        'trinket': ['Quiver Quickdraw'],
     },
 }
 
 DEFAULT_REWARD_CARDS = [
-    'Slash', 
-    'Light Slash', 
+    
+    # Defense
+    'Potion', 
+    'Potion', 
+    'Light Clothes', 
     'Light Clothes', 
     'Shield',
+
+    # Squire
+    'Slash', 
+    'Slash', 
+    'Slash', 
+    'Light Slash', 
+
+    # Scout
     'Archery', 
+    'Heavy Shot',
+    'Whistling Shot',
+    'Crescent Shot',
+    'Burning Shot',
+    'Broken Shot',
     'First Aid', 
+
+    # Student
     'Wain', 
     'Wax', 
     'Singe', 
@@ -113,6 +131,7 @@ DEFAULT_REWARD_CARDS = [
 ]
 
 DEFAULT_ODD_REWARD_CARDS = [
+    'Pinning Shot',
     'Waxing Moonlight',
     'Singeing Sunlight',
     'Call to the Void',

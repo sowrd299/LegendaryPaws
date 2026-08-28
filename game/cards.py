@@ -474,6 +474,174 @@ CARD_DATA = [
 """
     },
     {
+        'name': 'Heavy Shot',
+        'type': 'weapon',
+        'rarity': 'mundane',
+        'target': 'enemy',
+        'recovery_cost': 10,
+        'damage_type': 'ranged_damage',
+        'damage_power': 1.0,
+        'description': 'Leaves the target vulnerable to melee.',
+        'stat_boosts': {'ranged_damage': 0.2, 'melee_damage': 0.2},
+        'effects': [
+            {
+                'status_effect_target_stat': 'melee_vulnerability',
+                'status_effect_power': 2,
+                'status_effect_duration': 5,
+                'status_effect_duration_stat': 'survival_intensity',
+            }
+        ],
+        'illust': """
++-----------------+
+|                 |
+|  \`\        _   |
+| ===N=======(%)> |
+|  ///            |
+|                 |
++-----------------+
+"""
+    },
+    {
+        'name': 'Whistling Shot',
+        'type': 'weapon',
+        'rarity': 'mundane',
+        'target': 'enemy',
+        'recovery_cost': 14,
+        'damage_type': 'ranged_damage',
+        'damage_power': 1.0,
+        'description': 'Leaves the target vulnerable at range.',
+        'stat_boosts': {'ranged_damage': 0.4},
+        'effects': [
+            {
+                'status_effect_target_stat': 'ranged_vulnerability',
+                'status_effect_power': 2,
+                'status_effect_duration': 5,
+                'status_effect_duration_stat': 'survival_intensity',
+            }
+        ],
+        'illust': """
++-----------------+
+|                 |
+|  \`\        _   |
+| ===N=======>K:> |
+|  ///            |
+|                 |
++-----------------+
+"""
+    },
+    {
+        'name': 'Crescent Shot',
+        'type': 'weapon',
+        'rarity': 'mundane',
+        'target': 'enemy',
+        'recovery_cost': 10,
+        'damage_type': 'ranged_damage',
+        'damage_power': 1.0,
+        'description': 'Leaves the target vulnerable to moon.',
+        'stat_boosts': {'ranged_damage': 0.2, 'moon_intensity': 0.2},
+        'effects': [
+            {
+                'status_effect_target_stat': 'moon_vulnerability',
+                'status_effect_power': 2,
+                'status_effect_duration': 5,
+                'status_effect_duration_stat': 'survival_intensity',
+            }
+        ],
+        'illust': """
++-----------------+
+|                 |
+|  \`\         .  |
+| ===N=======N(C  |
+|  ///         `  |
+|                 |
++-----------------+
+"""
+    },
+    {
+        'name': 'Burning Shot',
+        'type': 'weapon',
+        'rarity': 'mundane',
+        'target': 'enemy',
+        'recovery_cost': 10,
+        'damage_type': 'ranged_damage',
+        'damage_power': 1.0,
+        'description': 'Leaves the target vulnerable to star.',
+        'stat_boosts': {'ranged_damage': 0.2, 'star_intensity': 0.2},
+        'effects': [
+            {
+                'status_effect_target_stat': 'star_vulnerability',
+                'status_effect_power': 2,
+                'status_effect_duration': 5,
+                'status_effect_duration_stat': 'survival_intensity',
+            }
+        ],
+        'illust': """
++-----------------+
+|         ~ ;$    |
+|  \`\  ~   S.;   |
+| ===N=======>->  |
+|  ///       `~   |
+|                 |
++-----------------+
+"""
+    },
+    {
+        'name': 'Broken Shot',
+        'type': 'weapon',
+        'rarity': 'mundane',
+        'target': 'enemy',
+        'recovery_cost': 10,
+        'damage_type': 'ranged_damage',
+        'damage_power': 1.0,
+        'description': 'Leaves the target vulnerable to void.',
+        'stat_boosts': {'ranged_damage': 0.2, 'void_intensity': 0.2},
+        'effects': [
+            {
+                'status_effect_target_stat': 'void_vulnerability',
+                'status_effect_power': 2,
+                'status_effect_duration': 5,
+                'status_effect_duration_stat': 'survival_intensity',
+            }
+        ],
+        'illust': """
++-----------------+
+|                 |
+|  \`\            |
+| ===N========Z`  |
+|  ///            |
+|                 |
++-----------------+
+"""
+    },
+    {
+        'name': 'Pinning Shot',
+        'type': 'weapon',
+        'rarity': 'interesting',
+        'target': 'enemy',
+        'recovery_cost': 10,
+        'damage_type': 'ranged_damage',
+        'damage_power': 1.0,
+        'description': 'An attack that slows the target.',
+        'stat_boosts': {'ranged_damage': 0.4, 'nimbleness': 0.4},
+        'effects': [
+            {
+                'status_effect_target_stat': 'nimbleness',
+                'status_effect_power': -2,
+                'status_effect_duration': 5,
+                'status_effect_duration_stat': 'survival_intensity',
+            }
+        ],
+        'illust': """
++-----------------+
+|                 |
+|  \`\        .   |
+| ===N========>-> |
+|  ///        `   |
+|                 |
++-----------------+
+"""
+    },
+    {
         'name': 'Honed Archery',
         'type': 'weapon',
         'rarity': 'interesting',

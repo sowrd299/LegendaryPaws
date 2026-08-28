@@ -93,5 +93,12 @@ def all_unique_effects(card):
     return effects
 
 @register.filter
+def signed(val):
+    if val > 0:
+        return f"+{val}"
+    else:
+        return f"{val}"
+
+@register.filter
 def negate(val):
     return not val

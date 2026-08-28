@@ -122,32 +122,31 @@
         <img class="char-illust" src="{% static char.illust %}" style="width: 100%; margin-top: -40px;" />
         <div class="status_effect_container">
             {% for status_effect in char.status_effects %}
-            {% if status_effect.value > 0 %}
-            <div class="status-effect positive">[+{{ status_effect.value }} {{ status_effect.stat|short_stat_name }} <span style="color: var(--accent-cyan);">{{ status_effect.action_timer }}⧗</span>]</div>
-            {% else %}
-            <div class="status-effect negative">[{{ status_effect.value }} {{ status_effect.stat|short_stat_name }} <span style="color: var(--accent-cyan);">{{ status_effect.action_timer }}⧗</span>]</div>
-            {% endif %}
-            {% endfor %}
-        </div>
+            {% if status_effect.value > 0 and 'vulnerability' not in status_effect.stat or status_effect.value < 0 and 'vulnerability' in status_effect.stat %} <div class="status-effect positive">[{{ status_effect.value|signed }} {{ status_effect.stat|short_stat_name }} <span style="color: var(--accent-cyan);">{{ status_effect.action_timer }}⧗</span>]</div>
+        {% else %}
+        <div class="status-effect negative">[{{ status_effect.value|signed }} {{ status_effect.stat|short_stat_name }} <span style="color: var(--accent-cyan);">{{ status_effect.action_timer }}⧗</span>]</div>
+        {% endif %}
+        {% endfor %}
     </div>
-    {% if char.is_recruited %}
-    {% if party_len < max_party_size %} <p class="card-illust dead-illust">{{ signed_scroll_illust|illust }}</p>
-        {% else %}
-        <p class="card-illust dead-illust">{{ inn_sign_illust|illust }}</p>
-        {% endif %}
-        {% else %}
-        <p class="card-illust dead-illust">{{ dead_illust|illust }}</p>
-        {% endif %}
-        <div class="name">
-            <strong>{{ char.name }}</strong>
-        </div>
-        <div class="hp-bar {% if char.current_hp < char.max_hp|add:'-3' %}low{% endif %}">
-            [{{ char.current_hp }}/{{ char.max_hp }} HP]
-            <span class="turn-label" style="color: var(--accent-cyan)">
-                TURN!
-            </span>
-            <span class="action-timer-label" style="color: var(--accent-cyan)">
-                {{ char.action_timer }}⧗
-            </span>
-        </div>
 </div>
+{% if char.is_recruited %}
+{% if party_len < max_party_size %} <p class="card-illust dead-illust">{{ signed_scroll_illust|illust }}</p>
+    {% else %}
+    <p class="card-illust dead-illust">{{ inn_sign_illust|illust }}</p>
+    {% endif %}
+    {% else %}
+    <p class="card-illust dead-illust">{{ dead_illust|illust }}</p>
+    {% endif %}
+    <div class="name">
+        <strong>{{ char.name }}</strong>
+    </div>
+    <div class="hp-bar {% if char.current_hp < char.max_hp|add:'-3' %}low{% endif %}">
+        [{{ char.current_hp }}/{{ char.max_hp }} HP]
+        <span class="turn-label" style="color: var(--accent-cyan)">
+            TURN!
+        </span>
+        <span class="action-timer-label" style="color: var(--accent-cyan)">
+            {{ char.action_timer }}⧗
+        </span>
+    </div>
+    </div>
