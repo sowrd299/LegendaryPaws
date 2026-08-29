@@ -608,7 +608,7 @@ class CombatEngine:
         rec = ((4 * card.get('recovery_cost', 10)) - nimble) / 4
         enemy.action_timer += int(round(rec))
 
-    def apply_card_effect(self, actor, card, target, is_effect = False):
+    def apply_card_effect(self, actor, card, target, is_effect = False, effect_logs = None):
         """Calculates and applies card damage or healing."""
         actor_stats = actor.get_scaled_stats()
         card_name = card['name']
@@ -627,6 +627,8 @@ class CombatEngine:
             targets = [target]
 
         print(f"[Combat!] Applying card {card_name} to {targets}")
+        if effect_logs is None:
+            effect_logs = []
 
         # Heal calculation
         if 'heal_power' in card:
@@ -639,7 +641,7 @@ class CombatEngine:
             for t in targets:
                 if t and t.is_alive() or card.get('revive'):
                     t.current_hp = min(t.max_hp, t.current_hp + heal_amount)
-                    self.combat_log.append(CombatMessage(0, f"{actor.name} used {card_name} on {t.name}, healing {heal_amount} HP!", card_name))
+                    effect_logs.append(f" on {t.name}, healing {heal_amount} HP")
 
         # Damage calculation
         if 'damage_power' in card:
@@ -662,11 +664,11 @@ class CombatEngine:
 
                 dmg = max(1, int(round(raw_dmg)))
                 t.current_hp = max(0, t.current_hp - dmg)
-                self.combat_log.append(CombatMessage(0, f"{actor.name} used {card_name} on {t.name} for {dmg} damage!", card_name))
+                effect_logs.append(f" on {t.name} for {dmg} damage")
 
                 if t.current_hp == 0 and card.get('can_recruit') and getattr(self, 'is_recruitable', False):
                     t.is_recruited = True
-                    self.combat_log.append(CombatMessage(1, f"{t.name} was successfully recruited!"))
+                    effect_logs.append(f" <span style='color:var(--accent-green)'>{t.name} was successfully recruited</span>")
 
         # status effect caclulatoin
         if 'status_effect_target_stat' in card:
@@ -692,9 +694,9 @@ class CombatEngine:
                 t.add_status_effect(effect)
 
                 if status_effect_val > 0:
-                    self.combat_log.append(CombatMessage(0, f"{actor.name} used {card_name} on {t.name}, {stat_name(target_stat)} has been increased by {status_effect_val}!", card_name))
+                    effect_logs.append(f" on {t.name}, {stat_name(target_stat)} has been increased by {status_effect_val}")
                 else:
-                    self.combat_log.append(CombatMessage(0, f"{actor.name} used {card_name} on {t.name}, {stat_name(target_stat)} has been decreased by {status_effect_val}!", card_name))
+                    effect_logs.append(f" on {t.name}, {stat_name(target_stat)} has been decreased by {status_effect_val}")
 
         # recur onto bonus effects
         for effect in card.get('effects', []):
@@ -704,10 +706,13 @@ class CombatEngine:
             if not 'target' in effect:
                 effect['target'] = card.get('target')
 
-            self.apply_card_effect(actor, effect, target, True)
+            self.apply_card_effect(actor, effect, target, True, effect_logs)
 
         # Using "description as a proxy for cards vs. card effects"
         if not is_effect:
+            effect_logs_text = ";".join(effect_logs)
+            log_text = f"{actor.name} used {card_name}{effect_logs_text}!"
+            self.combat_log.append(CombatMessage(0, log_text, card_name))
             print(f"[Combat!] Turn complete: {', '.join([f'{c.name}: {c.action_timer} ticks' for c in self.allies + self.enemies])}")
 
     def execute_player_turn(self, actor, card_name, target_id):
