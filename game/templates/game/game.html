@@ -739,6 +739,12 @@
                     {% endfor %}
                 </div>
             </form>
+            {% elif not combat_engine.is_over %}
+            <form method="POST" action="{% url 'handle_action' %}" style="margin-top: 16px;">
+                {% csrf_token %}
+                <input type="hidden" name="action_type" value="advance_combat">
+                {% include "game/button.html" with key="_" label="Continue" %}
+            </form>
             {% endif %}
         </div>
         {% endif %}

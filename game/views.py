@@ -74,6 +74,20 @@ def save_game_state(request, state):
     request.session.modified = True
 
 
+def advance_enemy_turns(engine):
+    """Process subsequent enemy turns automatically until player turn or combat end"""
+
+    while not engine.is_over:
+        next_char = engine.advance_action_timers()
+        if not next_char:
+            break
+        if next_char in engine.enemies:
+            engine.execute_enemy_turn(next_char)
+            engine.check_combat_end()
+        else:
+            break  # It's player turn again!
+
+
 def game_index(request):
     """Renders main game screen based on current session state."""
     state = get_game_state(request)
@@ -464,18 +478,17 @@ def handle_action(request):
                             engine.discard_pile.remove(card_name)
 
                 engine.check_combat_end()
+                if not engine.is_over:
+                    advance_enemy_turns(engine)
 
-                # Process subsequent enemy turns automatically until player turn or combat end
-                while not engine.is_over:
-                    next_char = engine.advance_action_timers()
-                    if not next_char:
-                        break
-                    if next_char in engine.enemies:
-                        engine.execute_enemy_turn(next_char)
-                        engine.check_combat_end()
-                    else:
-                        break  # It's player turn again!
-                
+                state['combat'] = engine.to_dict()
+
+    elif action_type == "advance_combat":
+        combat_dict = state.get('combat')
+        if combat_dict:
+            engine = CombatEngine.from_dict(combat_dict)
+            if not engine.is_over:
+                advance_enemy_turns(engine)
                 state['combat'] = engine.to_dict()
 
     elif action_type == "combat_end":
