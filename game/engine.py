@@ -664,7 +664,7 @@ class CombatEngine:
             status_effect_power = card.get('status_effect_power', 1)
             status_effect_stat = card.get('status_effect_stat')
             status_effect_duration = card.get('status_effect_duration', 1)
-            status_effect_duration_type = card.get('status_effect_duration_type')
+            status_effect_duration_type = card.get('status_effect_duration_stat')
             
             status_effect_val = status_effect_power
             if status_effect_stat:
