@@ -53,6 +53,7 @@ STAT_NAME_REPLACEMENTS = {
         "_damage": "D",
         "_resistance": "R",
         "_vulnerability": "V",
+        "nimbleness": "N",
     }
 
 @register.filter
