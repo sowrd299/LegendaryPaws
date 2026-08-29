@@ -822,7 +822,8 @@ class CombatMessage(Message):
 
     @property
     def card(self):
-        if self.card_name and RARITIES.index(CARDS[self.card_name].get('rarity')) < RARITIES.index(self.MIN_RARITY):
+        rarity = CARDS.get(self.card_name, {}).get('rarity', '')
+        if self.card_name and ((rarity not in RARITIES) or (RARITIES.index(rarity) < RARITIES.index(self.MIN_RARITY))):
             return None
         else:
             return super().card
