@@ -2,22 +2,22 @@ ILLUSTRATION_DATA = [
     {
         'name': 'cat_soul',
         'species': ['Cat'],
-        'classes': ['Soul'],
+        'classes': ['Soul', 'Essence'],
     },
     {
         'name': 'cat_husk',
         'species': ['Cat'],
-        'classes': ['Husk', 'Rotmonger'],
+        'classes': ['Husk', 'Hollow', 'Rotmonger'],
     },
     {
         'name': 'badger_soul',
         'species': ['Badger'],
-        'classes': ['Soul'],
+        'classes': ['Soul', 'Essence'],
     },
     {
         'name': 'badger_husk',
         'species': ['Badger'],
-        'classes': ['Husk'],
+        'classes': ['Husk', 'Hollow'],
     },
     {
         'name': 'badger_rotmonger',
@@ -27,12 +27,12 @@ ILLUSTRATION_DATA = [
     {
         'name': 'fox_soul',
         'species': ['Fox'],
-        'classes': ['Soul'],
+        'classes': ['Soul', 'Essence'],
     },
     {
         'name': 'fox_husk',
         'species': ['Fox'],
-        'classes': ['Husk'],
+        'classes': ['Husk', 'Hollow'],
     },
     {
         'name': 'fox_rotmonger',
@@ -42,22 +42,22 @@ ILLUSTRATION_DATA = [
     {
         'name': 'rabbit_soul',
         'species': ['Rabbit'],
-        'classes': ['Soul'],
+        'classes': ['Soul', 'Essence'],
     },
     {
         'name': 'rabbit_husk',
         'species': ['Rabbit'],
-        'classes': ['Husk', 'Rotmonger'],
+        'classes': ['Husk', 'Hollow', 'Rotmonger'],
     },
     {
         'name': 'owl_soul',
         'species': ['Owl'],
-        'classes': ['Soul'],
+        'classes': ['Soul', 'Essence'],
     },
     {
         'name': 'owl_husk',
         'species': ['Owl'],
-        'classes': ['Husk', 'Rotmonger'],
+        'classes': ['Husk', 'Hollow', 'Rotmonger'],
     },
     {
         'name': 'fox_student',
@@ -92,7 +92,7 @@ ILLUSTRATION_DATA = [
     {
         'name': 'raven_husk',
         'species': ['Raven'],
-        'classes': ['Husk'],
+        'classes': ['Husk', 'Hollow'],
     },
     {
         'name': 'raven_rotmonger',
@@ -102,12 +102,12 @@ ILLUSTRATION_DATA = [
     {
         'name': 'dragonling_husk',
         'species': ['Dragonling'],
-        'classes': ['Husk', 'Rotmonger'],
+        'classes': ['Husk', 'Hollow', 'Rotmonger'],
     },
     {
         'name': 'bear_husk',
         'species': ['Giant'],
-        'classes': ['Husk', 'Rotmonger'],
+        'classes': ['Husk', 'Hollow', 'Rotmonger'],
     },
     {
         'name': 'blackcloak',

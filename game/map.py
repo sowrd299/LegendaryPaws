@@ -138,85 +138,51 @@ DEFAULT_ODD_REWARD_CARDS = [
     'Battlesong',
 ]
 
-DEFAULT_ENCOUNTER_DATA = {
-    '.': [
+
+def default_encounter_data(target_level): 
+
+    reward_cards = DEFAULT_REWARD_CARDS
+    if target_level >= 4:
+        reward_cards += DEFAULT_ODD_REWARD_CARDS
+
+    return [
         {
-            'chance': 0.2,
+            'chance': 0.1,
             'min_enemies': 1,
             'max_enemies': 1,
             'species': ALL_PLAYABLE_SPECIES,
             'classes': ['Student', 'Squire', 'Scout'],
-            'target_level': 2,
+            'target_level': target_level + 2,
             'is_recruitable': True,
             'cards_by_class': DEFAULT_CLASS_STARTER_CARDS,
             'names': DEFAULT_CHARACTER_NAMES,
-        },
-        {
-            'chance': 0.1,
-            'min_enemies': 2,
-            'max_enemies': 2,
-            'species': ['Cat', 'Fox', 'Rabbit', 'Owl', 'Raven', 'Dragonling'],
-            'classes': ['Husk']
-        },
-        {
-            'chance': 0.1,
-            'min_enemies': 2,
-            'max_enemies': 2,
-            'species': ['Badger', 'Cat', 'Fox', 'Owl'],
-            'classes': ['Husk', 'Soul']
-        },
-    ],
-    'R': [
-        {
-            'chance': 1,
-            'min_enemies': 3,
-            'max_enemies': 4,
-            'species': ['Badger', 'Cat', 'Fox', 'Rabbit', 'Raven', 'Giant'],
-            'classes': ['Husk', 'Rotmonger'],
-            'reward_cards': DEFAULT_ODD_REWARD_CARDS,
-        },
-    ],
-    '^': [
-        {
-            'chance': 0.3,
-            'min_enemies': 2,
-            'max_enemies': 4,
-            'species': ['Badger', 'Cat', 'Fox', 'Rabbit', 'Owl'],
-            'classes': ['Husk', 'Soul', 'Rotmonger'],
-            'reward_cards': DEFAULT_REWARD_CARDS + DEFAULT_ODD_REWARD_CARDS,
-        },
-        {
-            'chance': 0.3,
-            'min_enemies': 2,
-            'max_enemies': 4,
-            'species': ['Cat', 'Fox', 'Rabbit', 'Giant'],
-            'classes': ['Husk'],
-            'reward_cards': DEFAULT_REWARD_CARDS + DEFAULT_ODD_REWARD_CARDS,
-        }
-    ],
-    '↟': [
-        {
-            'chance': 0.3,
-            'min_enemies': 1,
-            'max_enemies': 1,
-            'species': ALL_PLAYABLE_SPECIES,
-            'classes': ['Student', 'Squire', 'Scout'],
-            'target_level': 4,
-            'is_recruitable': True,
-            'cards_by_class': DEFAULT_CLASS_STARTER_CARDS,
-            'names': DEFAULT_CHARACTER_NAMES,
+            'reward_cards': reward_cards
         },
         {
             'chance': 0.5,
-            'min_enemies': 2,
+            'min_enemies': 3,
             'max_enemies': 4,
+            'target_level': target_level,
             'species': ['Badger', 'Cat', 'Fox', 'Rabbit', 'Owl'],
-            'classes': ['Husk', 'Soul', 'Rotmonger'],
-            'reward_cards': DEFAULT_REWARD_CARDS + ['Flowering Stab'],
+            'classes': ['Hollow', 'Essence', 'Rotmonger'],
+            'reward_cards': reward_cards
         }
-    ],
-    '_': [ ]
-}
+    ]
+
+
+DEFAULT_SHOP_ILLUST = """
++--------------------------------------------------------------------------------------------------+
+| | || |                        \---/                                              |\|             |
+|_|U||U|____                    |   |                                            . |/| .           |
+|___________}                  / *   \                                         @=J=====J=@         |
+|      \&/                    | o * * |                         __                | | |            |
+|       U                     |   * o |                      __((@)_              | $ |            |
+|                          ____\_____/______________________((@)-((@)__           | | |            |
+|                         {____________________________________________}          | | |            |
+|                          \|             |                    |     |/           |   |            |
+|                           |       |                          @     |            |   |            |
++--------------------------------------------------------------------------------------------------+
+"""
 
 
 class MapZone:
@@ -408,19 +374,7 @@ MAP_ZONES = [
                     ('Wax', 15),
                     ('Potion', 5),
                 ],
-                'illust': """
-+--------------------------------------------------------------------------------------------------+
-| | || |                        \---/                                              |\|             |
-|_|U||U|____                    |   |                                            . |/| .           |
-|___________}                  / *   \                                         @=J=====J=@         |
-|      \&/                    | o * * |                         __                | | |            |
-|       U                     |   * o |                      __((@)_              | $ |            |
-|                          ____\_____/______________________((@)-((@)__           | | |            |
-|                         {____________________________________________}          | | |            |
-|                          \|             |                    |     |/           |   |            |
-|                           |       |                          @     |            |   |            |
-+--------------------------------------------------------------------------------------------------+
-""",
+                'illust': DEFAULT_SHOP_ILLUST,
                 'dialogues': [
                     ("Badgy", "Welcome in! You know, brigands like yourself are becoming awfully popular with this Rot about. " +
                     "I'm trying to stay stock with what you lot like. I hear there are lots of brigands out in the woods; " +
@@ -453,7 +407,85 @@ MAP_ZONES = [
                 'should_reset_losable_gold': True,
             },
         ],
-        encounter_data=DEFAULT_ENCOUNTER_DATA,
+        encounter_data= {
+            '.': [
+                {
+                    'chance': 0.2,
+                    'min_enemies': 1,
+                    'max_enemies': 1,
+                    'species': ALL_PLAYABLE_SPECIES,
+                    'classes': ['Student', 'Squire', 'Scout'],
+                    'target_level': 2,
+                    'is_recruitable': True,
+                    'cards_by_class': DEFAULT_CLASS_STARTER_CARDS,
+                    'names': DEFAULT_CHARACTER_NAMES,
+                },
+                {
+                    'chance': 0.1,
+                    'min_enemies': 2,
+                    'max_enemies': 2,
+                    'species': ['Cat', 'Fox', 'Rabbit', 'Owl', 'Raven', 'Dragonling'],
+                    'classes': ['Husk']
+                },
+                {
+                    'chance': 0.1,
+                    'min_enemies': 2,
+                    'max_enemies': 2,
+                    'species': ['Badger', 'Cat', 'Fox', 'Owl'],
+                    'classes': ['Husk', 'Soul']
+                },
+            ],
+            'R': [
+                {
+                    'chance': 1,
+                    'min_enemies': 3,
+                    'max_enemies': 4,
+                    'species': ['Badger', 'Cat', 'Fox', 'Rabbit', 'Raven', 'Giant'],
+                    'classes': ['Husk', 'Rotmonger'],
+                    'reward_cards': DEFAULT_ODD_REWARD_CARDS,
+                },
+            ],
+            '^': [
+                {
+                    'chance': 0.3,
+                    'min_enemies': 2,
+                    'max_enemies': 4,
+                    'species': ['Badger', 'Cat', 'Fox', 'Rabbit', 'Owl'],
+                    'classes': ['Husk', 'Soul', 'Rotmonger'],
+                    'reward_cards': DEFAULT_REWARD_CARDS + DEFAULT_ODD_REWARD_CARDS,
+                },
+                {
+                    'chance': 0.3,
+                    'min_enemies': 2,
+                    'max_enemies': 4,
+                    'species': ['Cat', 'Fox', 'Rabbit', 'Giant'],
+                    'classes': ['Husk'],
+                    'reward_cards': DEFAULT_REWARD_CARDS + DEFAULT_ODD_REWARD_CARDS,
+                }
+            ],
+            '↟': [
+                {
+                    'chance': 0.3,
+                    'min_enemies': 1,
+                    'max_enemies': 1,
+                    'species': ALL_PLAYABLE_SPECIES,
+                    'classes': ['Student', 'Squire', 'Scout'],
+                    'target_level': 4,
+                    'is_recruitable': True,
+                    'cards_by_class': DEFAULT_CLASS_STARTER_CARDS,
+                    'names': DEFAULT_CHARACTER_NAMES,
+                },
+                {
+                    'chance': 0.5,
+                    'min_enemies': 2,
+                    'max_enemies': 4,
+                    'species': ['Badger', 'Cat', 'Fox', 'Rabbit', 'Owl'],
+                    'classes': ['Husk', 'Soul', 'Rotmonger'],
+                    'reward_cards': DEFAULT_REWARD_CARDS + ['Flowering Stab'],
+                }
+            ],
+            '_': [ ]
+        },
         tile_descriptions=dict(DEFAULT_TILE_DESCRIPTIONS, **{
             '_': ('New Dunton Village', 'Peaceful, well defended flagstone paths. The Rot won\'t get you here.'),
         }),
@@ -489,17 +521,17 @@ MAP_ZONES = [
                 ".........______...^",
                 "...................",
                 "..................^",
+                "...............R.^^",
+                "..............R.^^^",
+                "................^^^",
+                "............R..^.^^",
                 ".................^^",
-                "................^^^",
-                "................^^^",
-                "................^^^",
-                "...............^.^^",
-                ".................^^",
-                "..................^",
-                "................^^.",
-                "................^..",
-                "...................",
-                "...................",
+                "..↟.↟↟........R...^",
+                ".↟↟↟↟↟↟↟........^^.",
+                "↟   ↟↟↟↟↟........^..",
+                "↟   ↟↟↟↟↟↟.....^...",
+                "↟   ↟↟↟↟↟..↟..↟....",
+                "↟↟↟↟↟↟↟↟↟↟...↟↟↟...",
         ],
         offset_x=-19,
         offset_y=0,
@@ -512,19 +544,7 @@ MAP_ZONES = [
                     ('Elementary Magic', 60),
                     ('Simple Trap', 60),
                 ],
-                'illust': """
-+--------------------------------------------------------------------------------------------------+
-| | || |                        \---/                                              |\|             |
-|_|U||U|____                    |   |                                            . |/| .           |
-|___________}                  / *   \                                         @=J=====J=@         |
-|      \&/                    | o * * |                         __                | | |            |
-|       U                     |   * o |                      __((@)_              | $ |            |
-|                          ____\_____/______________________((@)-((@)__           | | |            |
-|                         {____________________________________________}          | | |            |
-|                          \|             |                    |     |/           |   |            |
-|                           |       |                          @     |            |   |            |
-+--------------------------------------------------------------------------------------------------+
-""",
+                'illust': DEFAULT_SHOP_ILLUST,
                 'dialogues': [
                     ("Sally", "Learning's a wonderful thing, isn't it? Be carefuly though; get too close to " + 
                     "some these things and you just might not recognize yourself."),
@@ -541,19 +561,7 @@ MAP_ZONES = [
                     ('Potion', 5),
                     ('Rotten Egg', 20)
                 ],
-                'illust': """
-+--------------------------------------------------------------------------------------------------+
-| | || |                        \---/                                              |\|             |
-|_|U||U|____                    |   |                                            . |/| .           |
-|___________}                  / *   \                                         @=J=====J=@         |
-|      \&/                    | o * * |                         __                | | |            |
-|       U                     |   * o |                      __((@)_              | $ |            |
-|                          ____\_____/______________________((@)-((@)__           | | |            |
-|                         {____________________________________________}          | | |            |
-|                          \|             |                    |     |/           |   |            |
-|                           |       |                          @     |            |   |            |
-+--------------------------------------------------------------------------------------------------+
-""",
+                'illust': DEFAULT_SHOP_ILLUST,
                 'dialogues': [
                     ("Old Man Hemlock", "Oh, you came from Dunton you say? Not many people cross the little mountains now that they're all covered in Rot. " +
                     "Just brigands that mad tortoise by my count."),
@@ -585,9 +593,110 @@ MAP_ZONES = [
                 'should_reset_losable_gold': True,
             },
         ],
-        encounter_data=DEFAULT_ENCOUNTER_DATA,
+        encounter_data = {
+            '.': default_encounter_data(1),
+            '^': default_encounter_data(2),
+            'R': default_encounter_data(7),
+            '↟': default_encounter_data(4),
+            '_': [],
+        },
         tile_descriptions=dict(DEFAULT_TILE_DESCRIPTIONS, **{
             '_': ('The Village of Yonder', 'A quiet village in the shadow of the little mountains.'),
+        }),
+    ),
+
+    # The Sprite Village
+    MapZone(
+        grid=[
+                "S↟↟",
+                "↟↟↟",
+                "↟↟S",
+        ],
+        offset_x=-18,
+        offset_y=14,
+        shop_data=[
+            {
+                'title': 'Wands for Wanderers',
+                'items': [
+                    ('Ash Wand', 100),
+                    ('Driftwood Wand', 100),
+                    ('Fossil Wand', 100),
+                ],
+                'illust': DEFAULT_SHOP_ILLUST,
+                'dialogues': [
+                    ("Wand Selling Sprite", "A bad mage can't use a wand, a better mage is even better with one, a great mage doesn't have hands, a mediocre mage " +
+                    "is a menance with a wand, a middling mage with a want is a question of if they figure out which end is up..."),
+                    ("Wand Selling Sprite", "We used to have visitors of the other folks all the time, then they went on about a sudden \"Rot\" and we've barely seen " +
+                    "anyone since. Say, are you Rotten? Is that why you're here? Hard to tell with that bizzar body of yours."),
+                ],
+                'should_reset_losable_gold': False,
+            },
+            {
+                'title': 'Scrolls for Scoundrels',
+                'items': [
+                    ('New Moon', 100)
+                ],
+                'illust': DEFAULT_SHOP_ILLUST,
+                'dialogues': [
+                    ("Scroll Selling Sprite", "We used to have visitors of the other folks all the time, then they went on about a sudden \"Rot\" and we've barely seen " +
+                    "anyone since. Say, are you Rotten? Is that why you're here? Hard to tell with that bizzar body of yours."),
+                ],
+                'should_reset_losable_gold': False, 
+            }
+        ],
+        encounter_data={
+            '.': [
+                {
+                    'chance': .2,
+                    'min_enemies': 1,
+                    'max_enemies': 3,
+                    'species': ['Ember Sprite', 'Dew Sprite', 'Loss Sprite'],
+                    'classes': ['Day Mage', 'Night Mage', 'Passage Mage'],
+                    'cards_by_class': {
+                        'Day Mage': {
+                            'weapon': ['Ash Wand'],
+                            'scroll': ['Singe Breath', 'Singeing Sunlight'],
+                        },
+                        'Night Mage': {
+                            'weapon': ['Driftwood Wand'],
+                            'scroll': ['Wain', 'Woe'],
+                        },
+                        'Passage Mage': {
+                            'weapon': ['Fossil Wand'],
+                            'scroll': ['Chill Breath', 'Call to the Void'],
+                        },
+                    },
+                    'target_level': 5,
+                    'reward_cards': DEFAULT_ODD_REWARD_CARDS,
+                },
+                {
+                    'chance': .2,
+                    'min_enemies': 1,
+                    'max_enemies': 3,
+                    'species': ['Ember Sprite', 'Dew Sprite', 'Loss Sprite'],
+                    'classes': ['Day Mage', 'Night Mage', 'Passage Mage'],
+                    'cards_by_class': {
+                        'Day Mage': {
+                            'weapon': ['Ash Wand'],
+                            'scroll': ['Singe Breath', 'Singeing Sunlight'],
+                        },
+                        'Night Mage': {
+                            'weapon': ['Driftwood Wand'],
+                            'scroll': ['Wain', 'Woe'],
+                        },
+                        'Passage Mage': {
+                            'weapon': ['Fossil Wand'],
+                            'scroll': ['Chill Breath', 'Call to the Void'],
+                        },
+                    },
+                    'target_level': 5,
+                    'is_recruitable': True,
+                    'reward_cards': DEFAULT_ODD_REWARD_CARDS,
+                },
+            ],
+        },
+        tile_descriptions=dict(DEFAULT_TILE_DESCRIPTIONS, **{
+            '↟': ('The Hamlet of the Sprites', 'An eclectic home in the forest; both a testament to their magical craft, and a study in their lack of understanding of mortal needs or mortal fear. Many spites welcome outsiders into the hamlet, but many do not.'),
         }),
     ),
 ]

@@ -158,14 +158,24 @@ CLASS_DATA = {
     # ====================================================================================================
     
     'Husk': {
-        'bonus_stats': ['ranged_damage', 'star_vulnerability'],
-        'stat_mods': {'brute_intensity' : -2, 'brute_resistance': -1, 'nimbleness': -3, 'haleness': -5.0,},
+        'bonus_stats': ['star_vulnerability'],
+        'stat_mods': {'brute_intensity' : -2, 'brute_resistance': -1, 'nimbleness': -3, 'haleness': -5.0, 'star_vulnerability': 1},
+        'default_cards': ['Slash', 'Heavy Slash']
+    },
+    'Hollow': {
+        'bonus_stats': ['star_vulnerability'],
+        'stat_mods': {'brute_intensity' : 2, 'brute_resistance': 2, 'star_vulnerability': 2, 'haleness': 2},
         'default_cards': ['Slash', 'Heavy Slash']
     },
     'Soul': {
         'bonus_stats': ['void_intensity', 'moon_vulnerability'],
         'stat_mods': {'brute_intensity' : -4, 'brute_resistance': -1, 'nimbleness': -3, 'haleness': -8.0, 'void_intensity': 2, 'moon_vulnerability': 5},
         'default_cards': ['Light Slash', 'Chill', 'Chill Breath']
+    },
+    'Essence': {
+        'bonus_stats': ['void_intensity', 'moon_vulnerability'],
+        'stat_mods': {'brute_resistance': 1, 'void_intensity': 5, 'nimbleness': 1, 'moon_vulnerability': 9},
+        'default_cards': ['Light Slash', 'Chill', 'Chill Breath', 'Call to the Void']
     },
     'Rotmonger': {
         'bonus_stats': ['moon_intensity', 'star_vulnerability'],

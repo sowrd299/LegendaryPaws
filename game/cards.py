@@ -745,6 +745,99 @@ CARD_DATA = [
     },
 
 # ==================================================================================================
+#  WANDS 
+# ==================================================================================================
+
+    {
+        'name': 'Driftwood Wand',
+        'type': 'weapon',
+        'rarity': 'interesting',
+        'target': 'enemy',
+        'damage_type': 'moon_intensity',
+        'damage_power': 1.0,
+        'recovery_cost': 15,
+        'description': 'Amplifies the user\'s moon magic.',
+        'stat_boosts': {'moon_intensity': 0.5},
+        'effects': [
+            {
+                'target': 'self',
+                'status_effect_target_stat': 'moon_intensity',
+                'status_effect_power': 2,
+                'status_effect_duration': 10,
+                'status_effect_duration_stat': 'moon_intensity',
+            },
+        ],
+        'illust': """
++-----------------+
+|(C     (0)       |
+| `      /(       |
+|       \|/       |
+|       )|        |
+|       |(        |
++-----------------+
+"""
+    },
+    {
+        'name': 'Ash Wand',
+        'type': 'weapon',
+        'rarity': 'interesting',
+        'target': 'enemy',
+        'damage_type': 'star_intensity',
+        'damage_power': 1.0,
+        'recovery_cost': 15,
+        'description': 'Amplifies the user\'s star magic.',
+        'stat_boosts': {'star_intensity': 0.5},
+        'effects': [
+            {
+                'target': 'self',
+                'status_effect_target_stat': 'star_intensity',
+                'status_effect_power': 2,
+                'status_effect_duration': 10,
+                'status_effect_duration_stat': 'star_intensity',
+            },
+        ],
+        'illust': """
++-----------------+
+|    *  (Z)    *  |
+| *     \//       |
+|    *  ]K    *   |
+|  *     )[     * |
+|        ](       |
++-----------------+
+"""
+    },
+    {
+        'name': 'Fossil Wand',
+        'type': 'weapon',
+        'rarity': 'interesting',
+        'target': 'enemy',
+        'damage_type': 'void_intensity',
+        'damage_power': 1.0,
+        'recovery_cost': 15,
+        'description': 'Amplifies the user\'s void magic.',
+        'stat_boosts': {'void_intensity': 0.5},
+        'effects': [
+            {
+                'target': 'self',
+                'status_effect_target_stat': 'void_intensity',
+                'status_effect_power': 2,
+                'status_effect_duration': 10,
+                'status_effect_duration_stat': 'void_intensity',
+            },
+        ],
+        'illust': """
++-----------------+
+|  `    (Q)    ' '|
+|       ]]|       |
+|`       |:      -|
+|       [:|       |
+| ,  ,  ||    ,   |
++-----------------+
+"""
+    },
+
+
+# ==================================================================================================
 # MOON INTENSITY
 # ==================================================================================================
 
@@ -828,6 +921,27 @@ CARD_DATA = [
 +-----------------+
 """
     },
+    {
+        'name': 'New Moon',
+        'type': 'scroll',
+        'rarity': 'odd',
+        'target': 'ally',
+        'recovery_cost': 15,
+        'heal_power': 2.0,
+        'heal_stat': 'moon_intensity',
+        'description': 'Revives a fallen ally.',
+        'stat_boosts': {'moon_intensity': 0.4, 'moon_resistance': 0.3, 'star_vulnerability': 0.3},
+        'revive': True,
+        'illust': """
++-----------------+
+| /             \ |
+|'|             |'|
+| \             / |
+|* \,        .//  |
+| * `\,_.__.//' * |
++-----------------+
+"""
+    },
     {   # Pull of tides is a historical card, not currently the direction for cards I currently want to ship
         'name': 'Pull of Tides',
         'type': 'scroll',
@@ -883,7 +997,7 @@ CARD_DATA = [
         'recovery_cost': 25,
         'damage_type': 'star_intensity',
         'damage_power': 2.0,
-        'description': 'Magic spell dealing damage to all enemies.',
+        'description': 'Deals damage to all enemies.',
         'stat_boosts': {'star_intensity': 0.4, 'star_resistance': 0.3, 'void_vulnerability': 0.3},
         'illust': """
 +-----------------+
@@ -1051,7 +1165,7 @@ CARD_DATA = [
         'rarity': 'interesting',
         'target': 'self',
         'recovery_cost': 10,
-        'description': 'A quiver that boosts the user\'s archery and nimbleness.',
+        'description': 'Boosts the user\'s archery and nimbleness.',
         'stat_boosts': {'ranged_damage': 0.3, 'nimbleness': 0.2},
         'effects': [
             {
