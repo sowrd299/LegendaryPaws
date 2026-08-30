@@ -243,6 +243,7 @@ class Character:
         self.update_max_hp()
         self.current_hp = self.max_hp
         self.action_timer = 0
+        self.previous_eligible_classes = []
         self.equipped_cards = []  # Specific equipped cards
         self.is_recruited = False
 
@@ -413,24 +414,43 @@ class Character:
         return can_equip, replaced_card_name
 
     def update_class(self):
-        for class_name in reversed(CLASS_DATA):
-            if class_name != self.current_class:
-                cl = CLASS_DATA[class_name]
-                has_class_req = 'req_class' in cl
-                has_card_req = 'req_card' in cl
-                has_level_req = 'req_level' in cl
-                has_species_req = 'req_species' in cl
 
-                if not has_class_req and not has_card_req and not has_level_req and not has_species_req:
-                    continue
+        new_class = self.current_class
 
-                class_req = not has_class_req or self.current_class in cl.get('req_class')
-                card_req = not has_card_req or any(c in self.equipped_cards for c in cl.get('req_card'))
-                level_req = not has_level_req or self.get_scaled_stats().get('level', 1) >= cl.get('req_level')
-                species_req = not has_species_req or self.species in cl.get('req_species')
+        eligible_classes = []
 
-                if class_req and card_req and level_req and species_req:
-                    self.current_class = class_name
+        for class_name in CLASS_DATA:
+            cl = CLASS_DATA[class_name]
+            has_class_req = 'req_class' in cl
+            has_card_req = 'req_card' in cl
+            has_level_req = 'req_level' in cl
+            has_species_req = 'req_species' in cl
+
+            if not has_class_req and not has_card_req and not has_level_req and not has_species_req:
+                continue
+
+            class_req = not has_class_req or self.current_class in cl.get('req_class')
+            card_req = not has_card_req or any(c in self.equipped_cards for c in cl.get('req_card'))
+            level_req = not has_level_req or self.get_scaled_stats().get('level', 1) >= cl.get('req_level')
+            species_req = not has_species_req or self.species in cl.get('req_species')
+
+            if (has_class_req and class_req) or (has_card_req and card_req) or  (has_level_req and level_req) or (has_species_req and species_req):
+                print(f"[XP!] Considering {self.name} for {class_name}: "
+                    f"class_req={class_req}, "
+                    f"card_req={card_req}, "
+                    f"level_req={level_req}, "
+                    f"species_req={species_req}, "
+                    f"newly eligible={class_name not in self.previous_eligible_classes}")
+
+            if class_req and card_req and level_req and species_req:
+                eligible_classes.append(class_name)
+                
+                # the newly eligible class lowest on the list is the new class
+                if not class_name in self.previous_eligible_classes:
+                    new_class = class_name
+
+        self.previous_eligible_classes = eligible_classes
+        self.current_class = new_class
 
     def update_max_hp(self): 
         scaled_stats = self.get_scaled_stats()
@@ -453,6 +473,7 @@ class Character:
             'name': self.name,
             'species': self.species,
             'current_class': self.current_class,
+            'previous_eligible_classes': self.previous_eligible_classes,
             'level_up_cards': self.level_up_cards,
             'current_hp': self.current_hp,
             'max_hp': self.max_hp,
@@ -472,6 +493,7 @@ class Character:
             current_class=d.get('current_class', 'Wandering Spellsword'),
             level_up_cards=cards
         )
+        c.previous_eligible_classes = d.get('previous_eligible_classes', [])
         c.equipped_cards = d.get('equipped_cards', [])
         c.is_recruited = d.get('is_recruited', False)
         # Recalculate max_hp based on state
@@ -569,6 +591,8 @@ class CombatEngine:
         for c in self.allies + self.enemies:
             c.action_timer = 20 - c.get_scaled_stats().get("nimbleness", 0)
 
+        self.advance_action_timers()
+
         # Build party shared deck
         deck_pool = list(self.shared_deck)
         while len(deck_pool) < DECK_MINIMUM_SIZE:
@@ -619,7 +643,11 @@ class CombatEngine:
                 if c.is_alive():
                     c.advance_action_timer(min_timer)
 
-        print(f"[Combat!] Start of turn: {', '.join([f'{c.name}: {c.action_timer} ticks' for c in self.allies + self.enemies])}")
+        def get_tick_info_string(character):
+            status_effect_string = ', '.join([f'{s.action_timer}' for s in character.status_effects])
+            return f'{character.name}: {character.action_timer} ticks ({status_effect_string})'
+
+        print(f"[Combat!] Start of turn: {', '.join([get_tick_info_string(c) for c in self.allies + self.enemies])}")
         return turn_char
 
     def execute_enemy_turn(self, enemy):
@@ -732,7 +760,7 @@ class CombatEngine:
                 if not t or not t.is_alive():
                     continue
                 
-                effect = StatusEffect(target_stat, status_effect_val, status_effect_duration)
+                effect = StatusEffect(target_stat, status_effect_val, status_effect_duration_val)
                 t.add_status_effect(effect)
 
                 if status_effect_val > 0:
@@ -755,7 +783,11 @@ class CombatEngine:
             effect_logs_text = ";".join(effect_logs)
             log_text = f"{actor.name} used {card_name}{effect_logs_text}!"
             self.combat_log.append(CombatMessage(0, log_text, card_name))
-            print(f"[Combat!] Turn complete: {', '.join([f'{c.name}: {c.action_timer} ticks' for c in self.allies + self.enemies])}")
+            def get_tick_info_string(character):
+                status_effect_string = ', '.join([f'{s.action_timer}' for s in character.status_effects])
+                return f'{character.name}: {character.action_timer} ticks ({status_effect_string})'
+
+            print(f"[Combat!] Turn complete: {', '.join([get_tick_info_string(c) for c in self.allies + self.enemies])}")
 
     def execute_player_turn(self, actor, card_name, target_id):
         """Processes player character turn using card_name and target_id."""
