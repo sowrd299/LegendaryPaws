@@ -401,10 +401,12 @@ class Character:
         for equipped_card_name in self.equipped_cards:
             equipped_card = CARDS[equipped_card_name]
             if card.get('type') == equipped_card.get('type'):
-                if equipped_card.get('rarity') == 'peerless':
+                if equipped_card_name == card.get('name', ''):
+                    can_equip = False
+                elif equipped_card.get('rarity') == 'peerless':
                     can_equip = False
                 elif RARITIES.index(equipped_card.get('rarity')) > RARITIES.index(card.get('rarity')):
-                        can_equip = False
+                    can_equip = False
                 else:
                     replaced_card_name = equipped_card_name
         
