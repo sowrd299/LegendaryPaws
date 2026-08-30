@@ -437,12 +437,23 @@ MAP_ZONES = [
             ],
             'R': [
                 {
-                    'chance': 1,
+                    'chance': 0.8,
                     'min_enemies': 3,
                     'max_enemies': 4,
                     'species': ['Badger', 'Cat', 'Fox', 'Rabbit', 'Raven', 'Giant'],
                     'classes': ['Husk', 'Rotmonger'],
                     'reward_cards': DEFAULT_ODD_REWARD_CARDS,
+                },
+                {
+                    'chance': 0.2,
+                    'min_enemies': 1,
+                    'max_enemies': 1,
+                    'species': ['Dragon'],
+                    'classes': ['Matron'],
+                    'reward_min_gold': 60,
+                    'reward_max_gold': 80,
+                    'reward_cards': ['Dragonsbane'],
+                    'names': ['Rotmatron'],
                 },
             ],
             '^': [

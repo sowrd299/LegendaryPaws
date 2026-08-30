@@ -56,7 +56,8 @@ SPECIES_DATA = {
                   'star_intensity': -3.0, 'moon_intensity': -3.0, 'void_intensity': -3.0},
 
     # Enemy specific species
-    'Giant': {'brute_itentsity': 15, 'brute_resistance': 15.0, 'haleness': 8.0},
+    'Giant': {'brute_intensity': 15, 'brute_resistance': 15.0, 'haleness': 8.0},
+    'Dragon': {'brute_intensity': 25, 'brute_resistance': 15.0, 'haleness': 25.0, 'nimbleness': 25},
 }
 
 CLASS_DATA = {
@@ -152,6 +153,12 @@ CLASS_DATA = {
         'default_cards': ['Parry'],
         'req_card': ['Flowering Stab'],
     },
+    'Dragonslayer': {
+        'bonus_stats': ['melee_damage', 'void_intensity', 'star_resistance', 'moon_vulnerability'],
+        'stat_mods': {'level': 3, 'haleness': 5, 'melee_damage': 5.0, 'void_intensity': 5.0, 'star_resistance': 5.0, 'moon_vulnerability': 3.0},
+        'default_cards': [],
+        'req_card': ['Dragonsbane'],
+    },
 
     # ====================================================================================================
     # ENEMY CLASSES
@@ -181,6 +188,17 @@ CLASS_DATA = {
         'bonus_stats': ['moon_intensity', 'star_vulnerability'],
         'stat_mods': {'brute_intensity' : 0, 'brute_resistance': 3, 'nimbleness': -9, 'haleness': 3.0, 'moon_intensity': 3, 'star_vulnerability': 3},
         'default_cards': ['Heavy Slash', 'Wax']
+    },
+
+    # ====================================================================================================
+    # ENEMY BOSS CLASSES
+    # ====================================================================================================
+
+    'Matron': {
+        'bonus_stats': ['star_intensity', 'moon_resistance', 'void_vulnerability'],
+        'stat_mods': {'star_intensity': 16, 'moon_resistance': 9, 'void_vulnerability': 25},
+        'base_hp': 99,
+        'default_cards': ['Heavy Slash', 'Rust Breath', 'Mold Breath', 'Heat Breath', 'Shadow Breath']
     }
 }
 
@@ -393,7 +411,8 @@ class Character:
 
     def update_max_hp(self): 
         scaled_stats = self.get_scaled_stats()
-        self.max_hp = max(2, 10 + scaled_stats.get('haleness', 2) * 2)
+        base_hp = CLASS_DATA.get(self.current_class, {}).get('base_hp', 10)
+        self.max_hp = max(2, base_hp + scaled_stats.get('haleness', 0) * 2)
 
     def is_alive(self):
         return self.current_hp > 0

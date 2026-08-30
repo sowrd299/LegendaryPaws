@@ -26,7 +26,6 @@ QUESTS = {
         'steps': [
             {
                 'location': None,  # Proc anywhere / immediately
-                'required_cards': [],
                 'reward_cards': [],
                 'reward_gold': 0,
                 'dialogue': [
@@ -65,7 +64,7 @@ QUESTS = {
             }, 
             {
                 'location': None,
-                'required_cards': ['Dragonsbane'],
+                'required_cards_have': ['Dragonsbane'],
                 'menu_description': "Explore the Strange Lands, and investigate the Death Rot.",
                 'reward_cards': [],
                 'reward_gold': 0,
@@ -98,7 +97,6 @@ QUESTS = {
         'steps': [
             {
                 'location': "Badgy's General Store",
-                'required_cards': [],
                 'reward_cards': [],
                 'reward_gold': 0,
                 'dialogue': [
@@ -121,7 +119,7 @@ QUESTS = {
                 'location': "Badgy's General Store",
                 'menu_description': "Get a rotten egg from the dragonling husks in the field north of New Dunton Village, and give it to Badgy in his store.",
                 'menu_illust': 'Rotten Egg',
-                'required_cards': ['Rotten Egg'],
+                'required_cards_give': ['Rotten Egg'],
                 'reward_cards': ['Honed Slash'],
                 'reward_gold': 50,
                 'dialogue': [
@@ -191,11 +189,12 @@ def check_quest_triggers(state, party):
         if current_step_idx < len(steps):
             step_data = steps[current_step_idx]
             req_loc = step_data.get('location')
-            req_cards = step_data.get('required_cards', [])
+            req_cards_have = step_data.get('required_cards_have', [])
+            req_cards_give = step_data.get('required_cards_give', [])
 
-            if is_location_match(req_loc, party.x, party.y) and has_required_cards(req_cards, party.inventory):
+            if is_location_match(req_loc, party.x, party.y) and has_required_cards(req_cards_have + req_cards_give, party.inventory):
                 # Deduct required cards
-                for card in req_cards:
+                for card in req_cards_give:
                     if card in party.inventory:
                         party.inventory.remove(card)
 

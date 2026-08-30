@@ -189,7 +189,11 @@ ILLUSTRATION_DATA = [
         'species': ['Loss Sprite'],
         'classes': ['Passage Mage'],
     },
-
+    {
+        'name': 'rotmatron',
+        'species': ['Dragon'],
+        'classes': ['Matron'],
+    },
     # Species-generic portraits; go last so we check for class-specific matches first
     {
         'name': 'fox',

@@ -427,6 +427,31 @@ CARD_DATA = [
 +-----------------+
 """
     },
+    {
+        'name': 'Dragonsbane',
+        'type': 'weapon',
+        'rarity': 'pierless',
+        'target': 'enemy',
+        'recovery_cost': 20,
+        'damage_type': 'melee_damage',
+        'damage_power': 2.0,
+        'description': 'An assault of shadow and steel.',
+        'effects': [
+            {
+                'damage_type': 'void_intensity',
+                'damage_power': 2.0,
+            }
+        ],
+        'illust': """
++-----------------+
+|    - - -~S_.    |
+|     - ,~S/ |S   |
+|   -, . S///S~   |
+|        \//S~    |
+|     , //\.      |
++-------*---------+
+"""
+    },
 
 
 # ==================================================================================================
@@ -1269,7 +1294,117 @@ CARD_DATA = [
 | (============(@ |
 +-----------------+
 """
-    }
+    },
+
+# ==================================================================================================
+# ENEMY SPECIFIC CARDS
+# ==================================================================================================
+
+    {
+        'name': 'Rust Breath',
+        'type': 'weapon',
+        'rarity': 'odd',
+        'target': 'all_enemies',
+        'recovery_cost': 7,
+        'damage_type': 'star_intensity',
+        'damage_power': 1.0,
+        'description': 'Rots the enemies melee attacks.',
+        'effects': [
+            {
+                'status_effect_target_stat': 'melee_damage',
+                'status_effect_power': -2,
+                'status_effect_duration': 10,
+            }
+        ],
+        'illust': """
++-----------------+
+|,    ,~~_`S ) ~  |
+|/. -~ ~ ~_ S ~   |
+|@~S~~~~~~( S) ~  |
+|\` -~ _~( S ~    |
+|'    '~~,S-S~    |
++-----------------+
+"""
+    },
+    {
+        'name': 'Mold Breath',
+        'type': 'weapon',
+        'rarity': 'odd',
+        'target': 'all_enemies',
+        'recovery_cost': 7,
+        'damage_type': 'star_intensity',
+        'damage_power': 1.0,
+        'description': 'Rots the enemies ranged attacks.',
+        'effects': [
+            {
+                'status_effect_target_stat': 'ranged_damage',
+                'status_effect_power': -2,
+                'status_effect_duration': 10,
+            }
+        ],
+        'illust': """
++-----------------+
+|,    ,~~_`S ) ~  |
+|/. -~ ~ ~_ S ~   |
+|@~S~~~~~~( S) ~  |
+|\` -~ _~( S ~    |
+|'    '~~,S-S~    |
++-----------------+
+"""
+    },
+    {
+        'name': 'Heat Breath',
+        'type': 'weapon',
+        'rarity': 'odd',
+        'target': 'all_enemies',
+        'recovery_cost': 7,
+        'damage_type': 'star_intensity',
+        'damage_power': 1.0,
+        'description': 'Rots the enemies moon attacks.',
+        'effects': [
+            {
+                'status_effect_target_stat': 'moon_damage',
+                'status_effect_power': -2,
+                'status_effect_duration': 10,
+            }
+        ],
+        'illust': """
++-----------------+
+|,    ,~~_`S ) ~  |
+|/. -~ ~ ~_ S ~   |
+|@~S~~~~~~( S) ~  |
+|\` -~ _~( S ~    |
+|'    '~~,S-S~    |
++-----------------+
+"""
+    },
+    {
+        'name': 'Shadow Breath',
+        'type': 'weapon',
+        'rarity': 'odd',
+        'target': 'all_enemies',
+        'recovery_cost': 7,
+        'damage_type': 'star_intensity',
+        'damage_power': 1.0,
+        'description': 'Rots the enemies star attacks.',
+        'effects': [
+            {
+                'status_effect_target_stat': 'star_damage',
+                'status_effect_power': -2,
+                'status_effect_duration': 10,
+            }
+        ],
+        'illust': """
++-----------------+
+|,    ,~~_`S ) ~  |
+|/. -~ ~ ~_ S ~   |
+|@~S~~~~~~( S) ~  |
+|\` -~ _~( S ~    |
+|'    '~~,S-S~    |
++-----------------+
+"""
+    },
+
 ]
 
 CARDS = { card.get('name','') : card for card in CARD_DATA }
