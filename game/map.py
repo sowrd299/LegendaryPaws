@@ -60,7 +60,7 @@ DEFAULT_TILE_DESCRIPTIONS = {
     'I': ('Inn', 'A cozy inn offering a place to rest, fully restore party HP, and organize companions.'),
     'R': ('Ancient Ruins', 'Dangerous crumbling stone ruins. Hostile forces and rare artifacts await!'),
     '^': ('Mountain Pass', 'Rugged, high-altitude mountain terrain filled with treacherous wild beasts.'),
-    '↟': ('Dense Forest', 'Dark whispering woods where monsters stalk from the shadows.'),
+    'f': ('Dense Forest', 'Dark whispering woods where monsters stalk from the shadows.'),
     '.': ('Open Field', 'Quiet open grasslands along the main adventuring path.'),
 }
 
@@ -317,23 +317,23 @@ MAP_ZONES = [
     # The Starting Zone
     MapZone(
         grid=[
-            "^^^^^^^^....↟..↟↟↟↟",
-            "^^^^^^^^^.....↟↟↟↟↟",
-            "^^^^R^^^...↟...↟↟↟↟",
-            "^R^S^^^........↟↟↟↟",
-            "^^RR^^...   ..↟↟↟↟↟",
-            "R^^^^^...   ..↟↟↟↟↟",
-            "^^^^...........↟↟↟↟",
-            "^^^.....___....↟↟↟↟",
-            "^^^.....S_I....↟↟↟↟",
-            "^^^.....___.....↟↟↟",
-            "^^^^...........↟↟↟↟",
-            "^.^^^........R↟↟↟↟↟",
-            "^..^^^.......↟R↟↟↟↟",
-            "..^^^^^.....↟↟↟.↟↟↟",
-            "..^^^^.....↟↟↟...↟↟",
-            "..^^^.....↟↟↟↟↟.↟↟↟",
-            "..^^..^..↟↟↟↟↟↟↟↟↟↟",
+            "^^^^^^^^....f..ffff",
+            "^^^^^^^^^.....fffff",
+            "^^^^R^^^...f...ffff",
+            "^R^S^^^........ffff",
+            "^^RR^^...   ..fffff",
+            "R^^^^^...   ..fffff",
+            "^^^^...........ffff",
+            "^^^.....___....ffff",
+            "^^^.....S_I....ffff",
+            "^^^.....___.....fff",
+            "^^^^...........ffff",
+            "^.^^^........Rfffff",
+            "^..^^^.......fRffff",
+            "..^^^^^.....fff.fff",
+            "..^^^^.....fff...ff",
+            "..^^^.....fffff.fff",
+            "..^^..^..ffffffffff",
         ],
         offset_x=0,
         offset_y=0,
@@ -474,7 +474,7 @@ MAP_ZONES = [
                     'reward_cards': DEFAULT_REWARD_CARDS + DEFAULT_ODD_REWARD_CARDS,
                 }
             ],
-            '↟': [
+            'f': [
                 {
                     'chance': 0.3,
                     'min_enemies': 1,
@@ -537,12 +537,12 @@ MAP_ZONES = [
                 "................^^^",
                 "............R..^.^^",
                 ".................^^",
-                "..↟.↟↟........R...^",
-                ".↟↟↟↟↟↟↟........^^.",
-                "↟   ↟↟↟↟↟........^..",
-                "↟   ↟↟↟↟↟↟.....^...",
-                "↟   ↟↟↟↟↟..↟..↟....",
-                "↟↟↟↟↟↟↟↟↟↟...↟↟↟...",
+                "..f.ff........R...^",
+                ".fffffff........^^.",
+                "f   fffff........^.",
+                "f   ffffff.....^...",
+                "f   fffff..f..f....",
+                "ffffffffff...fff...",
         ],
         offset_x=-19,
         offset_y=0,
@@ -608,7 +608,7 @@ MAP_ZONES = [
             '.': default_encounter_data(1),
             '^': default_encounter_data(2),
             'R': default_encounter_data(7),
-            '↟': default_encounter_data(4),
+            'f': default_encounter_data(4),
             '_': [],
         },
         tile_descriptions=dict(DEFAULT_TILE_DESCRIPTIONS, **{
@@ -619,9 +619,9 @@ MAP_ZONES = [
     # The Sprite Village
     MapZone(
         grid=[
-                "S↟↟",
-                "↟↟↟",
-                "↟↟S",
+                "Sff",
+                "fff",
+                "ffS",
         ],
         offset_x=-18,
         offset_y=14,
@@ -707,7 +707,7 @@ MAP_ZONES = [
             ],
         },
         tile_descriptions=dict(DEFAULT_TILE_DESCRIPTIONS, **{
-            '↟': ('The Hamlet of the Sprites', 'An eclectic home in the forest; both a testament to their magical craft, and a study in their lack of understanding of mortal needs or mortal fear. Many spites welcome outsiders into the hamlet, but many do not.'),
+            'f': ('The Hamlet of the Sprites', 'An eclectic home in the forest; both a testament to their magical craft, and a study in their lack of understanding of mortal needs or mortal fear. Many spites welcome outsiders into the hamlet, but many do not.'),
         }),
     ),
 ]

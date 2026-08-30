@@ -269,7 +269,7 @@
             {% for row in map_grid %}
             {% for char in row %}
             {% if char == '*' %}<span class="player-star">*</span>
-            {% else %}{{ char }}
+            {% else %}{{ char|map_space }}
             {% endif %}
             {% endfor %}
             <br />

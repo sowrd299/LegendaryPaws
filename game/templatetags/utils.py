@@ -11,6 +11,16 @@ def percent_pips(value, num_pips):
 def count_pips(num_pips):
     return range(max(num_pips, 0))
 
+MAP_CHARACTERS_TO_SYMBOLS = {
+    'f': "↟",
+    'S': "⌂",
+    'I': "☗",
+}
+
+@register.filter
+def map_space(char):
+    return MAP_CHARACTERS_TO_SYMBOLS.get(char, char)
+
 DEFAULT_ILLUST = """
 +-----------------+
 |                 |
