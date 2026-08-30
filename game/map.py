@@ -110,7 +110,9 @@ DEFAULT_REWARD_CARDS = [
     'Slash', 
     'Slash', 
     'Slash', 
+    'Slash', 
     'Light Slash', 
+    'Shield Spike',
 
     # Scout
     'Archery', 
@@ -119,7 +121,6 @@ DEFAULT_REWARD_CARDS = [
     'Crescent Shot',
     'Burning Shot',
     'Broken Shot',
-    'First Aid', 
 
     # Student
     'Wain', 
