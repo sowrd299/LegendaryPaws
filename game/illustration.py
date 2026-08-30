@@ -1,4 +1,6 @@
 ILLUSTRATION_DATA = [
+    
+    # Cats
     {
         'name': 'cat_soul',
         'species': ['Cat'],
@@ -9,6 +11,23 @@ ILLUSTRATION_DATA = [
         'species': ['Cat'],
         'classes': ['Husk', 'Hollow', 'Rotmonger'],
     },
+    {
+        'name': 'cat_burglar',
+        'species': ['Cat'],
+        'classes': ['Burglar'],
+    },
+    {
+        'name': 'cat_fencer',
+        'species': ['Cat'],
+        'classes': ['Fencer'],
+    },
+    {
+        'name': 'cat_squire',
+        'species': ['Cat'],
+        'classes': ['Squire'],
+    },
+
+    # Badgers
     {
         'name': 'badger_soul',
         'species': ['Badger'],
@@ -25,6 +44,18 @@ ILLUSTRATION_DATA = [
         'classes': ['Rotmonger'],
     },
     {
+        'name': 'badger_blackcloak',
+        'species': ['Badger'],
+        'classes': ['Blackcloak'],
+    },
+    {
+        'name': 'badger_fencer',
+        'species': ['Badger'],
+        'classes': ['Fencer'],
+    },
+
+    # Foxes (enemies)
+    {
         'name': 'fox_soul',
         'species': ['Fox'],
         'classes': ['Soul', 'Essence'],
@@ -39,6 +70,8 @@ ILLUSTRATION_DATA = [
         'species': ['Fox'],
         'classes': ['Rotmonger'],
     },
+
+    # Rabbits
     {
         'name': 'rabbit_soul',
         'species': ['Rabbit'],
@@ -50,6 +83,18 @@ ILLUSTRATION_DATA = [
         'classes': ['Husk', 'Hollow', 'Rotmonger'],
     },
     {
+        'name': 'rabbit_blackcloak',
+        'species': ['Rabbit'],
+        'classes': ['Blackcloak'],
+    },
+    {
+        'name': 'rabbit_fencer',
+        'species': ['Rabbit'],
+        'classes': ['Fencer'],
+    },
+
+    # Owls
+    {
         'name': 'owl_soul',
         'species': ['Owl'],
         'classes': ['Soul', 'Essence'],
@@ -59,6 +104,23 @@ ILLUSTRATION_DATA = [
         'species': ['Owl'],
         'classes': ['Husk', 'Hollow', 'Rotmonger'],
     },
+    {
+        'name': 'owl_blackcloak',
+        'species': ['Owl'],
+        'classes': ['Blackcloak'],
+    },
+    {
+        'name': 'owl_fencer',
+        'species': ['Owl'],
+        'classes': ['Fencer'],
+    },
+    {
+        'name': 'owl_wizard',
+        'species': ['Owl'],
+        'classes': ['Wizard'],
+    },
+
+    # Foxes (playable)
     {
         'name': 'fox_student',
         'species': ['Fox'],
@@ -90,6 +152,13 @@ ILLUSTRATION_DATA = [
         'classes': ['Squire'],
     },
     {
+        'name': 'fox_fencer',
+        'species': ['Fox'],
+        'classes': ['Fencer'],
+    },
+
+    # Ravens
+    {
         'name': 'raven_husk',
         'species': ['Raven'],
         'classes': ['Husk', 'Hollow'],
@@ -100,15 +169,41 @@ ILLUSTRATION_DATA = [
         'classes': ['Rotmonger'],
     },
     {
+        'name': 'raven_blackcloak',
+        'species': ['Raven'],
+        'classes': ['Blackcloak'],
+    },
+    {
+        'name': 'raven_fencer',
+        'species': ['Raven'],
+        'classes': ['Fencer'],
+    },
+
+    # Dragonlings
+    {
         'name': 'dragonling_husk',
         'species': ['Dragonling'],
         'classes': ['Husk', 'Hollow', 'Rotmonger'],
     },
     {
+        'name': 'dragonling_blackcloak',
+        'species': ['Dragonling'],
+        'classes': ['Blackcloak'],
+    },
+    {
+        'name': 'dragonling_fencer',
+        'species': ['Dragonling'],
+        'classes': ['Fencer'],
+    },
+
+    # Giants
+    {
         'name': 'bear_husk',
         'species': ['Giant'],
         'classes': ['Husk', 'Hollow', 'Rotmonger'],
     },
+
+    # Generic Classes
     {
         'name': 'blackcloak',
         'species': ['Fox', 'Cat'],
@@ -129,6 +224,8 @@ ILLUSTRATION_DATA = [
         'species': ['Fox', 'Cat'],
         'classes': ['Dragonslayer'],
     },
+
+    # Sprites
     {
         'name': 'embersprite_squire',
         'species': ['Ember Sprite'],
@@ -194,6 +291,7 @@ ILLUSTRATION_DATA = [
         'species': ['Dragon'],
         'classes': ['Matron'],
     },
+
     # Species-generic portraits; go last so we check for class-specific matches first
     {
         'name': 'fox',

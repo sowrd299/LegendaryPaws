@@ -452,6 +452,46 @@ CARD_DATA = [
 +-------*---------+
 """
     },
+    {
+        'name': 'Backstab',
+        'type': 'weapon',
+        'rarity': 'interesting',
+        'target': 'enemy',
+        'recovery_cost': 10,
+        'damage_type': 'melee_damage',
+        'damage_power': 1.0,
+        'description': 'Leaves the target vulnerable.',
+        'stat_boosts': {'melee_damage': 0.2, 'survival_intensity': 0.2},
+        'effects': [
+            {
+                'status_effect_target_stat': 'melee_vulnerability',
+                'status_effect_power': 2,
+                'status_effect_duration': 5,
+                'status_effect_duration_stat': 'survival_intensity',
+            },
+            {
+                'status_effect_target_stat': 'ranged_vulnerability',
+                'status_effect_power': 2,
+                'status_effect_duration': 5,
+                'status_effect_duration_stat': 'survival_intensity',
+            },
+            {
+                'status_effect_target_stat': 'void_vulnerability',
+                'status_effect_power': 2,
+                'status_effect_duration': 5,
+                'status_effect_duration_stat': 'survival_intensity',
+            },
+        ],
+        'illust': """
++-----------------+
+|       ||        |
+|     =<__>=      |
+|       \ \       |
+|       \ )       |
+|       )/        |
++-----------------+
+"""
+    },
 
 
 # ==================================================================================================
@@ -731,6 +771,43 @@ CARD_DATA = [
 +-----------------+
 """
     },
+    {
+        'name': 'Cover of Night',
+        'type': 'scroll',
+        'rarity': 'pierless',
+        'target': 'all_enemies',
+        'recovery_cost': 10,
+        'description': 'Protects all allies.',
+        'effects': [
+            {
+                'status_effect_target_stat': 'melee_resistance',
+                'status_effect_power': 1,
+                'status_effect_duration': 10,
+                'status_effect_duration_stat': 'survival_intensity',
+            },
+            {
+                'status_effect_target_stat': 'ranged_resistance',
+                'status_effect_power': 1,
+                'status_effect_duration': 10,
+                'status_effect_duration_stat': 'survival_intensity',
+            },
+            {
+                'status_effect_target_stat': 'void_resistance',
+                'status_effect_power': 1,
+                'status_effect_duration': 10,
+                'status_effect_duration_stat': 'survival_intensity',
+            },
+        ],
+        'illust': """
++-----------------+
+| |:      .   . . |
+|. \`       .  .  |
+| .  ^  . /\ ^ .  |
+|/\ /|\ /\/\/^\  ^|
+|/\//|\^/\/\/|\^/^|
++-----------------+
+"""
+    },
 
 # ==================================================================================================
 # MAGIC
@@ -757,6 +834,39 @@ CARD_DATA = [
             },
         ],
         'description': 'A student\'s first attack.',
+        'stat_boosts': {'moon_intensity': 0.2, 'moon_resistance': 0.3, 'star_vulnerability': 0.3},
+        'illust': """
++-----------------+
+|      ,/(        |
+|      '\(     ,  |
+| \|/             |
+| -*-           ` |
+| /|\       ,  '  |
++-----------------+
+"""
+    },
+    {
+        'name': 'Magical Opus',
+        'type': 'scroll',
+        'rarity': 'pierless',
+        'target': 'all_enemies',
+        'recovery_cost': 30,
+        'effects': [
+            {
+                'damage_type': 'star_intensity',
+                'damage_power': 1.0,
+            },
+            {
+                'damage_type': 'void_intensity',
+                'damage_power': 1.0,
+            },
+            {
+                'target': 'all_allies',
+                'heal_stat': 'moon_intensity',
+                'heal_power': 1.0,
+            },
+        ],
+        'description': 'Attacks all enemies & heals all allies.',
         'stat_boosts': {'moon_intensity': 0.2, 'moon_resistance': 0.3, 'star_vulnerability': 0.3},
         'illust': """
 +-----------------+

@@ -76,6 +76,14 @@ CLASS_DATA = {
         'default_cards': [],
         'req_card': ['Elementary Magic', 'Study']
     },
+    'Wizard': {
+        'bonus_stats': ['star_intensity', 'moon_intensity', 'void_intensity'],
+        'stat_mods': {'star_intensity': 3.0, 'moon_intensity': 3.0, 'void_intensity': 3.0},
+        'default_cards': ['Magical Opus'],
+        'req_class': ['Student'],
+        'req_species': ['Owl'],
+        'req_level': 3,
+    },
     'Day Mage': {
         'bonus_stats': ['star_intensity', 'moon_resistance', 'void_vulnerability'],
         'stat_mods': {'star_intensity': 4.0, 'moon_resistance': 3.0, 'void_vulnerability': 1.0},
@@ -100,18 +108,26 @@ CLASS_DATA = {
         'req_card': ['Chill'],
         'req_level': 4,
     },
-
-    # SURVIVAL CLASSES
     'Warlock': {
         'bonus_stats': ['void_intensity', 'star_resistance', 'melee_resistance', 'moon_vulnerability'],
         'stat_mods': {'void_intensity': 4.0, 'star_resistance': 3.0, 'melee_resistance': 2.0},
         'default_cards': ['Cursed Readings']
     },
+
+    # SURVIVAL CLASSES
     'Scout': {
         'bonus_stats': ['melee_damage', 'ranged_damage', 'survival_intensity', 'moon_resistance'],
-        'stat_mods': {'ranged_damage': 3.0, 'survival_intensity': 3.0},
+        'stat_mods': {'melee_damage': 3.0, 'ranged_damage': 3.0, 'survival_intensity': 3.0},
         'default_cards': ['Archery', 'First Aid'],
         'req_card': ['Simple Trap']
+    },
+    'Burglar': {
+        'bonus_stats': ['melee_damage', 'survival_intensity', 'moon_resistance'],
+        'stat_mods': {'nimbleness': 3, 'melee_damage': 3.0, 'survival_intensity': 3.0},
+        'default_cards': ['Backstab'],
+        'req_class': ['Scout'],
+        'req_species': ['Cat'],
+        'req_level': 3,
     },
     'Ranger': {
         'bonus_stats': ['ranged_damage', 'survival_intensity', 'moon_resistance'],
@@ -122,9 +138,9 @@ CLASS_DATA = {
     },
     'Blackcloak': {
         'bonus_stats': ['moon_intensity', 'survival_intensity', 'void_resistance'],
-        'stat_mods': {'moon_intensity': 3.0, 'survival_intensity': 3.0, 'void_resistance': 2.0},
-        'default_cards': [],
-        'req_class': ['Scout'],
+        'stat_mods': {'moon_intensity': 3.0, 'survival_intensity': 4.0, 'void_resistance': 2.0},
+        'default_cards': ['Cover of Night'],
+        'req_class': ['Scout', 'Burglar'],
         'req_card': ['Wain', 'Wax'],
     },
 
@@ -390,7 +406,7 @@ class Character:
         return True, f"Gave {card_name} to {self.name}! Level is now {self.level}."
 
     def update_class(self):
-        for class_name in CLASS_DATA:
+        for class_name in reversed(CLASS_DATA):
             if class_name != self.current_class:
                 cl = CLASS_DATA[class_name]
                 has_class_req = 'req_class' in cl
