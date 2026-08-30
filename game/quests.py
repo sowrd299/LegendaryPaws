@@ -103,10 +103,10 @@ QUESTS = {
                     {
                         'speaker': 'Badgy',
                         'text': "Ah, hello brigand! You know, this Death Rot's strange stuff. "
-                                "I've got college over in Yonder who's busy collecting eggs infected with the stuff! "
+                                "I've got a colleague over in Yonder who's busy collecting eggs infected with the stuff! "
                                 "He says he has brigands like you paying hansomely for them, though you won't make much good of them without a friend to stuff them down your throught. "
                                 "I hear there's some dragonling husks who've been hoarding these eggs in a field north of here. "
-                                "If you find one, bring it to me and I'll see what I can get my college to pay for it.",
+                                "If you find one, bring it to me and I'll see what I can get my colleague to pay for it.",
                         'responses': [
                             "I'd love to help you find a Rotten Egg!",
                             "Fine, if I come across one I'll bring it back..."
