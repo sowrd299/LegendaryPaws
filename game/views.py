@@ -293,6 +293,9 @@ def handle_action(request):
                     state['active_dialogue']['dialogue_index'] = next_idx
                 else:
                     # Step completed!
+                    if 'quests' not in state:
+                        state['quests'] = {}
+
                     state['quests'][quest_id] = step_idx + 1
                     state['active_dialogue'] = None
                     state['screen'] = 'overworld'
