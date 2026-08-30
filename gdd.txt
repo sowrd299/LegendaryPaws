@@ -14,8 +14,8 @@ Cards are key for several purposes:
 - Cards can be put in the party's shared deck
 - Characters level up and gain stats by being given cards (cards are consumed when given to a character), up to a maximum level of 20. "Level" is de-facto just an extra stat,
 which all items increase, as a proxy for tracking the total item/stat increases the character has been given. A cahracter at level 20 cannot be given cards.
-- Cards have a rarity (mundane, interesting, odd, exceptional, pierless) and a type (weapon, armor, scroll, or trinket). Cards can replace whichever move from a card that type 
-the chacter currently knows, as long as the new card is equal or higher rarity. Interesting cards can never be learned (only give stats), and pierless ones can never be replaced
+- Cards have a rarity (mundane, interesting, odd, exceptional, peerless) and a type (weapon, armor, scroll, or trinket). Cards can replace whichever move from a card that type 
+the chacter currently knows, as long as the new card is equal or higher rarity. Interesting cards can never be learned (only give stats), and peerless ones can never be replaced
 
 Characters may suddenly change class at the end of an encounter, based on 1) their current stats (almost always level), 2) the terrain they are on on the worlds map, 2) the cards they have,
 4) the monsters they just fought, and 5) their current class. Classes will offer different moves of that character, will contribute differently to the character's

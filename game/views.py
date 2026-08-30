@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseBadRequest
 from .engine import (
     create_initial_game_state, Party, Character, CombatEngine, Message,
-    CORE_STATS, DECK_MINIMUM_SIZE
+    CORE_STATS, DECK_MINIMUM_SIZE, CLASS_DATA
 )
 from .cards import *
 from .map import (
@@ -217,7 +217,8 @@ def game_index(request):
                 stat_xps = selected_char.get_stat_xps()
                 context['scaled_core_stats'] = [ (name, stat, stat_xps[name]) for name, stat in scaled_stats.items() if name in CORE_STATS ]
                 context['scaled_class_stats'] = [ (name, stat, stat_xps[name]) for name, stat in scaled_stats.items() if name not in CORE_STATS ]
-                context['known_cards'] = [ name_to_card(name) for name in selected_char.get_known_cards() ]
+                context['class_cards'] = [ name_to_card(name) for name in CLASS_DATA.get(selected_char.current_class, {}).get('default_cards', []) ]
+                context['equipped_cards'] = [ name_to_card(name) for name in selected_char.equipped_cards ]
 
     elif screen == 'shop':
         shop_data = get_shop(party.x, party.y)

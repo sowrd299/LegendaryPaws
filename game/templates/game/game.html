@@ -477,11 +477,30 @@
             {% else %}
             <div class="cards-row">
                 <div class="x-scrollable">
-                    {% for card in known_cards %}
-                    {% include "game/card.html" with card=card %}
-                    {% empty %}
-                    <p style="color: var(--text-muted); width: max-content">{{ selected_char.name }} knows no cards yet.</p>
+                    <!-- class cards -->
+                    {% for card in class_cards %}
+                    <div class="card-and-button-rect">
+                        <div style="color: var(--text-muted); text-transform: uppercase; width: 100%; text-align: center;">{{ selected_char.current_class }}</div>
+                        {% include "game/card.html" with card=card %}
+                    </div>
                     {% endfor %}
+                    <!-- if we have class cards, show separator -->
+                    {% if class_cards and equipped_cards %}
+                    <div style="color: var(--text-muted); width: max-content; height: min-content; position: relative; top: 50%; transform: translateY(-50%);">
+                        |<br />|<br />|<br />|<br />|<br />|<br />|
+                    </div>
+                    {% endif %}
+                    <!-- equipped cards -->
+                    {% for card in equipped_cards %}
+                    <div class="card-and-button-rect">
+                        <div style="color: var(--text-muted); text-transform: uppercase; width: 100%; text-align: center;">{{ card.type }}</div>
+                        {% include "game/card.html" with card=card %}
+                    </div>
+                    {% endfor %}
+                    <!-- fallback -->
+                    {% if not equipped_cards and not class_cards %}
+                    <p style="color: var(--text-muted); width: max-content">{{ selected_char.name }} knows no cards yet.</p>
+                    {% endif %}
                 </div>
             </div>
             {% endif %}
@@ -532,7 +551,11 @@
                 <div class="x-scrollable">
                     {% for card, count in party_inventory_cards %}
                     <div class="card-and-button-rect">
+                        {% if selected_char and selected_char|can_equip:card %}
+                        {% include "game/card.html" with card=card highlight_type=True %}
+                        {% else %}
                         {% include "game/card.html" with card=card %}
+                        {% endif %}
                         <div class="btn-group" style="margin-top: 6px;">
                             <h4 style="font-size: 1.5rem; color: var(--text-muted);">×{{ count }}</h4>
                             {% if selected_char %}
@@ -540,7 +563,9 @@
                                 {% csrf_token %}
                                 <input type="hidden" name="action_type" value="give_card">
                                 <input type="hidden" name="card_name" value="{{ card.name }}">
-                                {% if card.give_heal_power %}
+                                {% if selected_char|can_equip:card %}
+                                {% include "game/button.html" with label="+ XP & Know" %}
+                                {% elif card.give_heal_power %}
                                 {% include "game/button.html" with label="+ XP & HP" %}
                                 {% else %}
                                 {% include "game/button.html" with label="+ XP" %}

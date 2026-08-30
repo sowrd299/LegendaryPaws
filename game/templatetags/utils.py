@@ -94,6 +94,10 @@ def all_unique_effects(card):
     return effects
 
 @register.filter
+def can_equip(character, card):
+    return character.can_equip_card(card)[0]
+
+@register.filter
 def signed(val):
     if val > 0:
         return f"+{val}"

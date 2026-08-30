@@ -369,26 +369,12 @@ class Character:
             return False, f"Unknown card '{card_name}'."
         
         card = CARDS[card_name]
-        if card.get('rarity') == 'mundane':
-            # Interesting cards give stats but cannot be learned directly as equipped moves
-            pass
-        else:
-            can_equip = True
-            replaced_card_name = None
-            for equipped_card_name in self.equipped_cards:
-                equipped_card = CARDS[equipped_card_name]
-                if card.get('type') == equipped_card.get('type'):
-                    if equipped_card.get('rarity') == 'peerless':
-                        can_equip = False
-                    elif RARITIES.index(equipped_card.get('rarity')) > RARITIES.index(card.get('rarity')):
-                        can_equip = False
-                    else:
-                        replaced_card_name = equipped_card_name
 
-            if can_equip:
-                if replaced_card_name:
-                    self.equipped_cards.remove(replaced_card_name)
-                self.equipped_cards.append(card_name)
+        can_equip, replaced_card_name = self.can_equip_card(card)
+        if can_equip:
+            if replaced_card_name:
+                self.equipped_cards.remove(replaced_card_name)
+            self.equipped_cards.append(card_name)
 
         self.level_up_cards.append(card_name)
 
@@ -404,6 +390,25 @@ class Character:
             self.current_hp = min(self.max_hp, self.current_hp + int(card.get('give_heal_power', 0)))
 
         return True, f"Gave {card_name} to {self.name}! Level is now {self.level}."
+
+    def can_equip_card(self, card): 
+        can_equip = True
+        replaced_card_name = None
+
+        if card.get('rarity') == 'mundane':
+            return False, None
+
+        for equipped_card_name in self.equipped_cards:
+            equipped_card = CARDS[equipped_card_name]
+            if card.get('type') == equipped_card.get('type'):
+                if equipped_card.get('rarity') == 'peerless':
+                    can_equip = False
+                elif RARITIES.index(equipped_card.get('rarity')) > RARITIES.index(card.get('rarity')):
+                        can_equip = False
+                else:
+                    replaced_card_name = equipped_card_name
+        
+        return can_equip, replaced_card_name
 
     def update_class(self):
         for class_name in reversed(CLASS_DATA):

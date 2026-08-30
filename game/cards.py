@@ -430,7 +430,7 @@ CARD_DATA = [
     {
         'name': 'Dragonsbane',
         'type': 'weapon',
-        'rarity': 'pierless',
+        'rarity': 'peerless',
         'target': 'enemy',
         'recovery_cost': 20,
         'damage_type': 'melee_damage',
@@ -774,7 +774,7 @@ CARD_DATA = [
     {
         'name': 'Cover of Night',
         'type': 'scroll',
-        'rarity': 'pierless',
+        'rarity': 'peerless',
         'target': 'all_enemies',
         'recovery_cost': 10,
         'description': 'Protects all allies.',
@@ -848,7 +848,7 @@ CARD_DATA = [
     {
         'name': 'Magical Opus',
         'type': 'scroll',
-        'rarity': 'pierless',
+        'rarity': 'peerless',
         'target': 'all_enemies',
         'recovery_cost': 30,
         'effects': [
