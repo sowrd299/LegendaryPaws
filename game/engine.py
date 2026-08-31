@@ -89,7 +89,7 @@ CLASS_DATA = {
         'stat_mods': {'star_intensity': 4.0, 'moon_resistance': 3.0, 'void_vulnerability': 1.0},
         'default_cards': ['Singeing Sunlight'],
         'req_class': ['Student'],
-        'req_card': ['Singe'],
+        'req_card': ['Singe', 'Singeing Sunlight'],
         'req_level': 4,
     },
     'Night Mage': {
@@ -97,7 +97,7 @@ CLASS_DATA = {
         'stat_mods': {'moon_intensity': 4.0, 'void_resistance': 3.0, 'star_vulnerability': 1.0},
         'default_cards': ['Waxing Moonlight'],
         'req_class': ['Student'],
-        'req_card': ['Wax', 'Wain'],
+        'req_card': ['Wax', 'Wain', 'Waxing Moonlight'],
         'req_level': 4,
     },
     'Passage Mage': {
@@ -105,7 +105,7 @@ CLASS_DATA = {
         'stat_mods': {'void_intensity': 4.0, 'star_resistance': 3.0, 'moon_vulnerability': 1.0},
         'default_cards': ['Call to the Void'],
         'req_class': ['Student'],
-        'req_card': ['Chill'],
+        'req_card': ['Chill', 'Call to the Void'],
         'req_level': 4,
     },
     'Warlock': {
@@ -183,27 +183,35 @@ CLASS_DATA = {
     'Husk': {
         'bonus_stats': ['star_vulnerability'],
         'stat_mods': {'brute_intensity' : -2, 'brute_resistance': -1, 'nimbleness': -3, 'haleness': -5.0, 'star_vulnerability': 1},
-        'default_cards': ['Slash', 'Heavy Slash']
+        'default_cards': ['Slash', 'Heavy Slash'],
+        'playable': False,
     },
     'Hollow': {
         'bonus_stats': ['star_vulnerability'],
         'stat_mods': {'brute_intensity' : 2, 'brute_resistance': 2, 'star_vulnerability': 2, 'haleness': 2},
-        'default_cards': ['Slash', 'Heavy Slash']
+        'default_cards': ['Slash', 'Heavy Slash'],
+        'playable': False,
     },
     'Soul': {
         'bonus_stats': ['void_intensity', 'moon_vulnerability'],
         'stat_mods': {'brute_intensity' : -4, 'brute_resistance': -1, 'nimbleness': -3, 'haleness': -8.0, 'void_intensity': 2, 'moon_vulnerability': 5},
-        'default_cards': ['Light Slash', 'Chill', 'Chill Breath']
+        'default_cards': ['Light Slash', 'Chill', 'Chill Breath'],
+        'enemy_species': ['Cat', 'Badger', 'Fox', 'Rabbit', 'Owl', 'Raven', 'Dragonling', 'Giant'],
+        'playable': False,
     },
     'Essence': {
         'bonus_stats': ['void_intensity', 'moon_vulnerability'],
         'stat_mods': {'brute_resistance': 1, 'void_intensity': 5, 'nimbleness': 1, 'moon_vulnerability': 9},
-        'default_cards': ['Light Slash', 'Chill', 'Chill Breath', 'Call to the Void']
+        'default_cards': ['Light Slash', 'Chill', 'Chill Breath', 'Call to the Void'],
+        'enemy_species': ['Cat', 'Badger', 'Fox', 'Rabbit', 'Owl', 'Raven', 'Dragonling', 'Giant'],
+        'playable': False,
     },
     'Rotmonger': {
         'bonus_stats': ['moon_intensity', 'star_vulnerability'],
         'stat_mods': {'brute_intensity' : 0, 'brute_resistance': 3, 'nimbleness': -9, 'haleness': 3.0, 'moon_intensity': 3, 'star_vulnerability': 3},
-        'default_cards': ['Heavy Slash', 'Wax']
+        'default_cards': ['Heavy Slash', 'Wax'],
+        'enemy_species': ['Badger', 'Fox', 'Raven'],
+        'playable': False,
     },
 
     # ====================================================================================================
@@ -427,6 +435,9 @@ class Character:
             has_species_req = 'req_species' in cl
 
             if not has_class_req and not has_card_req and not has_level_req and not has_species_req:
+                continue
+
+            if not cl.get('playable', True):
                 continue
 
             class_req = not has_class_req or self.current_class in cl.get('req_class')

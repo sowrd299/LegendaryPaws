@@ -1,5 +1,5 @@
 import random
-from .engine import Character
+from .engine import Character, CLASS_DATA
 
 
 VIEWPORT_MAX_WIDTH = 15
@@ -164,7 +164,7 @@ def default_encounter_data(target_level):
             'min_enemies': 3,
             'max_enemies': 4,
             'target_level': target_level,
-            'species': ['Badger', 'Cat', 'Fox', 'Rabbit', 'Owl'],
+            'species': ['Badger', 'Cat', 'Fox', 'Rabbit', 'Owl', 'Raven', 'Dragonling', 'Giant'],
             'classes': ['Hollow', 'Essence', 'Rotmonger'],
             'reward_cards': reward_cards
         }
@@ -854,8 +854,8 @@ def generate_random_enemies(encounter_data):
 
     enemies = []
     for i in range(count):
-        sp = random.choice(species_options)
         cl = random.choice(class_options)
+        sp = random.choice([species for species in species_options if species in CLASS_DATA.get(cl, {}).get('enemy_species', species_options)])
         
         name = "{0} {1}".format(sp, cl)
         if names:
