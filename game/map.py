@@ -529,10 +529,10 @@ MAP_ZONES = [
         grid=[
                 "..................^",
                 ".........______....",
-                "........._S_SI_...^",
-                ".........______...^",
-                "...................",
-                "..................^",
+                ".......~~_S_SI_...^",
+                "......~~~______...^",
+                ".......~~___.......",
+                ".........___......^",
                 "...............R.^^",
                 "..............R.^^^",
                 "................^^^",
@@ -614,6 +614,7 @@ MAP_ZONES = [
         },
         tile_descriptions=dict(DEFAULT_TILE_DESCRIPTIONS, **{
             '_': ('The Village of Yonder', 'A quiet village in the shadow of the little mountains.'),
+            '~': ('Yonder Springs', 'a warm, softly rippling pool in the plains')
         }),
     ),
 

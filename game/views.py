@@ -195,7 +195,7 @@ def game_index(request):
                     line_chars.append('*')
                 else:
                     line_chars.append(get_tile(c_idx, r_idx))
-            map_lines.append(" ".join(line_chars))
+            map_lines.append(line_chars)
 
         context['map_grid'] = map_lines
         context['tile_name'] = tile_info[0]
@@ -320,14 +320,22 @@ def handle_action(request):
         elif direction == 'right' and party.x < get_map_max_x() - 1:
             new_x += 1
 
+        prev_x, prev_y = party.x, party.y
         party.x, party.y = new_x, new_y
         current_tile = get_tile(new_x, new_y)
 
         if should_reset_losable_gold(new_x, new_y):
             party.losable_gold = 0
+        
+        tile_desc = get_tile_description(new_x, new_y)
 
         # Check tile interaction / encounter
-        if current_tile == 'S':
+        if not current_tile or current_tile == ' ': # nothingness
+            party.x, party.y = prev_x, prev_y
+        elif current_tile == '~': # water
+            party.x, party.y = prev_x, prev_y
+            log.append(Message(2, f"You look at {tile_desc[0]}, {tile_desc[1]}, <span style='color:var(--accent-red)'>but your party can't swim!</span>"))
+        elif current_tile == 'S':
             state['screen'] = 'shop'
             log.append(Message(1, 'You enter a shop.'))
             check_quest_triggers(state, party)
@@ -344,7 +352,6 @@ def handle_action(request):
         else:
             # Chance for wild combat encounter based on terrain
             enemies, is_recruitable, reward_card, reward_gold = get_random_encounter(new_x, new_y)
-            tile_desc = get_tile_description(new_x, new_y)
             if enemies:
                 engine = CombatEngine(party.members, enemies, party.shared_deck, is_recruitable=is_recruitable, reward_card=reward_card, reward_gold=reward_gold)
                 engine.start_combat()

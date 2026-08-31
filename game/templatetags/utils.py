@@ -15,6 +15,7 @@ MAP_CHARACTERS_TO_SYMBOLS = {
     'f': "↟",
     'S': "⌂",
     'I': "☗",
+    ' ': "&nbsp;",
 }
 
 @register.filter
