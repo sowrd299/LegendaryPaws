@@ -626,7 +626,7 @@ MAP_ZONES = [
                 "ffS",
         ],
         offset_x=-18,
-        offset_y=14,
+        offset_y=13,
         shop_data=[
             {
                 'title': 'Wands for Wanderers',

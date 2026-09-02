@@ -16,6 +16,8 @@ from .map import (
 
 from .quests import QUESTS, check_quest_triggers, get_active_quests
 
+DEBUG_COMBAT_ENABLED = True
+
 INVENTORY_MAX_SIZE = 20
 
 DEAD_ILLUST = """
@@ -222,12 +224,13 @@ def game_index(request):
 
     elif screen == 'shop':
         shop_data = get_shop(party.x, party.y)
-        speaker, dialogue = random.choice(shop_data.get('dialogues', [("","")]))
-        context['title'] = shop_data.get('title', '')
-        context['illust'] = shop_data.get('illust', '')
-        context['speaker'] = speaker
-        context['text'] = dialogue
-        context['shop_items'] = [(name_to_card(name), cost) for name,cost in shop_data.get('items', dict())]
+        if shop_data:
+            speaker, dialogue = random.choice(shop_data.get('dialogues', [("","")]))
+            context['title'] = shop_data.get('title', '')
+            context['illust'] = shop_data.get('illust', '')
+            context['speaker'] = speaker
+            context['text'] = dialogue
+            context['shop_items'] = [(name_to_card(name), cost) for name,cost in shop_data.get('items', dict())]
 
     elif screen == 'inn':
         inn_id = state.get('current_inn_id') or get_inn_id(party.x, party.y) or 'inn_0'
@@ -352,7 +355,7 @@ def handle_action(request):
         else:
             # Chance for wild combat encounter based on terrain
             enemies, is_recruitable, reward_card, reward_gold = get_random_encounter(new_x, new_y)
-            if enemies:
+            if enemies and DEBUG_COMBAT_ENABLED:
                 engine = CombatEngine(party.members, enemies, party.shared_deck, is_recruitable=is_recruitable, reward_card=reward_card, reward_gold=reward_gold)
                 engine.start_combat()
                 state['combat'] = engine.to_dict()
