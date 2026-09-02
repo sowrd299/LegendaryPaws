@@ -169,6 +169,10 @@ CLASS_DATA = {
         'default_cards': ['Parry'],
         'req_card': ['Flowering Stab'],
     },
+    'Shieldmate': {
+        'bonus_stats': ['void_resistance', 'diplomacy'],
+        'stat_mods': {'void_resistance': 15.0, 'brute_resistance': 15.0, 'diplomacy': 2.0},
+    },
     'Dragonslayer': {
         'bonus_stats': ['melee_damage', 'void_intensity', 'star_resistance', 'moon_vulnerability'],
         'stat_mods': {'level': 3, 'haleness': 5, 'melee_damage': 5.0, 'void_intensity': 5.0, 'star_resistance': 5.0, 'moon_vulnerability': 3.0},

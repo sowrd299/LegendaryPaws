@@ -44,6 +44,11 @@ ILLUSTRATION_DATA = [
         'classes': ['Rotmonger'],
     },
     {
+        'name': 'badger_remnant',
+        'species': ['Badger'],
+        'classes': ['Remnant'],
+    },
+    {
         'name': 'badger_blackcloak',
         'species': ['Badger'],
         'classes': ['Blackcloak'],
@@ -70,6 +75,11 @@ ILLUSTRATION_DATA = [
         'species': ['Fox'],
         'classes': ['Rotmonger'],
     },
+    {
+        'name': 'fox_blotling',
+        'species': ['Fox'],
+        'classes': ['Blot'],
+    },
 
     # Rabbits
     {
@@ -83,6 +93,11 @@ ILLUSTRATION_DATA = [
         'classes': ['Husk', 'Hollow', 'Rotmonger'],
     },
     {
+        'name': 'rabbit_murmur',
+        'species': ['Rabbit'],
+        'classes': ['Murmur'],
+    },
+    {
         'name': 'rabbit_blackcloak',
         'species': ['Rabbit'],
         'classes': ['Blackcloak'],
@@ -91,6 +106,11 @@ ILLUSTRATION_DATA = [
         'name': 'rabbit_fencer',
         'species': ['Rabbit'],
         'classes': ['Fencer'],
+    },
+    {
+        'name': 'rabbit_shieldmate',
+        'species': ['Rabbit'],
+        'classes': ['Shieldmate'],
     },
 
     # Owls

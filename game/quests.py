@@ -2,7 +2,8 @@
 Quests data architecture and trigger evaluation for Legendary Paws.
 """
 
-from .map import get_shop, get_inn, get_inn_id, get_tile_description
+from .engine import Character
+from .map import get_shop, get_inn, get_inn_id, get_nearest_inn_id, get_tile_description
 from .cards import CARDS
 
 VOINARA_ILLUST = """
@@ -91,6 +92,30 @@ QUESTS = {
             }
         ]
     },
+    'meet_conny': {
+        'id': 'meet_conny',
+        'title': 'Good Morning Conny!',
+        'steps': [
+            {
+                'location': 'New Dunton Village',
+                'reward_characters': [Character(species='Rabbit', current_class='Shieldmate', name='Conny')],
+                'dialogue': [
+                    {
+                        'speaker': 'Conny',
+                        'text': "Hello Yew! Rest well? What's the plan for today? Tredge off into the Rot for gold? glory? the Good of the Strange Lands? "
+                                "getting to Yonder?",
+                        'responses': [
+                            'For Gold!',
+                            'For Glory!',
+                            'For the Good of the Strange Lands!',
+                            'I don\'t think we\'re getting to Yonder today.'
+                        ],
+                    }
+                ],
+                'completion_log': "Conny rejoined Yew's party!"
+            }
+        ]
+    },
     'badgys_errand': {
         'id': 'badgys_errand',
         'title': "Badgy's Favor",
@@ -155,6 +180,11 @@ def is_location_match(req_loc, party_x, party_y):
         if inn.get('id') == req_loc or inn.get('title') == req_loc:
             return True
 
+    # Check tile description
+    tile_desc = get_tile_description(party_x, party_y)
+    if tile_desc and tile_desc[0] == req_loc:
+        return True
+
     return False
 
 
@@ -207,6 +237,16 @@ def check_quest_triggers(state, party):
                 reward_cards = step_data.get('reward_cards', [])
                 for card in reward_cards:
                     party.inventory.append(card)
+
+                # Award characters
+                reward_characters = step_data.get('reward_characters', [])
+                for e in reward_characters:
+                    if len(party.members) < 4:
+                        party.members.append(e)
+                    else:
+                        nearest_inn_id = get_nearest_inn_id(party.x, party.y)
+                        inns_dict = state.setdefault('inns', {})
+                        inns_dict.setdefault(nearest_inn_id, []).append(e.to_dict())
 
                 # Activate dialogue screen
                 state['screen'] = 'dialog'
