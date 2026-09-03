@@ -142,7 +142,7 @@ DEFAULT_ODD_REWARD_CARDS = [
 
 def default_encounter_data(target_level): 
 
-    reward_cards = DEFAULT_REWARD_CARDS
+    reward_cards = list(DEFAULT_REWARD_CARDS)
     if target_level >= 4:
         reward_cards += DEFAULT_ODD_REWARD_CARDS
 
