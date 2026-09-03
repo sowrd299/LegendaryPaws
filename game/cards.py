@@ -164,7 +164,7 @@ CARD_DATA = [
         'rarity': 'interesting',
         'target': 'enemy',
         'recovery_cost': 12,
-        'description': 'Spikes an enemy while shielding the user.',
+        'description': 'Spikes an enemy while shielding.',
         'damage_type': 'melee_damage',
         'damage_power': 1.0,
         'stat_boosts': {'brute_resistance': 0.3},
