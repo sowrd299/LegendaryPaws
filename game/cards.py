@@ -9,7 +9,7 @@ CARD_DATA = [
         'type': 'nothingness',
         'rarity': '',
         'target': 'self',
-        'recovery_cost': 5,
+        'recovery_cost': 3,
         'description': 'Do nothing just yet.',
         'stat_boosts': {},
         'is_consumable': False,
