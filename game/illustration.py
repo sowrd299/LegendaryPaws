@@ -249,12 +249,12 @@ ILLUSTRATION_DATA = [
     {
         'name': 'embersprite_squire',
         'species': ['Ember Sprite'],
-        'classes': ['Squire', 'Knight', 'Paladin', 'Dragonslayer'],
+        'classes': ['Squire', 'Knight', 'Paladin', 'Dragonslayer', 'Fencer'],
     },
     {
         'name': 'embersprite_scout',
         'species': ['Ember Sprite'],
-        'classes': ['Scout', 'scout'],
+        'classes': ['Scout', 'Ranger'],
     },
     {
         'name': 'embersprite_day_mage',
@@ -264,12 +264,12 @@ ILLUSTRATION_DATA = [
     {
         'name': 'dewsprite_squire',
         'species': ['Dew Sprite'],
-        'classes': ['Squire', 'Knight', 'Paladin', 'Dragonslayer'],
+        'classes': ['Squire', 'Knight', 'Paladin', 'Dragonslayer', 'Fencer'],
     },
     {
         'name': 'dewsprite_scout',
         'species': ['Dew Sprite'],
-        'classes': ['Scout', 'scout'],
+        'classes': ['Scout', 'Ranger'],
     },
     {
         'name': 'dewsprite_night_mage',
@@ -279,12 +279,12 @@ ILLUSTRATION_DATA = [
     {
         'name': 'frostsprite_squire',
         'species': ['Frost Sprite'],
-        'classes': ['Squire', 'Knight', 'Paladin', 'Dragonslayer'],
+        'classes': ['Squire', 'Knight', 'Paladin', 'Dragonslayer', 'Fencer'],
     },
     {
         'name': 'frostsprite_scout',
         'species': ['Frost Sprite'],
-        'classes': ['Scout', 'scout'],
+        'classes': ['Scout', 'Ranger'],
     },
     {
         'name': 'frostsprite_passage_mage',

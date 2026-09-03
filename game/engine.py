@@ -200,14 +200,14 @@ CLASS_DATA = {
         'bonus_stats': ['void_intensity', 'moon_vulnerability'],
         'stat_mods': {'brute_intensity' : -4, 'brute_resistance': -1, 'nimbleness': -3, 'haleness': -8.0, 'void_intensity': 2, 'moon_vulnerability': 5},
         'default_cards': ['Light Slash', 'Chill', 'Chill Breath'],
-        'enemy_species': ['Cat', 'Badger', 'Fox', 'Rabbit', 'Owl', 'Raven', 'Dragonling', 'Giant'],
+        'enemy_species': ['Cat', 'Badger', 'Fox', 'Rabbit', 'Owl'],
         'playable': False,
     },
     'Essence': {
         'bonus_stats': ['void_intensity', 'moon_vulnerability'],
         'stat_mods': {'brute_resistance': 1, 'void_intensity': 5, 'nimbleness': 1, 'moon_vulnerability': 9},
         'default_cards': ['Light Slash', 'Chill', 'Chill Breath', 'Call to the Void'],
-        'enemy_species': ['Cat', 'Badger', 'Fox', 'Rabbit', 'Owl', 'Raven', 'Dragonling', 'Giant'],
+        'enemy_species': ['Cat', 'Badger', 'Fox', 'Rabbit', 'Owl'],
         'playable': False,
     },
     'Rotmonger': {
