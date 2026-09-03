@@ -514,6 +514,20 @@
 
             <!-- STATS VIEW -->
             {% if stats_tab %}
+            <div class="btn-group">
+                {% for c in selected_char.unlocked_classes %}
+                <form method="POST" action="{% url 'handle_action' %}" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action_type" value="change_class">
+                    <input type="hidden" name="class_name" value="{{ c }}">
+                    {% if selected_char.current_class == c %}
+                    {% include "game/button.html" with label=c selected=True %}
+                    {% else %}
+                    {% include "game/button.html" with label=c selected=False %}
+                    {% endif %}
+                </form>
+                {% endfor %}
+            </div>
             <div class="stats-area">
                 <img src="{% static selected_char.illust %}" style="width: 20%; margin-top: 20px" />
                 <table class="stats-table">

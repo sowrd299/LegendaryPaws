@@ -443,6 +443,12 @@ def handle_action(request):
                 party.inventory.remove(card_name)
             log.append(Message(0, msg))
 
+    elif action_type == 'change_class':
+        new_class = request.POST.get('class_name')
+        if new_class in party.members[state.get('char_index', 0)].unlocked_classes:
+            party.members[state.get('char_index', 0)].current_class = new_class
+            log.append(Message(0, f"{party.members[state.get('char_index', 0)].name} is now practicing as a {new_class}."))
+
     elif action_type == 'remove_deck':
         card_name = request.POST.get('card_name')
         if card_name in party.shared_deck:
@@ -596,6 +602,10 @@ def handle_action(request):
                     party.gold = max(party.gold, 0)
                     party.losable_gold = 0
                     check_quest_triggers(state, party)
+
+                # Update character's previous combat class
+                for m in party.members:
+                    m.previous_combat_class = m.current_class
 
     state['party'] = party.to_dict()
     state['log'] = [m.to_dict() for m in log]

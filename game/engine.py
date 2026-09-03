@@ -239,6 +239,8 @@ class Character:
         self.name = name
         self.species = species if species in SPECIES_DATA else "Fox"
         self.current_class = current_class if current_class in CLASS_DATA else "Wandering Spellsword"
+        self.unlocked_classes = [current_class]
+        self.previous_combat_class = None
         self.status_effects = [] # Do this early, since it's checked in get_scaled_stats
 
         if level_up_cards is not None:
@@ -255,7 +257,6 @@ class Character:
         self.update_max_hp()
         self.current_hp = self.max_hp
         self.action_timer = 0
-        self.previous_eligible_classes = []
         self.equipped_cards = []  # Specific equipped cards
         self.is_recruited = False
 
@@ -444,7 +445,7 @@ class Character:
             if not cl.get('playable', True):
                 continue
 
-            class_req = not has_class_req or self.current_class in cl.get('req_class')
+            class_req = not has_class_req or self.previous_combat_class in cl.get('req_class')
             card_req = not has_card_req or any(c in self.equipped_cards for c in cl.get('req_card'))
             level_req = not has_level_req or self.get_scaled_stats().get('level', 1) >= cl.get('req_level')
             species_req = not has_species_req or self.species in cl.get('req_species')
@@ -455,16 +456,16 @@ class Character:
                     f"card_req={card_req}, "
                     f"level_req={level_req}, "
                     f"species_req={species_req}, "
-                    f"newly eligible={class_name not in self.previous_eligible_classes}")
+                    f"newly eligible={class_name not in self.unlocked_classes}")
 
             if class_req and card_req and level_req and species_req:
                 eligible_classes.append(class_name)
                 
                 # the newly eligible class lowest on the list is the new class
-                if not class_name in self.previous_eligible_classes:
+                if not class_name in self.unlocked_classes:
                     new_class = class_name
+                    self.unlocked_classes.append(class_name)
 
-        self.previous_eligible_classes = eligible_classes
         self.current_class = new_class
 
     def update_max_hp(self): 
@@ -488,7 +489,8 @@ class Character:
             'name': self.name,
             'species': self.species,
             'current_class': self.current_class,
-            'previous_eligible_classes': self.previous_eligible_classes,
+            'unlocked_classes': self.unlocked_classes,
+            'previous_combat_class': self.previous_combat_class,
             'level_up_cards': self.level_up_cards,
             'current_hp': self.current_hp,
             'max_hp': self.max_hp,
@@ -508,7 +510,8 @@ class Character:
             current_class=d.get('current_class', 'Wandering Spellsword'),
             level_up_cards=cards
         )
-        c.previous_eligible_classes = d.get('previous_eligible_classes', [])
+        c.unlocked_classes = d.get('unlocked_classes', [c.current_class])
+        c.previous_combat_class = d.get('previous_combat_class', None)
         c.equipped_cards = d.get('equipped_cards', [])
         c.is_recruited = d.get('is_recruited', False)
         # Recalculate max_hp based on state
