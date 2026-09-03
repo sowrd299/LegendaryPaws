@@ -679,6 +679,48 @@ CARD_DATA = [
 """
     },
     {
+        'name': 'Vigilant Shot',
+        'type': 'weapon',
+        'rarity': 'interesting',
+        'target': 'enemy',
+        'recovery_cost': 13,
+        'damage_type': 'ranged_damage',
+        'damage_power': 2.0,
+        'discard_cards': 1,
+        'description': 'A ranged attack. Redraws a card.',
+        'stat_boosts': {'ranged_damage': 0.4, 'nimbleness': 0.4},
+        'illust': """
++-----------------+
+|<((`)>           |
+|                 |
+|  \`\        .   |
+| ===N========>-> |
+|  ///        `   |
++-----------------+
+"""
+    },
+    {
+        'name': 'Archer\'s Coup',
+        'type': 'weapon',
+        'rarity': 'odd',
+        'target': 'enemy',
+        'recovery_cost': 23,
+        'damage_type': 'ranged_damage',
+        'damage_power': 3.0,
+        'discard_cards': 2,
+        'description': 'A skilled ranged attack. Redraws your hand.',
+        'stat_boosts': {'ranged_damage': 0.4, 'nimbleness': 0.4},
+        'illust': """
++-----------------+
+|<((`)>           |
+|                 |
+|  \`\        .   |
+| ===N========>-> |
+|  ///        `   |
++-----------------+
+"""
+    },
+    {
         'name': 'Pinning Shot',
         'type': 'weapon',
         'rarity': 'interesting',
@@ -768,6 +810,50 @@ CARD_DATA = [
 |      %(&n)%     |
 |------/|u/\------|
 |       |/   \____|
++-----------------+
+"""
+    },
+    {
+        'name': 'Plan to Fight',
+        'type': 'scroll',
+        'rarity': 'interesting',
+        'target': 'ally',
+        'recovery_cost': 15,
+        'status_effect_target_stat': 'ranged_damage',
+        'status_effect_power': 2,
+        'status_effect_duration': 10,
+        'status_effect_duration_stat': 'survival_intensity',
+        'discard_cards': 2,
+        'description': 'Boost the user\'s archery, and redraw your hand.',
+        'illust': """
++-----------------+
+|                 |
+|  <((`)>         |
+|                 |
+|                 |
+|             \`\ |
++-----------------+
+"""
+    },
+    {
+        'name': 'Plan to Survive',
+        'type': 'scroll',
+        'rarity': 'interesting',
+        'target': 'ally',
+        'recovery_cost': 15,
+        'status_effect_target_stat': 'brute_resistance',
+        'status_effect_power': 1,
+        'status_effect_duration': 10,
+        'status_effect_duration_stat': 'survival_intensity',
+        'discard_cards': 2,
+        'description': 'Boost the user\'s resistance, and redraw your hand.',
+        'illust': """
++-----------------+
+|                 |
+|  <((`)>         |
+|                 |
+|             _`/ |
+|            ( #) |
 +-----------------+
 """
     },

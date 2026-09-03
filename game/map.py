@@ -116,11 +116,10 @@ DEFAULT_REWARD_CARDS = [
 
     # Scout
     'Archery', 
-    'Heavy Shot',
-    'Whistling Shot',
-    'Crescent Shot',
-    'Burning Shot',
-    'Broken Shot',
+    'Archery', 
+    'Vigilant Shot',
+    'Plan to Fight',
+    'Plan to Survive',
 
     # Student
     'Wain', 
@@ -133,6 +132,7 @@ DEFAULT_REWARD_CARDS = [
 
 DEFAULT_ODD_REWARD_CARDS = [
     'Pinning Shot',
+    'Archer\'s Coup',
     'Waxing Moonlight',
     'Singeing Sunlight',
     'Call to the Void',

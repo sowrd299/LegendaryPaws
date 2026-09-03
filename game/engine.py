@@ -819,6 +819,12 @@ class CombatEngine:
                 else:
                     effect_logs.append(f" on {t.name}, {stat_name(target_stat)} has been decreased by {status_effect_val}")
 
+        # discard cards
+        discard_cards = card.get('discard_cards', 0)
+        for _ in range(discard_cards):
+            self.hand.remove(self.hand[0])
+            effect_logs.append(f" Discarded {discard_cards} cards")
+
         # recur onto bonus effects
         for effect in card.get('effects', []):
             effect = dict(effect)
