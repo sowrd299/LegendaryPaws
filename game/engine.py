@@ -166,7 +166,7 @@ CLASS_DATA = {
     'Fencer': {
         'bonus_stats': ['melee_damage', 'nimbleness', 'moon_vulnerability', 'void_vulnerability'],
         'stat_mods': {'melee_damage': 4.0, 'nimbleness': 3.0, 'moon_vulnerability': 2.0, 'void_vulnerability': 2.0},
-        'default_cards': ['Parry'],
+        'default_cards': ['Parry & Riposte', 'Budding Thrust'],
         'req_card': ['Flowering Stab'],
     },
     'Shieldmate': {
@@ -603,6 +603,7 @@ class CombatEngine:
         self.draw_pile = []
         self.discard_pile = []
         self.hand = []
+        self.draw_reqs = []
 
     def start_combat(self):
         # Reset action timers
@@ -630,9 +631,16 @@ class CombatEngine:
         if self.is_over:
             return
 
+        def meets_draw_req(card_name, reqs):
+            card = CARDS.get(card_name, {})
+            return all(card.get(r) == reqs.get(r) for r in reqs)
+
         needed = 3 - len(self.hand)
         for _ in range(needed):
-            if not self.draw_pile:
+
+            draw_req = self.draw_reqs[0] if self.draw_reqs else None
+
+            if not self.draw_pile or (draw_req and not any(meets_draw_req(c, draw_req) for c in self.draw_pile)):
                 if self.discard_pile:
                     self.draw_pile = self.discard_pile
                     self.discard_pile = []
@@ -640,7 +648,16 @@ class CombatEngine:
                 else:
                     break
             if self.draw_pile:
-                self.hand.append(self.draw_pile.pop(0))
+                if draw_req:
+                   idx = 0 
+                   for i, card_name in enumerate(self.draw_pile):
+                       if meets_draw_req(card_name, draw_req):
+                           idx = i
+                           break
+                   self.hand.append(self.draw_pile.pop(idx))
+                   random.shuffle(self.draw_pile)
+                else:
+                   self.hand.append(self.draw_pile.pop(0))
 
     def get_current_turn_character(self):
         """Returns the character with the lowest action timer."""
@@ -819,11 +836,19 @@ class CombatEngine:
                 else:
                     effect_logs.append(f" on {t.name}, {stat_name(target_stat)} has been decreased by {status_effect_val}")
 
-        # discard cards
-        discard_cards = card.get('discard_cards', 0)
-        for _ in range(discard_cards):
-            self.hand.remove(self.hand[0])
-            effect_logs.append(f" Discarded {discard_cards} cards")
+        # ally only effects
+        if actor in self.allies:
+
+            # discard cards
+            discard_cards = card.get('discard_cards', 0)
+            for _ in range(discard_cards):
+                self.hand.remove(self.hand[0])
+                effect_logs.append(f" Discarded {discard_cards} cards")
+
+            # draw reqs
+            draw_req = card.get('draw_req', [])
+            if draw_req:
+                self.draw_reqs.append(draw_req) 
 
         # recur onto bonus effects
         for effect in card.get('effects', []):
@@ -903,7 +928,8 @@ class CombatEngine:
             'victory': self.victory,
             'draw_pile': self.draw_pile,
             'discard_pile': self.discard_pile,
-            'hand': self.hand
+            'hand': self.hand,
+            'draw_reqs': self.draw_reqs,
         }
 
     @classmethod
@@ -917,6 +943,7 @@ class CombatEngine:
         engine.draw_pile = d.get('draw_pile', [])
         engine.discard_pile = d.get('discard_pile', [])
         engine.hand = d.get('hand', [])
+        engine.draw_reqs = d.get('draw_reqs', [])
         return engine
 
 

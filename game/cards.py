@@ -428,6 +428,64 @@ CARD_DATA = [
 """
     },
     {
+        'name': 'Parry & Riposte',
+        'type': 'weapon',
+        'rarity': 'odd',
+        'target': 'self',
+        'recovery_cost': 5,
+        'description': 'A boost to the user\'s defenses. Draw a weapon.',
+        'stat_boosts': {'brute_resistance': 0.3, 'melee_damage': 0.3, 'nimbleness': 0.3},
+        'effects': [
+            {
+                'status_effect_target_stat': 'brute_resistance',
+                'status_effect_power': 1,
+                'status_effect_stat': 'melee_damage',
+                'status_effect_duration': 10,
+            },
+            {
+                'draw_req': {
+                    'type': 'weapon',
+                }
+            }
+        ],
+        'illust': """
++-----------------+
+|       \  \      |
+|     l,          |
+|  o==D)=======>  |
+|     l`          |
+|       /  /      |
++-----------------+
+"""
+    },
+    {
+        'name': 'Budding Thrust',
+        'type': 'weapon',
+        'rarity': 'interesting',
+        'target': 'enemy',
+        'recovery_cost': 7,
+        'damage_type': 'melee_damage',
+        'damage_power': 1,
+        'description': 'A quick attack that draws a weapon.',
+        'stat_boosts': {'melee_damage': 0.3, 'nimbleness': 0.3},
+        'effects': [
+            {
+                'draw_req': {
+                    'type': 'weapon',
+                }
+            }
+        ],
+        'illust': """
++-----------------+
+|       \  \      |
+|     l,          |
+|  o==D)=======>  |
+|     l`          |
+|       /  /      |
++-----------------+
+"""
+    },
+    {
         'name': 'Dragonsbane',
         'type': 'weapon',
         'rarity': 'peerless',
@@ -717,6 +775,87 @@ CARD_DATA = [
 |  \`\        .   |
 | ===N========>-> |
 |  ///        `   |
++-----------------+
+"""
+    },
+    {
+        'name': 'Volley',
+        'type': 'weapon',
+        'rarity': 'mundane',
+        'target': 'enemy',
+        'recovery_cost': 13,
+        'damage_type': 'ranged_damage',
+        'damage_power': 2,
+        'description': 'A quick attack that draws a weapon.',
+        'stat_boosts': {'ranged_damage': 0.3, 'nimbleness': 0.3},
+        'effects': [
+            {
+                'draw_req': {
+                    'type': 'weapon',
+                }
+            }
+        ],
+        'illust': """
++-----------------+
+|       .         |
+========>->       |
+|  \`\  `     .   |
+| ===N========>-> |
+|  ///        `   |
++-----------------+
+"""
+    },
+    {
+        'name': 'Barrage',
+        'type': 'weapon',
+        'rarity': 'mundane',
+        'target': 'enemy',
+        'recovery_cost': 13,
+        'damage_type': 'ranged_damage',
+        'damage_power': 2,
+        'description': 'A quick attack that draws a scroll.',
+        'stat_boosts': {'ranged_damage': 0.3, 'nimbleness': 0.3},
+        'effects': [
+            {
+                'draw_req': {
+                    'type': 'scroll',
+                }
+            }
+        ],
+        'illust': """
++-----------------+
+|                 |
+|  \`\   _ _  .   |
+| ===N==)_&_)=>-> |
+|  ///        `   |
+|                 |
++-----------------+
+"""
+    },
+    {
+        'name': 'Hailshot',
+        'type': 'weapon',
+        'rarity': 'mundane',
+        'target': 'enemy',
+        'recovery_cost': 13,
+        'damage_type': 'ranged_damage',
+        'damage_power': 2,
+        'description': 'A quick attack that draws a trinket.',
+        'stat_boosts': {'ranged_damage': 0.3, 'nimbleness': 0.3},
+        'effects': [
+            {
+                'draw_req': {
+                    'type': 'trinket',
+                }
+            }
+        ],
+        'illust': """
++-----------------+
+|                 |
+|  \`\        .   |
+| ===N=====/&=>-> |
+|  ///    (_) `   |
+|                 |
 +-----------------+
 """
     },
