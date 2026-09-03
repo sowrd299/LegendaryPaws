@@ -53,7 +53,7 @@
 </style>
 
 <!-- NOTE: The order of single vs. double quotes is important! Some cards use single quote in their names -->
-<div class="card-rect" onclick='selectCard("{{ card.name }}" , "{{ card.target }}" )'>
+<div class="card-rect" onclick='selectCard("{{ card.name }}" , "{{ card.target }}" )' onmouseenter="showCardTurnPreview('{{ card.name|escapejs }}')" onmouseleave="hideCardTurnPreview()">
     <div>
         <div class="card-title">{{ card.name }}</div>
         <div class="card-illust">{{ card.illust|illust }}</div>

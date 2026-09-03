@@ -265,6 +265,40 @@ def game_index(request):
             context['is_player_turn'] = (turn_char in engine.allies) if turn_char else False
             context['log'] += engine.combat_log
 
+            # Turn tracking UI data
+            actual_living = engine.get_sorted_living_characters()
+            actual_turns = []
+            for c in actual_living:
+                actual_turns.append({
+                    'char': c,
+                    'is_current': (c.id == turn_char.id if turn_char else False),
+                    'is_enemy': (c in engine.enemies),
+                    'action_timer': c.action_timer,
+                })
+            context['actual_turns'] = actual_turns
+
+            hypothetical_turns = []
+            if context['is_player_turn'] and turn_char:
+                hand_card_names = ['Wait'] + engine.hand
+                seen_cards = set()
+                for card_name in hand_card_names:
+                    if card_name in seen_cards:
+                        continue
+                    seen_cards.add(card_name)
+                    hyp_info = engine.get_hypothetical_turn_info(card_name)
+                    if hyp_info:
+                        card_slug = card_name.replace(' ', '-').replace("'", "")
+                        hypothetical_turns.append({
+                            'card_name': card_name,
+                            'card_slug': card_slug,
+                            'target_index': hyp_info['target_index'],
+                            'projected_timer': hyp_info['projected_timer'],
+                            'char': turn_char,
+                            'is_enemy': (turn_char in engine.enemies),
+                        })
+            context['hypothetical_turns'] = hypothetical_turns
+
+
     return render(request, 'game/game.html', context)
 
 

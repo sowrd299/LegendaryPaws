@@ -641,11 +641,44 @@ class CombatEngine:
 
     def get_current_turn_character(self):
         """Returns the character with the lowest action timer."""
+        active = self.get_sorted_living_characters()
+        return active[0] if active else None
+
+    def get_sorted_living_characters(self):
+        """Returns living allies and enemies stably sorted by action_timer."""
         active = [c for c in self.allies + self.enemies if c.is_alive()]
-        if not active:
-            return None
         active.sort(key=lambda c: c.action_timer)
-        return active[0]
+        return active
+
+    def get_hypothetical_turn_info(self, card_name):
+        """Calculates projected next turn index and action timer for current turn character if card_name is chosen."""
+        turn_char = self.get_current_turn_character()
+        if not turn_char:
+            return None
+
+        card = CARDS.get(card_name, CARDS.get('Slash', {}))
+        stats = turn_char.get_scaled_stats()
+        nimble = stats.get('nimbleness', 2)
+        rec = int(round(((4 * card.get('recovery_cost', 10)) - nimble) / 4))
+        projected_timer = turn_char.action_timer + rec
+
+        active = self.get_sorted_living_characters()
+        target_index = 1
+        for i in active:
+            if i == turn_char:
+                continue
+            # "Less than" ignores tie breakers, so this isn't actually always right
+            if i.action_timer < projected_timer:
+                target_index += 1
+            else:
+                break
+
+        return {
+            'target_index': target_index,
+            'projected_timer': rec,
+            'turn_char': turn_char,
+        }
+
 
     def advance_action_timers(self):
         """Fast-forwards action timers until a living character reaches turn execution."""

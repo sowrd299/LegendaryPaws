@@ -140,7 +140,90 @@
             border: 1px solid var(--border-color);
             border-radius: 6px;
             padding: 12px;
+            position: relative;
         }
+
+        /* TURN TRACKER UI */
+        .turn-tracker-container {
+            position: absolute;
+            right: calc(100% + 48px);
+            top: 0;
+            width: min-content;
+            min-height: 480px;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 100;
+        }
+
+        .turn-tracker-slot {
+            width: 64px;
+            height: 32px;
+            flex-shrink: 0;
+        }
+
+        .turn-tracker-slot.hypothetical-turn {
+            display: none;
+        }
+
+        .turn-tracker-icon {
+            width: 64px;
+            height: 32px;
+            border-top: 2px solid var(--border-color);
+            border-bottom: 2px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .turn-tracker-icon.turn-active {
+            border-color: var(--accent-cyan);
+        }
+
+        .turn-tracker-icon .portrait-crop {
+            width: 200%;
+            height: 200%;
+            margin-left: -50%;
+            margin-top: -30%;
+            object-fit: cover;
+            object-position: center 20%;
+            display: block;
+        }
+
+        .turn-tracker-icon.enemy-unit .portrait-crop {
+            transform: scaleX(-1);
+        }
+
+        .turn-tracker-overlay {
+            position: absolute;
+            bottom: 1px;
+            right: 1px;
+            background-color: rgba(20, 26, 36, 0.85);
+            font-size: 0.8rem;
+            color: var(--accent-cyan);
+            font-weight: bold;
+            padding: 1px 3px;
+            border-radius: 2px;
+            line-height: 1;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .turn-tracker-icon.hypothetical {
+            opacity: 0.7;
+            animation: ghost-slide 1s infinite ease-in-out;
+        }
+
+        @keyframes ghost-slide {
+            0% {
+                transform: translateX(-16px);
+            }
+
+            100% {
+                transform: translateX(0px);
+            }
+        }
+
 
         .unit-group {
             display: flex;
@@ -729,6 +812,42 @@
             </div>
 
             <div class="combat-units-grid">
+                <!-- FLOATING TURN TRACKER UI (LEFT OF MAIN GRID) -->
+                <div class="turn-tracker-container terminal-container">
+                    {% for turn in actual_turns %}
+                    {% for hyp in hypothetical_turns %}
+                    {% if hyp.target_index == forloop.parentloop.counter0 %}
+                    <div class="turn-tracker-slot hypothetical-turn card-turn-preview-{{ hyp.card_slug }}">
+                        <div class="turn-tracker-icon hypothetical {% if hyp.is_enemy %}enemy-unit{% endif %}">
+                            <img class="portrait-crop" src="{% static hyp.char.illust %}" alt="{{ hyp.char.name }}" />
+                            <div class="turn-tracker-overlay">{{ hyp.projected_timer }}⧗</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+
+                    <div class="turn-tracker-slot">
+                        <div class="turn-tracker-icon {% if turn.is_current %}turn-active{% endif %} {% if turn.is_enemy %}enemy-unit{% endif %}">
+                            <img class="portrait-crop" src="{% static turn.char.illust %}" alt="{{ turn.char.name }}" />
+                            <div class="turn-tracker-overlay">
+                                {% if turn.is_current %}TURN!{% else %}{{ turn.action_timer }}⧗{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    {% for hyp in hypothetical_turns %}
+                    {% if hyp.target_index >= actual_turns|length %}
+                    <div class="turn-tracker-slot hypothetical-turn card-turn-preview-{{ hyp.card_slug }}">
+                        <div class="turn-tracker-icon hypothetical {% if hyp.is_enemy %}enemy-unit{% endif %}">
+                            <img class="portrait-crop" src="{% static hyp.char.illust %}" alt="{{ hyp.char.name }}" />
+                            <div class="turn-tracker-overlay">{{ hyp.projected_timer }}⧗</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+
                 <!-- ENEMIES (TOP) -->
                 <div class="unit-group-title">Enemies</div>
                 <div class="unit-group">
@@ -796,6 +915,23 @@
     <!-- JS INTERCEPTOR & TWO-PHASE COMBAT SELECTION -->
     <script>
         let selectedCardName = null;
+
+        function showCardTurnPreview(cardName) {
+            hideCardTurnPreview();
+            if (!cardName) return;
+            const cardSlug = cardName.replace(/\s+/g, '-').replace(/'/g, '');
+            const elements = document.querySelectorAll('.card-turn-preview-' + cardSlug);
+            elements.forEach(el => {
+                el.style.display = 'block';
+            });
+        }
+
+        function hideCardTurnPreview() {
+            const elements = document.querySelectorAll('.hypothetical-turn');
+            elements.forEach(el => {
+                el.style.display = 'none';
+            });
+        }
 
         function selectCard(cardName, target) {
             selectedCardName = cardName;

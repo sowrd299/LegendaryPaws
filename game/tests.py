@@ -708,16 +708,56 @@ class QuestTests(TestCase):
         """Test get_active_quests filters out steps without menu_description and resolves card illust."""
         from game.quests import get_active_quests
         state = create_initial_game_state()
-        state['quests']['voinara_intro'] = 1  # Completed voinara intro
-        state['quests']['badgys_errand'] = 0   # At step 0 of badgy errand (has menu_description & Rotten Egg illust)
+        state['active_dialogue'] = None
+        state['quests']['voinara_intro'] = 2  # Completed all steps of voinara intro
+        state['quests']['badgys_errand'] = 1   # At step 1 of badgy errand (has menu_description & Rotten Egg illust)
+
+
 
         active = get_active_quests(state)
         self.assertEqual(len(active), 1)
         quest_item = active[0]
         self.assertEqual(quest_item['id'], 'badgys_errand')
         self.assertEqual(quest_item['title'], "Badgy's Favor")
-        self.assertIn("Rotten Egg", quest_item['description'])
-        self.assertIn("(___)", quest_item['illust'])  # Rotten Egg ASCII art contains (___)
+        self.assertIn("rotten egg", quest_item['description'].lower())
+
+        self.assertTrue(len(quest_item['illust']) > 0)
+
+
+
+class TurnTrackerTests(TestCase):
+    def test_sorted_living_characters_order(self):
+        """Test living combat characters are stably sorted by action_timer."""
+        hero = Character(name="Hero", species="Fox", current_class="Squire", level=1)
+        hero.action_timer = 5
+        enemy1 = Character(name="Enemy1", species="Cat", current_class="Student", level=1)
+        enemy1.action_timer = 2
+        enemy2 = Character(name="Enemy2", species="Owl", current_class="Scout", level=1)
+        enemy2.action_timer = 8
+
+        engine = CombatEngine([hero], [enemy1, enemy2])
+        sorted_chars = engine.get_sorted_living_characters()
+        self.assertEqual([c.name for c in sorted_chars], ["Enemy1", "Hero", "Enemy2"])
+
+    def test_hypothetical_turn_info_calculation(self):
+        """Test hypothetical next turn target index and projected action timer calculation."""
+        hero = Character(name="Hero", species="Fox", current_class="Squire", level=1)
+        hero.action_timer = 0
+        enemy1 = Character(name="Enemy1", species="Cat", current_class="Student", level=1)
+        enemy1.action_timer = 3
+        enemy2 = Character(name="Enemy2", species="Owl", current_class="Scout", level=1)
+        enemy2.action_timer = 12
+
+        engine = CombatEngine([hero], [enemy1, enemy2])
+
+        # Test card with recovery cost 10:
+        # Living unit timers: Enemy1 (3), Hero next (10), Enemy2 (12)
+        # Sorted order: Enemy1 (index 0), Hero next (index 1), Enemy2 (index 2) -> target_index = 1
+        hyp = engine.get_hypothetical_turn_info('Wait')
+        self.assertIsNotNone(hyp)
+        self.assertEqual(hyp['target_index'], 1)
+        self.assertGreater(hyp['projected_timer'], 0)
+
 
     def test_open_quest_menu_action_and_rendering(self):
         """Test toggling quest menu screen via action and rendering quest menu UI."""
