@@ -827,6 +827,48 @@
             {% endfor %}
         </div>
 
+        <!-- SCREEN: BATHHOUSE -->
+        {% elif screen == 'bathhouse' %}
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="color: var(--text-muted);">Bathhouse | {{ title }}</h2>
+            <div style="display: flex; gap: 16px; align-items: center;">
+                <div style="color: var(--accent-amber);">Gold: {{ party.gold }}Ꞡ</div>
+                <form method="POST" action="{% url 'handle_action' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action_type" value="close_menu">
+                    {% include "game/button.html" with key="X" label="Exit Bathhouse" %}
+                </form>
+            </div>
+        </div>
+
+        <div class="dialogue-box">
+            <p class="card-illust" style="color: var(--text-muted)">{{ illust|illust }}</p>
+            <p><span style="color: var(--text-muted)">{{ speaker }}:</span> {{ text }}</p>
+        </div>
+
+        <h4 style="font-size: 0.95rem; color:var(--text-muted)">
+            Choose a party member to relax in the bath and clear their mind, <span style="color:var(--text-color)">forgetting all cards they know:</span>
+        </h4>
+        <div class="cards-row">
+            {% for item in party_members_with_bathe_cost %}
+            <div class="card-and-button-rect">
+                {% include "game/inn_character.html" with char=item.char %}
+                <form method="POST" action="{% url 'handle_action' %}" style="margin-top: 6px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action_type" value="bathe">
+                    <input type="hidden" name="char_index" value="{{ forloop.counter0 }}">
+                    {% if item.can_afford %}
+                    {% include "game/button.html" with label="Bathe " cost=item.cost %}
+                    {% else %}
+                    <button type="button" class="btn" disabled style="color: var(--text-muted); cursor: not-allowed; opacity: 0.6;">[ Bathe {{ item.cost }}Ꞡ ]</button>
+                    {% endif %}
+                </form>
+            </div>
+            {% empty %}
+            <p style="font-size: 0.85rem; color: var(--text-muted); width: max-content;">No party members available.</p>
+            {% endfor %}
+        </div>
+
         <!-- SCREEN: COMBAT -->
         {% elif screen == 'combat' %}
         <div class="combat-section">

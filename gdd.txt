@@ -246,3 +246,40 @@ The title for the screen should be the override from the current dialog entry; o
 from the map screen (id est, location: <tile name>).
 
 For robustness, each quest should also have a non-user facing ID that is used when saving the player's progress. 
+
+
+=== LIBRARIES ===
+
+A library is a type of space/screen, like the shop or inn. The Library screen has, from top to bottom:
+- A title (in the style of the shop or inn title)
+- A counter for "N out of M cards catalogued", with "M" being the number of unique cards with library text
+- within the dialog box:
+    - An ascii art illustration
+    - A dialog message
+- within a second dialog box:
+    - a y-scrollable list of cards donated to the library, in the style of the quest menu, with:
+        1) the card's name
+        2) the card's art on the left below the name
+        3) the card's library text on the below the name
+    - unlike other scrollables, this should be scrolled to the bottom by default
+- The player's inventory, in the style of the deck editor, filter to only the cards that the player can donate (cards that are not already in the library, and have library text)
+    - each such card has a "+ Donate" button
+    - clicking "+ Donate" adds the card to the library, and removes it from the player's inventory
+    - This should be a shared component of game.html used for both the library and character screens
+
+A library is marked on a map with an "L", and has minimal config (following the pattern of shop and inn configs), with a title, an illustration, and dialogs
+Unlike inns, the list of donated library cards is single piece of global game state, not tracked per library
+
+
+== Bathhouses ==
+
+A bathhouse is a space/screen, like the shop or inn. It's UI mostly matches the Inn, and like the Library, is has minimal config. It has no state to save of its own.
+
+
+At the bottom of the bathhouse screen, below the standard space/screen UI elements, is the player's party (like in the inn screen).
+Instead of a dismiss button, they each have a "Bathe" button with a price for that character (calculated in the view)
+When a character bathes (if they can afford it all of their equipped cards are removed.)
+
+Like in the combat or character menu, a subheader above the party says "Choose a party member to relax in the bath and clear their mind, <b>forgetting all cards they know</b>:".
+
+The cost for a party member to bathe is 10g per interesting card they have equipped, 40g per odd card they have equipped, 160g per exceptional card they have equipped, and 640g per peerless card they have equipped.

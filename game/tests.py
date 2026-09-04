@@ -778,8 +778,8 @@ class TurnTrackerTests(TestCase):
         self.assertEqual(index_resp.status_code, 200)
         self.assertEqual(index_resp.context['screen'], 'quest_menu')
         self.assertIn('active_quests', index_resp.context)
-        self.assertContains(index_resp, "+-+")
-        self.assertContains(index_resp, "Badgy&#x27;s Favor")
+        self.assertContains(index_resp, "+--+")
+        self.assertContains(index_resp, "Voinara&#x27;s Biding")
         self.assertContains(index_resp, "y-scrollable")
 
         # Close quest menu
@@ -787,6 +787,118 @@ class TurnTrackerTests(TestCase):
         self.assertEqual(close_resp.status_code, 302)
         updated_state = self.client.session['game_state']
         self.assertEqual(updated_state['screen'], 'overworld')
+
+
+from game.views import calculate_bathe_cost, BATH_CARD_COSTS
+from game.map import get_bathhouse
+
+class BathhouseTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+
+    def test_calculate_bathe_cost(self):
+        hero = Character(name="Hero", species="Fox")
+        hero.equipped_cards = ['Shield', 'Broad Shield', 'Parry & Riposte']
+        # Shield: interesting (10g)
+        # Broad Shield: odd (40g)
+        # Parry & Riposte: peerless (640g)
+        # Total cost: 10 + 40 + 640 = 690g
+        cost = calculate_bathe_cost(hero)
+        self.assertEqual(cost, 690)
+
+    def test_calculate_bathe_cost_mundane_or_empty(self):
+        hero = Character(name="Hero", species="Fox")
+        hero.equipped_cards = ['Potion', 'Slash'] # mundane cards -> 0g
+        self.assertEqual(calculate_bathe_cost(hero), 0)
+
+        hero.equipped_cards = []
+        self.assertEqual(calculate_bathe_cost(hero), 0)
+
+    def test_entering_bathhouse_tile(self):
+        session = self.client.session
+        state = create_initial_game_state()
+        state['screen'] = 'overworld'
+        state['active_dialogue'] = None
+        state['quests']['voinara_intro'] = 1
+
+        party = Party.from_dict(state['party'])
+        # Find Bathhouse tile position
+        b_x, b_y = None, None
+        for zone in MAP_ZONES:
+            for ly in range(len(zone.grid)):
+                for lx in range(len(zone.grid[ly])):
+                    if zone.grid[ly][lx] == 'B':
+                        b_x = lx + zone.offset_x
+                        b_y = ly + zone.offset_y
+                        break
+
+        self.assertIsNotNone(b_x)
+        # Move party adjacent to B tile
+        party.x = b_x - 1
+        party.y = b_y
+        state['party'] = party.to_dict()
+        session['game_state'] = state
+        session.save()
+
+        # Step right onto Bathhouse tile
+        res = self.client.post(reverse('handle_action'), {'action_type': 'move', 'direction': 'right'})
+        self.assertEqual(res.status_code, 302)
+
+        updated_state = self.client.session['game_state']
+        self.assertEqual(updated_state['screen'], 'bathhouse')
+
+        # Check render
+        index_res = self.client.get(reverse('game_index'))
+        self.assertEqual(index_res.status_code, 200)
+        self.assertEqual(index_res.context['screen'], 'bathhouse')
+        self.assertContains(index_res, "forgetting all cards they know")
+        self.assertContains(index_res, "Bathe")
+
+    def test_bathe_action_clears_equipped_cards_and_deducts_gold(self):
+        session = self.client.session
+        state = create_initial_game_state()
+        state['screen'] = 'bathhouse'
+        party = Party.from_dict(state['party'])
+        party.gold = 500
+        hero = party.members[0]
+        hero.equipped_cards = ['Shield', 'Broad Shield'] # 10g + 40g = 50g
+        state['party'] = party.to_dict()
+        session['game_state'] = state
+        session.save()
+
+        response = self.client.post(reverse('handle_action'), {
+            'action_type': 'bathe',
+            'char_index': 0
+        })
+        self.assertEqual(response.status_code, 302)
+
+        updated_state = self.client.session['game_state']
+        updated_party = Party.from_dict(updated_state['party'])
+        self.assertEqual(updated_party.gold, 450)
+        self.assertEqual(updated_party.members[0].equipped_cards, [])
+
+    def test_bathe_action_insufficient_gold(self):
+        session = self.client.session
+        state = create_initial_game_state()
+        state['screen'] = 'bathhouse'
+        party = Party.from_dict(state['party'])
+        party.gold = 20
+        hero = party.members[0]
+        hero.equipped_cards = ['Broad Shield'] # 40g (party only has 20g)
+        state['party'] = party.to_dict()
+        session['game_state'] = state
+        session.save()
+
+        response = self.client.post(reverse('handle_action'), {
+            'action_type': 'bathe',
+            'char_index': 0
+        })
+        self.assertEqual(response.status_code, 302)
+
+        updated_state = self.client.session['game_state']
+        updated_party = Party.from_dict(updated_state['party'])
+        self.assertEqual(updated_party.gold, 20)
+        self.assertEqual(updated_party.members[0].equipped_cards, ['Broad Shield'])
 
 
 

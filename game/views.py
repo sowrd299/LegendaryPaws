@@ -10,8 +10,8 @@ from .map import (
     get_tile, get_tile_description, get_map_width, get_map_height,
     get_map_min_x, get_map_min_y, get_map_max_x, get_map_max_y,
     VIEWPORT_MAX_WIDTH, VIEWPORT_MAX_HEIGHT, calculate_map_pan,
-    should_reset_losable_gold, get_shop, get_inn, get_inn_id, get_inn_coords,
-    get_nearest_inn_id, get_random_encounter, DEFAULT_START_INN_ID
+    should_reset_losable_gold, get_shop, get_inn, get_bathhouse, get_inn_id, get_inn_coords,
+    get_nearest_inn_id, get_random_encounter, DEFAULT_START_INN_ID, DEFAULT_BATHHOUSE_ILLUST
 )
 
 from .quests import QUESTS, check_quest_triggers, get_active_quests
@@ -19,6 +19,22 @@ from .quests import QUESTS, check_quest_triggers, get_active_quests
 DEBUG_COMBAT_ENABLED = True
 
 INVENTORY_MAX_SIZE = 20
+
+BATH_CARD_COSTS = {
+    'mundane': 0,
+    'interesting': 10,
+    'odd': 40,
+    'exceptional': 160,
+    'peerless': 640,
+}
+
+def calculate_bathe_cost(char):
+    cost = 0
+    for card_name in char.equipped_cards:
+        card_info = CARDS.get(card_name, {})
+        rarity = card_info.get('rarity', '').lower()
+        cost += BATH_CARD_COSTS.get(rarity, 0)
+    return cost
 
 DEAD_ILLUST = """
     _____    
@@ -149,11 +165,14 @@ def game_index(request):
                     title = entry.get('title') or step_data.get('title')
                     shop_data = get_shop(party.x, party.y)
                     inn_data = get_inn(party.x, party.y)
+                    bathhouse_data = get_bathhouse(party.x, party.y)
                     if not title:
                         if shop_data:
                             title = shop_data.get('title')
                         elif inn_data:
                             title = inn_data.get('title')
+                        elif bathhouse_data:
+                            title = bathhouse_data.get('title')
                         else:
                             tile_info = get_tile_description(party.x, party.y)
                             title = f"Location: {tile_info[0]}"
@@ -165,6 +184,8 @@ def game_index(request):
                             illust = shop_data.get('illust', '')
                         elif inn_data:
                             illust = inn_data.get('illust', '')
+                        elif bathhouse_data:
+                            illust = bathhouse_data.get('illust', '')
                         else:
                             illust = ''
 
@@ -253,6 +274,33 @@ def game_index(request):
         context['text'] = dialogue
         context['inn_id'] = inn_id
         context['inn_characters'] = inn_characters
+
+    elif screen == 'bathhouse':
+        bathhouse_data = get_bathhouse(party.x, party.y)
+        if not bathhouse_data:
+            bathhouse_data = {
+                'title': 'Village Bath',
+                'illust': DEFAULT_BATHHOUSE_ILLUST,
+                'dialogues': [
+                    ("Bath Attendant", "Oh look at how battleworn you all are! I promise a quick dip will wash all that away in no time."),
+                ]
+            }
+        speaker, dialogue = random.choice(bathhouse_data.get('dialogues', [("Bath Attendant", "Welcome to the bathhouse!")]))
+
+        party_members_with_bathe_cost = []
+        for char in party.members:
+            cost = calculate_bathe_cost(char)
+            party_members_with_bathe_cost.append({
+                'char': char,
+                'cost': cost,
+                'can_afford': party.gold >= cost
+            })
+
+        context['title'] = bathhouse_data.get('title', 'The Bathhouse')
+        context['illust'] = bathhouse_data.get('illust', DEFAULT_BATHHOUSE_ILLUST)
+        context['speaker'] = speaker
+        context['text'] = dialogue
+        context['party_members_with_bathe_cost'] = party_members_with_bathe_cost
 
     elif screen == 'combat':
         combat_dict = state.get('combat')
@@ -386,6 +434,10 @@ def handle_action(request):
             state['screen'] = 'inn'
             log.append(Message(1, '<span style="color:var(--accent-green)">After resting at the inn, your party is fully healed!</span>'))
             check_quest_triggers(state, party)
+        elif current_tile == 'B':
+            state['screen'] = 'bathhouse'
+            log.append(Message(1, 'You enter a bathhouse.'))
+            check_quest_triggers(state, party)
         else:
             # Chance for wild combat encounter based on terrain
             enemies, is_recruitable, reward_card, reward_gold = get_random_encounter(new_x, new_y)
@@ -404,19 +456,19 @@ def handle_action(request):
 
 
     elif action_type == 'open_menu':
-        if state['screen'] in ['overworld', 'quest_menu', 'shop', 'inn']:
+        if state['screen'] in ['overworld', 'quest_menu', 'shop', 'inn', 'bathhouse']:
             state['screen'] = 'character_menu'
             state['char_index'] = 0
             state['stat_tab'] = True
 
     elif action_type == 'open_quest_menu':
-        if state['screen'] in ['overworld', 'shop', 'inn']:
+        if state['screen'] in ['overworld', 'shop', 'inn', 'bathhouse']:
             state['screen'] = 'quest_menu'
         elif state['screen'] == 'quest_menu':
             state['screen'] = 'overworld'
 
     elif action_type == 'close_menu':
-        if state['screen'] in ['character_menu', 'quest_menu', 'shop', 'inn']:
+        if state['screen'] in ['character_menu', 'quest_menu', 'shop', 'inn', 'bathhouse']:
             state['screen'] = 'overworld'
 
     elif action_type == 'select_char':
@@ -508,6 +560,22 @@ def handle_action(request):
             dismissed_char.current_hp = dismissed_char.max_hp
             inns_dict.setdefault(inn_id, []).append(dismissed_char.to_dict())
             log.append(Message(0, f"Left {dismissed_char.name} resting at the Inn."))
+
+    elif action_type == 'bathe':
+        try:
+            char_idx = int(request.POST.get('char_index', 0))
+        except (ValueError, TypeError):
+            char_idx = -1
+
+        if 0 <= char_idx < len(party.members):
+            char = party.members[char_idx]
+            cost = calculate_bathe_cost(char)
+            if party.gold < cost:
+                log.append(Message(2, "<span style='color:var(--accent-red)'>You can't afford that!</span>"))
+            else:
+                party.gold -= cost
+                char.equipped_cards = []
+                log.append(Message(1, f"{char.name} relaxed in the warm bath and cleared their mind, forgetting all cards they know."))
 
     elif action_type == 'combat_action':
         # Two-phase combat action: card_name + target_id in one request

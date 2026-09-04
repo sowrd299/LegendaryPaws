@@ -14,6 +14,7 @@ def count_pips(num_pips):
 MAP_CHARACTERS_TO_SYMBOLS = {
     'f': "↟",
     'S': "⌂",
+    'B': "⌂",
     'I': "☗",
     ' ': "&nbsp;",
 }

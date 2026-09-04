@@ -58,11 +58,27 @@ def calculate_map_pan(party_x, party_y, current_pan_x=None, current_pan_y=None):
 DEFAULT_TILE_DESCRIPTIONS = {
     'S': ('Shop', 'A bustling roadside merchant shop selling valuable items and move cards.'),
     'I': ('Inn', 'A cozy inn offering a place to rest, fully restore party HP, and organize companions.'),
+    'B': ('Bathhouse', 'A serene bathhouse where tired travelers can soothe their muscles and clear their minds.'),
     'R': ('Ancient Ruins', 'Dangerous crumbling stone ruins. Hostile forces and rare artifacts await!'),
     '^': ('Mountain Pass', 'Rugged, high-altitude mountain terrain filled with treacherous wild beasts.'),
     'f': ('Dense Forest', 'Dark whispering woods where monsters stalk from the shadows.'),
     '.': ('Open Field', 'Quiet open grasslands along the main adventuring path.'),
 }
+
+DEFAULT_BATHHOUSE_ILLUST = """
++--------------------------------------------------------------------------------------------------+
+|         | |   | |                                                              | |   | |         | 
+|         | |   | |                                                              | |   | |         | 
+|_______  | |   | |   ________________________________________________________   | |   | |  _______| 
+|        (         )                         / $ $\                             (         )        |
+|       ____________________________________/.cccc,\________________________________________       |
+|      /|___________________________________\SSSSSS/_______________________________________|\      |
+|     / /~~~ ~~~~~≈~~ ~~~~~~~~~ ~~~~~~~ ~~ @@S@S@@S@ ~~~ ~~~~~~~~~~~ ~~~~~~~~~~~~~~~ ~~~ ~~\ \     |
+|    / /~~≈~~ ~~~ ~≈~ ~≈~~~~≈~  ~~~~~ ~~ ~~   ~ ~   ~~~ ~~~ ~≈~~~~   ~~ ~~~~~~≈~ ~~ ~~~  ~~~\ \    |
+|   / /≈~~~≈~  ~~~ ~~~ ~≈~~~~≈ ~~~~~ ~~~~ ~~~~~  ~~ ~~ ~~~ ~~~≈~~~~~~~ ~~~~~~ ~≈~~  ~~  ~~~~~\ \   |
+|  / / ~~~~~~ ~~~~~~  ~~~~~~~ ~~~~~~~ ~~~~~   ~~~ ~~~~~~~~~  ~~~~~~~~~~~~~~~  ~~~~~~~~~ ~~~~~~\ \  |
++--------------------------------------------------------------------------------------------------+
+"""
 
 SHOP_DATA = [
 ]
@@ -189,12 +205,13 @@ DEFAULT_SHOP_ILLUST = """
 
 
 class MapZone:
-    def __init__(self, grid, offset_x=0, offset_y=0, shop_data=None, inn_data=None, encounter_data=None, tile_descriptions=None):
+    def __init__(self, grid, offset_x=0, offset_y=0, shop_data=None, inn_data=None, bathhouse_data=None, encounter_data=None, tile_descriptions=None):
         self.grid = grid
         self.offset_x = offset_x
         self.offset_y = offset_y
         self.shop_data = shop_data if shop_data is not None else []
         self.inn_data = inn_data if inn_data is not None else []
+        self.bathhouse_data = bathhouse_data if bathhouse_data is not None else []
         self.encounter_data = encounter_data if encounter_data is not None else {}
         self.tile_descriptions = tile_descriptions if tile_descriptions is not None else {}
 
@@ -261,6 +278,20 @@ class MapZone:
                             inn_info = dict(self.inn_data[min(idx, len(self.inn_data) - 1)])
                             inn_info['index'] = idx
                             return inn_info
+                        return None
+                    idx += 1
+        return None
+
+    def get_bathhouse(self, bathhouse_x, bathhouse_y):
+        idx = 0
+        for ly in range(len(self.grid)):
+            for lx in range(len(self.grid[ly])):
+                if self.grid[ly][lx] == 'B':
+                    gx = lx + self.offset_x
+                    gy = ly + self.offset_y
+                    if gx == bathhouse_x and gy == bathhouse_y:
+                        if self.bathhouse_data:
+                            return self.bathhouse_data[min(idx, len(self.bathhouse_data) - 1)]
                         return None
                     idx += 1
         return None
@@ -539,7 +570,7 @@ MAP_ZONES = [
                 "..................^",
                 ".........______....",
                 ".......~~_S_SI_...^",
-                "......~~~______...^",
+                "......~~~B_____...^",
                 ".......~~___.......",
                 ".........___......^",
                 "...............R.^^",
@@ -795,6 +826,13 @@ def get_inn(inn_x, inn_y):
     zone = get_zone_for_space(inn_x, inn_y)
     if zone:
         return zone.get_inn(inn_x, inn_y)
+    return None
+
+
+def get_bathhouse(bathhouse_x, bathhouse_y):
+    zone = get_zone_for_space(bathhouse_x, bathhouse_y)
+    if zone:
+        return zone.get_bathhouse(bathhouse_x, bathhouse_y)
     return None
 
 
