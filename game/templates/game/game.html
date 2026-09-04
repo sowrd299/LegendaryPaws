@@ -991,6 +991,13 @@
                 {% if entry.card %}
                 {% include "game/card.html" with card=entry.card %}
                 {% endif %}
+                {% if entry.button_text and screen == 'overworld' or screen == 'character_menu' or screen == 'quest_menu' %}
+                <form method="POST" action="{% url 'handle_action' %}" style="margin-bottom: 16px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action_type" value="{{ entry.button_action }}">
+                    {% include "game/button.html" with label=entry.button_text %}
+                </form>
+                {% endif %}
                 {% endfor %}
             </div>
         </div>

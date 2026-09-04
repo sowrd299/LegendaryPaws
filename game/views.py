@@ -461,6 +461,11 @@ def handle_action(request):
             state['char_index'] = 0
             state['stat_tab'] = True
 
+    elif action_type == 'open_deck_menu':
+        if state['screen'] in ['overworld', 'character_menu', 'quest_menu']:
+            state['screen'] = 'character_menu'
+            state['char_index'] = -1 
+
     elif action_type == 'open_quest_menu':
         if state['screen'] in ['overworld', 'shop', 'inn', 'bathhouse']:
             state['screen'] = 'quest_menu'

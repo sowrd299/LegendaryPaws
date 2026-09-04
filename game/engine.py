@@ -982,6 +982,20 @@ class Message:
             return CARDS[self.card_name]
         else:
             return None
+
+    @property
+    def button_text(self):
+        if self.card:
+            return "Edit Deck"
+        else:
+            return ""
+
+    @property
+    def button_action(self):
+        if self.card:
+            return "open_deck_menu"
+        else:
+            return ""
     
     def to_dict(self):
         return {
@@ -1008,6 +1022,14 @@ class CombatMessage(Message):
             return None
         else:
             return super().card
+
+    @property
+    def button_text(self):
+        return ""
+
+    @property
+    def button_action(self):
+        return ""
 
 
 # --- HELPER: INITIAL GAME STATE CREATION ---
