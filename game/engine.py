@@ -354,16 +354,18 @@ class Character:
         if stat:
             stat_name = stat_name.replace('intensity', stat).replace('damage', stat)
 
-        if stat_name in scaled_stats:
-            return scaled_stats[stat_name]
-        elif stat_name in MAGIC_STATS:
-            return 0
+        brute_stat = 0
+        if stat_name in MAGIC_STATS:
+            pass # magic stats don't use brute
         elif stat in damage_stat_name and 'brute_intensity' in scaled_stats:
-            return scaled_stats['brute_intensity']
+            brute_stat = scaled_stats['brute_intensity']
         elif "resistance" in damage_stat_name and 'brute_resistance' in scaled_stats:
-            return scaled_stats['brute_resistance']
+            brute_stat = scaled_stats['brute_resistance']
+
+        if stat_name in scaled_stats:
+            return max(scaled_stats[stat_name], brute_stat)
         else:
-            return 0
+            return brute_stat
 
     def get_stat_xps(self):
         raw = self.get_raw_stats()
