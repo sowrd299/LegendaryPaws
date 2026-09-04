@@ -20,6 +20,7 @@
             --accent-red: #e06c75;
             --accent-cyan: #56b6c2;
             --accent-purple: #b68c9b;
+            --accent-pink: #d67ea5;
             --border-color: #2c384e;
         }
 
@@ -309,6 +310,33 @@
         .log-container p,
         .log-container .card-rect {
             margin-bottom: 16px;
+        }
+
+        /* based on: https://raghavvelan.medium.com/shimmering-text-animation-with-just-html-css-edc9bb035ec1 */
+        .amber-shimmer {
+            background: linear-gradient(135deg, #b28649, var(--accent-amber), #f8c782);
+        }
+
+        .rainbow-shimmer {
+            background: linear-gradient(135deg, var(--accent-amber), var(--accent-cyan), var(--accent-purple), var(--accent-pink), var(--accent-pink));
+        }
+
+        .amber-shimmer,
+        .rainbow-shimmer {
+            background-clip: text;
+            color: transparent !important;
+            background-size: 200% 100%;
+            animation: shimmer 20s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
         }
     </style>
 </head>

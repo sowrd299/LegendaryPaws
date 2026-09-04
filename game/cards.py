@@ -472,7 +472,7 @@ CARD_DATA = [
     {
         'name': 'Parry & Riposte',
         'type': 'weapon',
-        'rarity': 'odd',
+        'rarity': 'peerless',
         'target': 'self',
         'recovery_cost': 5,
         'description': 'A boost to the user\'s defenses. Draw a weapon.',
@@ -503,7 +503,7 @@ CARD_DATA = [
     {
         'name': 'Budding Thrust',
         'type': 'weapon',
-        'rarity': 'interesting',
+        'rarity': 'peerless',
         'target': 'enemy',
         'recovery_cost': 7,
         'damage_type': 'melee_damage',
@@ -1449,6 +1449,17 @@ CARD_DATA = [
 +-----------------+
 """
     },
+    {
+        'name': 'Scorch',
+        'type': 'scroll',
+        'rarity': 'exceptional',
+        'target': 'enemy',
+        'recovery_cost': 25,
+        'damage_type': 'star_intensity',
+        'damage_power': 5,
+        'description': 'A devastating strike of blazing starlight.',
+        'stat_boosts': {'star_intensity': 0.6}
+    },
 
 # ==================================================================================================
 # VOID INTENSITY
@@ -1704,17 +1715,6 @@ CARD_DATA = [
         'damage_power': 3,
         'description': 'Dark void incantation dealing damage.',
         'stat_boosts': {'void_intensity': 0.8}
-    },
-    {
-        'name': 'Scorch',
-        'type': 'scroll',
-        'rarity': 'exceptional',
-        'target': 'enemy',
-        'recovery_cost': 12,
-        'damage_type': 'star_intensity',
-        'damage_power': 3,
-        'description': 'Day Mage signature spell searing enemies.',
-        'stat_boosts': {'star_intensity': 0.6}
     },
     
 # ==================================================================================================

@@ -57,8 +57,28 @@
     <div>
         <div class="card-title">{{ card.name }}</div>
         <div class="card-illust">{{ card.illust|illust }}</div>
-        <div class="card-type" {% if highlight_type %} style="color: var(--accent-amber)" {% endif %}>{{ card.rarity }} {{ card.type }}</div>
-        <div class="card-desc">
+        {% if highlight_type and card.rarity == "interesting" %}
+        <div class="card-type" style="color: var(--text-color)">
+            {{ card.rarity }} {{ card.type }}
+        </div>
+        {% elif highlight_type and card.rarity == "odd" %}
+        <div class="card-type" style="color: var(--accent-amber)">
+            {{ card.rarity }} {{ card.type }}
+        </div>
+        {% elif highlight_type and card.rarity == "exceptional" %}
+        <div class="card-type amber-shimmer">
+            {{ card.rarity }} {{ card.type }}
+        </div>
+        {% elif highlight_type and card.rarity == "peerless" %}
+        <div class="card-type rainbow-shimmer">
+            {{ card.rarity }} {{ card.type }}
+        </div>
+        {% else %}
+        <div class="card-type">
+            {{ card.rarity }} {{ card.type }}
+        </div>
+        {% endif %}
+        <div class=" card-desc">
             <span style="color: var(--accent-cyan)">{{ card.recovery_cost }}⧗</span>
             {% for effect in card|all_unique_effects %}
             {% if effect.damage_power %}
