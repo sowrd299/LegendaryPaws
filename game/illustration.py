@@ -76,7 +76,7 @@ ILLUSTRATION_DATA = [
         'classes': ['Rotmonger'],
     },
     {
-        'name': 'fox_blotling',
+        'name': 'fox_blot',
         'species': ['Fox'],
         'classes': ['Blot'],
     },

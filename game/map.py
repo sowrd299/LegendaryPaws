@@ -167,7 +167,7 @@ def default_encounter_data(target_level):
             'max_enemies': 4,
             'target_level': target_level,
             'species': ['Badger', 'Cat', 'Fox', 'Rabbit', 'Owl', 'Raven', 'Dragonling', 'Giant'],
-            'classes': ['Hollow', 'Essence', 'Rotmonger'],
+            'classes': ['Hollow', 'Essence', 'Rotmonger', 'Murmur', 'Remnant', 'Blot'],
             'reward_cards': reward_cards
         }
     ]
@@ -424,18 +424,25 @@ MAP_ZONES = [
                     'names': DEFAULT_CHARACTER_NAMES,
                 },
                 {
-                    'chance': 0.1,
+                    'chance': 0.07,
                     'min_enemies': 2,
                     'max_enemies': 2,
                     'species': ['Cat', 'Fox', 'Rabbit', 'Owl', 'Raven', 'Dragonling'],
                     'classes': ['Husk']
                 },
                 {
-                    'chance': 0.1,
+                    'chance': 0.07,
                     'min_enemies': 2,
                     'max_enemies': 2,
                     'species': ['Badger', 'Cat', 'Fox', 'Owl'],
                     'classes': ['Husk', 'Soul']
+                },
+                {
+                    'chance': 0.06,
+                    'min_enemies': 1,
+                    'max_enemies': 1,
+                    'species': ['Rabbit'],
+                    'classes': ['Murmur']
                 },
             ],
             'R': [

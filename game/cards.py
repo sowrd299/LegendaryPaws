@@ -187,6 +187,48 @@ CARD_DATA = [
 """
     },
     {
+        'name': 'Broad Shield',
+        'type': 'armor',
+        'rarity': 'odd',
+        'target': 'ally',
+        'recovery_cost': 15,
+        'description': 'Shields the user and an ally from harm.',
+        'stat_boosts': {'brute_resistance': 0.3},
+        'effects': [
+            {
+                'target': 'self',
+                'status_effect_target_stat': 'brute_resistance',
+                'status_effect_power': 3,
+                'status_effect_duration': 30,
+            },
+            {
+                'target': 'self',
+                'status_effect_target_stat': 'ranged_resistance',
+                'status_effect_power': 3,
+                'status_effect_duration': 30,
+            },
+            {
+                'status_effect_target_stat': 'brute_resistance',
+                'status_effect_power': 3,
+                'status_effect_duration': 30,
+            },
+            {
+                'status_effect_target_stat': 'ranged_resistance',
+                'status_effect_power': 3,
+                'status_effect_duration': 30,
+            },
+        ],
+        'illust': """
++-----------------+
+|     --------    |
+|    / /----\ \   |
+|    | |    | |   |
+|    \  \--/  /   |
+|     \______/    |
++-----------------+
+"""
+    },
+    {
         'name': 'Light Clothes',
         'type': 'armor',
         'rarity': 'mundane',
@@ -1033,6 +1075,44 @@ CARD_DATA = [
 +-----------------+
 """
     },
+    {
+        'name': 'Blot the Sky',
+        'type': 'trinket',
+        'rarity': 'odd',
+        'target': 'all_allies',
+        'recovery_cost': 15,
+        'description': 'Hides all allies from harm.',
+        'stat_boosts': {'brute_resistance': 0.3},
+        'effects': [
+            {
+                'status_effect_target_stat': 'moon_resistance',
+                'status_effect_power': 3,
+                'status_effect_duration': 10,
+                'status_effect_duration_stat': 'survival_intensity',
+            },
+            {
+                'status_effect_target_stat': 'star_resistance',
+                'status_effect_power': 3,
+                'status_effect_duration': 10,
+                'status_effect_duration_stat': 'survival_intensity',
+            },
+            {
+                'status_effect_target_stat': 'void_resistance',
+                'status_effect_power': 3,
+                'status_effect_duration': 10,
+                'status_effect_duration_stat': 'survival_intensity',
+            },
+        ],
+        'illust': """
++-----------------+
+| `    ~   `   `  |
+| ~  `  _---_ ~   |
+|  `   (___)_)  ` |
+| `  ~   |||    ~ |
+|  ~ `  / /   `   |
++-----------------+
+"""
+    },
 
 # ==================================================================================================
 # MAGIC
@@ -1435,6 +1515,38 @@ CARD_DATA = [
                 'status_effect_duration': 10,
             },
         ]
+    },
+    {
+        'name': 'Step in Shadow',
+        'type': 'scroll',
+        'rarity': 'odd',
+        'target': 'all_allies',
+        'recovery_cost': 15,
+        'description': 'Hides all allies from harm.',
+        'stat_boosts': {'brute_resistance': 0.3},
+        'effects': [
+            {
+                'status_effect_target_stat': 'brute_resistance',
+                'status_effect_power': 3,
+                'status_effect_duration': 10,
+                'status_effect_duration_stat': 'void_intensity',
+            },
+            {
+                'status_effect_target_stat': 'melee_resistance',
+                'status_effect_power': 3,
+                'status_effect_duration': 10,
+                'status_effect_duration_stat': 'void_intensity',
+            },
+        ],
+        'illust': """
++-----------------+
+|                 |
+|                 |
+|   `         '   |
+|  \           /  |
+| \ \ ` ` ' ' / / |
++-----------------+
+"""
     },
 
 # ==================================================================================================
