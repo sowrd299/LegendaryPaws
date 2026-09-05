@@ -718,7 +718,14 @@
         {% elif screen == 'shop' %}
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <h2 style="color: var(--text-muted);">Shop | {{ title }}</h2>
-            <div style="color: var(--accent-amber);">Gold: {{ party.gold }}Ꞡ</div>
+            <div style="display: flex; gap: 16px; align-items: center;">
+                <div style="color: var(--accent-amber);">Gold: {{ party.gold }}Ꞡ</div>
+                <form method="POST" action="{% url 'handle_action' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action_type" value="close_menu">
+                    {% include "game/button.html" with key="X" label="Exit Shop" %}
+                </form>
+            </div>
         </div>
 
         <div class="dialogue-box">
@@ -755,11 +762,6 @@
                         </span>
                     </span>
             </h4>
-            <form method="POST" action="{% url 'handle_action' %}" style="margin-top: 16px;">
-                {% csrf_token %}
-                <input type="hidden" name="action_type" value="close_menu">
-                {% include "game/button.html" with key="X" label="Exit Shop" %}
-            </form>
         </div>
 
         <!-- SCREEN: INN -->
