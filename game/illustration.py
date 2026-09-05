@@ -14,7 +14,7 @@ ILLUSTRATION_DATA = [
     {
         'name': 'cat_burglar',
         'species': ['Cat'],
-        'classes': ['Burglar'],
+        'classes': ['Burglar', 'Assassin'],
     },
     {
         'name': 'cat_fencer',
@@ -164,7 +164,7 @@ ILLUSTRATION_DATA = [
     {
         'name': 'fox_scout',
         'species': ['Fox'],
-        'classes': ['Scout', 'Ranger'],
+        'classes': ['Scout', 'Ranger', 'Assassin'],
     },
     {
         'name': 'fox_squire',
@@ -222,6 +222,21 @@ ILLUSTRATION_DATA = [
         'species': ['Giant'],
         'classes': ['Husk', 'Hollow', 'Rotmonger'],
     },
+    {
+        'name': 'bear_remnant',
+        'species': ['Giant'],
+        'classes': ['Remnant'],
+    },
+    {
+        'name': 'bear_blot',
+        'species': ['Giant'],
+        'classes': ['Blot'],
+    },
+    {
+        'name': 'bear_murmur',
+        'species': ['Giant'],
+        'classes': ['Murmur'],
+    },
 
     # Generic Classes
     {
@@ -254,7 +269,7 @@ ILLUSTRATION_DATA = [
     {
         'name': 'embersprite_scout',
         'species': ['Ember Sprite'],
-        'classes': ['Scout', 'Ranger'],
+        'classes': ['Scout', 'Ranger', 'Assassin'],
     },
     {
         'name': 'embersprite_day_mage',
@@ -269,7 +284,7 @@ ILLUSTRATION_DATA = [
     {
         'name': 'dewsprite_scout',
         'species': ['Dew Sprite'],
-        'classes': ['Scout', 'Ranger'],
+        'classes': ['Scout', 'Ranger', 'Assassin'],
     },
     {
         'name': 'dewsprite_night_mage',
@@ -284,7 +299,7 @@ ILLUSTRATION_DATA = [
     {
         'name': 'frostsprite_scout',
         'species': ['Frost Sprite'],
-        'classes': ['Scout', 'Ranger'],
+        'classes': ['Scout', 'Ranger', 'Assassin'],
     },
     {
         'name': 'frostsprite_passage_mage',
@@ -299,13 +314,15 @@ ILLUSTRATION_DATA = [
     {
         'name': 'losssprite_scout',
         'species': ['Loss Sprite'],
-        'classes': ['Scout', 'Ranger'],
+        'classes': ['Scout', 'Ranger', 'Assassin'],
     },
     {
         'name': 'losssprite_passage_mage',
         'species': ['Loss Sprite'],
         'classes': ['Passage Mage'],
     },
+
+    # Dragons
     {
         'name': 'rotmatron',
         'species': ['Dragon'],

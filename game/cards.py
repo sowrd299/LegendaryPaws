@@ -656,28 +656,25 @@ CARD_DATA = [
         'stat_boosts': {'melee_damage': 0.8, 'survival_intensity': 0.8},
         'effects': [
             {
+                'target': 'self',
                 'status_effect_target_stat': 'brute_resistance',
                 'status_effect_power': 2,
                 'status_effect_stat': 'survival_intensity',
-                'status_effect_duration': 50, 
+                'status_effect_duration': 80, 
             },
             {
+                'target': 'self',
                 'status_effect_target_stat': 'moon_resistance',
                 'status_effect_power': 2,
                 'status_effect_stat': 'survival_intensity',
-                'status_effect_duration': 50, 
+                'status_effect_duration': 80, 
             },
             {
-                'status_effect_target_stat': 'star_resistance',
-                'status_effect_power': 2,
-                'status_effect_stat': 'survival_intensity',
-                'status_effect_duration': 50, 
-            },
-            {
+                'target': 'self',
                 'status_effect_target_stat': 'void_resistance',
                 'status_effect_power': 2,
                 'status_effect_stat': 'survival_intensity',
-                'status_effect_duration': 50, 
+                'status_effect_duration': 80, 
             },
         ],
         'illust': """
@@ -1015,7 +1012,7 @@ CARD_DATA = [
         'effects': [
             {
                 'status_effect_target_stat': 'nimbleness',
-                'status_effect_power': -2,
+                'status_effect_power': -8,
                 'status_effect_duration': 5,
                 'status_effect_duration_stat': 'survival_intensity',
             }
@@ -1062,22 +1059,25 @@ CARD_DATA = [
         'stat_boosts': {'ranged_damage': 0.8, 'survival_intensity': 0.8},
         'effects': [
             {
+                'target': 'self',
                 'status_effect_target_stat': 'brute_resistance',
                 'status_effect_power': 2,
                 'status_effect_stat': 'survival_intensity',
-                'status_effect_duration': 50, 
+                'status_effect_duration': 80, 
             },
             {
+                'target': 'self',
                 'status_effect_target_stat': 'moon_resistance',
                 'status_effect_power': 2,
                 'status_effect_stat': 'survival_intensity',
-                'status_effect_duration': 50, 
+                'status_effect_duration': 80, 
             },
             {
+                'target': 'self',
                 'status_effect_target_stat': 'void_resistance',
                 'status_effect_power': 2,
                 'status_effect_stat': 'survival_intensity',
-                'status_effect_duration': 50, 
+                'status_effect_duration': 80, 
             },
         ],
         'illust': """

@@ -179,6 +179,9 @@ def default_encounter_data(target_level):
     if target_level >= 4:
         reward_cards += DEFAULT_ODD_REWARD_CARDS
 
+    min_reward_gold = target_level * 5
+    max_reward_gold = target_level * 7
+
     return [
         {
             'chance': 0.1,
@@ -190,17 +193,32 @@ def default_encounter_data(target_level):
             'is_recruitable': True,
             'cards_by_class': DEFAULT_CLASS_STARTER_CARDS,
             'names': DEFAULT_CHARACTER_NAMES,
-            'reward_cards': reward_cards
+            'reward_cards': reward_cards,
+            'min_reward_gold': min_reward_gold,
+            'max_reward_gold': max_reward_gold,
         },
         {
-            'chance': 0.5,
+            'chance': 0.25,
+            'min_enemies': 3,
+            'max_enemies': 4,
+            'target_level': target_level,
+            'species': ['Badger', 'Cat', 'Fox', 'Rabbit', 'Owl', 'Raven', 'Dragonling'],
+            'classes': (['Hollow', 'Essence'] * 2) + ['Rotmonger', 'Murmur', 'Remnant', 'Blot'],
+            'reward_cards': reward_cards,
+            'min_reward_gold': min_reward_gold,
+            'max_reward_gold': max_reward_gold,
+        },
+        {
+            'chance': 0.25,
             'min_enemies': 3,
             'max_enemies': 4,
             'target_level': target_level,
             'species': ['Badger', 'Cat', 'Fox', 'Rabbit', 'Owl', 'Raven', 'Dragonling', 'Giant'],
-            'classes': ['Hollow', 'Essence', 'Rotmonger', 'Murmur', 'Remnant', 'Blot'],
-            'reward_cards': reward_cards
-        }
+            'classes': ['Hollow', 'Essence', 'Rotmonger'],
+            'reward_cards': reward_cards,
+            'min_reward_gold': min_reward_gold,
+            'max_reward_gold': max_reward_gold,
+        },
     ]
 
 
@@ -378,6 +396,18 @@ class MapZone:
             r -= encounter['chance']
         return [], False, None, 0
 
+ROTMATRON_ENTCOUNTER = {
+                        'chance': 0.2,
+                        'min_enemies': 1,
+                        'max_enemies': 1,
+                        'species': ['Dragon'],
+                        'classes': ['Matron'],
+                        'reward_min_gold': 60,
+                        'reward_max_gold': 80,
+                        'reward_cards': ['Dragonsbane'],
+                        'names': ['Rotmatron'],
+                    }
+
 
 MAP_ZONES = [
     
@@ -525,17 +555,7 @@ MAP_ZONES = [
                     'classes': ['Husk', 'Rotmonger'],
                     'reward_cards': DEFAULT_ODD_REWARD_CARDS,
                 },
-                {
-                    'chance': 0.2,
-                    'min_enemies': 1,
-                    'max_enemies': 1,
-                    'species': ['Dragon'],
-                    'classes': ['Matron'],
-                    'reward_min_gold': 60,
-                    'reward_max_gold': 80,
-                    'reward_cards': ['Dragonsbane'],
-                    'names': ['Rotmatron'],
-                },
+                ROTMATRON_ENTCOUNTER,
             ],
             '^': [
                 {
@@ -695,7 +715,42 @@ MAP_ZONES = [
         encounter_data = {
             '.': default_encounter_data(1),
             '^': default_encounter_data(2),
-            'R': default_encounter_data(7),
+            'R': [
+                {
+                    'chance': 0.15,
+                    'min_enemies': 3,
+                    'max_enemies': 4,
+                    'target_level': 7,
+                    'species': ['Badger', 'Cat', 'Fox', 'Rabbit', 'Owl', 'Raven', 'Dragonling', 'Giant'],
+                    'classes': ['Hollow', 'Essence', 'Rotmonger', 'Murmur', 'Remnant', 'Blot'],
+                    'reward_cards': DEFAULT_ODD_REWARD_CARDS,
+                    'min_reward_gold': 30,
+                    'max_reward_gold': 60,
+                },
+                {
+                    'chance': 0.3,
+                    'min_enemies': 1,
+                    'max_enemies': 1,
+                    'target_level': 10,
+                    'species': ['Giant'],
+                    'classes': ['Remnant', 'Blot'],
+                    'reward_cards': ['Rot Remains'],
+                    'min_reward_gold': 40,
+                    'max_reward_gold': 80,
+                },
+                {
+                    'chance': 0.15,
+                    'min_enemies': 1,
+                    'max_enemies': 1,
+                    'target_level': 10,
+                    'species': ['Giant'],
+                    'classes': ['Murmur'],
+                    'reward_cards': DEFAULT_ODD_REWARD_CARDS,
+                    'min_reward_gold': 40,
+                    'max_reward_gold': 80,
+                },
+                ROTMATRON_ENTCOUNTER
+            ],
             'f': default_encounter_data(4),
             '_': [],
         },

@@ -118,7 +118,7 @@ QUESTS = {
     },
     'library_donations': {
         'id': 'library_donations',
-        'title': 'Library Donations',
+        'title': 'The Library\'s Collection',
         'steps': [
             {
                 'location': 'Library',
@@ -195,6 +195,134 @@ QUESTS = {
                     }
                 ],
                 'completion_log': "Delivered the Rotten Egg to Badgy! Received 50 gold and a Honed Slash card."
+            }
+        ]
+    },
+    'hemlocks_errand': {
+        'id': 'hemlocks_errand',
+        'title': "Hemlock's Snipe Hunt",
+        'steps': [
+            {
+                'location': "Hemlock\'s Miscellany",
+                'reward_cards': [],
+                'reward_gold': 0,
+                'dialogue': [
+                    {
+                        'speaker': 'Hemlock',
+                        'text': "You know, these eggs are turning into pretty great business. I wonder what I could do with a propper hunk of flesh off of one of those hollow "
+                                "\"people\". It's pretty hard to get; usually their too decayed. I hear they're some tough specimens in the ruins south of here; maybe a hunk of "
+                                "one of them will hold up well enough...",
+                        'responses': [
+                            "I'd love to help you find a hunk of pure Death Rot!",
+                            "What exactly do you plan to do with that..."
+                        ]
+                    }
+                ],
+                'completion_log': "Accepted Hemlock's request to bring him Rot Remains from the ruins."
+            },
+            {
+                'location': "Hemlock\'s Miscellany",
+                'menu_description': "Get Rot Remains from the Rot in the ruins south of Yonder, and give it to Hemlock in his shop.",
+                'menu_illust': 'Rot Remains',
+                'required_cards_give': ['Rot Remains'],
+                'reward_gold': 200,
+                'dialogue': [
+                    {
+                        'speaker': 'Hemlock',
+                        'text': "Heh, brilliant! Look at that... beautiful?... decay! It's so... gray? I'll figure out what to do with this now.",
+                        'responses': [
+                            "I look forward to your mercantile discoveries!",
+                            "I carried that thing this far... and you're not even sure what it's for?",
+                            "Is this at all safe?",
+                        ]
+                    },
+                    {
+                        'speaker': 'Hemlock',
+                        'text': "Who knows what'll come of any of this rot? Anyways, know you, this town used to have a pretty excellent brigand defending us, "
+                                "Imora her name was. She could evaporate Rot with her bow practically miles away. I'd love to see up us that that certainty again. "
+                                "Mind seeing what you can find about being able to Snipe like her? Last I heard she was on patrol in the pondlands up north.",
+                        'responses': [
+                            "To the pondlands I go!",
+                            "The Rot doesn't spare anyone, does it? I'll see what I can do.",
+                            "How long after I set off did you realize you wanted this too?",
+                        ]
+                    },
+                ],
+                'completion_log': "Delivered the Rot Remains to Hemlock! Received 200 gold. Accepted Hemlock's request to bring him a Snipe."
+            }, 
+            {
+                'location': "Hemlock\'s Miscellany",
+                'menu_description': "Discovery the technique of Imora's Snipe in the pondlands north of Yonder, and give it to Hemlock in his shop.",
+                'menu_illust': 'Snipe',
+                'required_cards_give': ['Snipe'],
+                'reward_gold': 400,
+                'dialogue': [
+                    {
+                        'speaker': 'Hemlock',
+                        'text': "Look at that! I'll be defending Yonder like Imora used to in no time! Or maybe they're a few things to learn first. "
+                                "It probably wouldn't hurt if I could set a trap to catch the Rot in first to snipe them in... and I'd probably need quite a bit of experience. "
+                                "Or maybe the trick is to be a cat like Imora.",
+                        'responses': [
+                            "I'm sure you will!",
+                            "Maybe I would have been better off keeping that for myself."
+                        ]
+                    },
+                ],
+                'completion_log': "Delivered the Snipe to Hemlock! Received 400 gold."
+            },
+        ]
+    }, 
+    'imoras_death': {
+        'id': 'imoras_death',
+        'title': "Imora's Death",
+        'steps': [
+            {
+                'location': "Imora's Resting Place",
+                'reward_cards': ['Assassinate', 'Snipe'],
+                'reward_gold': 0,
+                'dialogue': [
+                    {
+                        'speaker': 'Imora, Husk of a Cat Assassin',
+                        'text': "I... oh... PAIN... such pain... everything,",
+                        'responses': [
+                            "Hello?"
+                            "Imora?"
+                            "...",
+                        ]
+                    },
+                    {
+                        'speaker': 'Imora, Husk of a Cat Assassin',
+                        'text': "burns. so. cold...",
+                        'responses': [
+                            "Can I help?"
+                            "...",
+                        ]
+                    },
+                    {
+                        'speaker': 'Imora, Husk of a Cat Assassin',
+                        'text': "The giant's sword... lethal... but, no, no death... no White Beetle...",
+                        'responses': [
+                            "...",
+                        ]
+                    },
+                    {
+                        'speaker': 'Imora, Husk of a Cat Assassin',
+                        'text': "Just... my mind, thinking, everything, burns cold with PAIN...",
+                        'responses': [
+                            "...",
+                        ]
+                    },
+                    {
+                        'speaker': 'Imora, Husk of a Cat Assassin',
+                        'text': "Take...",
+                        'responses': [
+                            "Thank you.",
+                            "I hope the pain ends.",
+                            "...",
+                        ]
+                    },
+                ],
+                'completion_log': "As Imora succumbs to the Rot, she gifts you with her skills."
             }
         ]
     }
