@@ -755,7 +755,7 @@ class CombatEngine:
 
         target = random.choice(living_allies)
         if card.get('target') == 'ally':
-            if card.get('heal_power') > 0 and damaged_enemies:
+            if card.get('heal_power', 0) > 0 and damaged_enemies:
                 target = random.choice(damaged_enemies)
             else:
                 target = random.choice(living_enemies)
