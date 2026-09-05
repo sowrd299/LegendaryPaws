@@ -1063,7 +1063,7 @@ CARD_DATA = [
         'name': 'Cover of Night',
         'type': 'scroll',
         'rarity': 'peerless',
-        'target': 'all_enemies',
+        'target': 'all_allies',
         'recovery_cost': 10,
         'description': 'Protects all allies.',
         'effects': [
