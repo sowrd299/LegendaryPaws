@@ -900,6 +900,95 @@ class BathhouseTests(TestCase):
         self.assertEqual(updated_party.gold, 20)
         self.assertEqual(updated_party.members[0].equipped_cards, ['Broad Shield'])
 
+    def test_library_tile_lookup_and_get_library(self):
+        """Test MapZone.get_library and global get_library resolution."""
+        from game.map import get_library, MAP_ZONES
+        lib_x, lib_y = None, None
+        for zone in MAP_ZONES:
+            for ly in range(len(zone.grid)):
+                for lx in range(len(zone.grid[ly])):
+                    if zone.grid[ly][lx] == 'L':
+                        lib_x = lx + zone.offset_x
+                        lib_y = ly + zone.offset_y
+                        break
+                if lib_x is not None:
+                    break
+            if lib_x is not None:
+                break
+        self.assertIsNotNone(lib_x, "Should have at least one 'L' tile on MAP_ZONES")
+        lib_data = get_library(lib_x, lib_y)
+        self.assertIsNotNone(lib_data)
+        self.assertIn('title', lib_data)
+
+    def test_library_donation_and_persistence(self):
+        """Test donating a card with library_text updates state and persists across screens."""
+        from game.cards import CARDS
+        test_card_name = 'Potion'
+        original_lib_text = CARDS[test_card_name].get('library_text')
+        CARDS[test_card_name]['library_text'] = 'An ancient text detailing potion brewing.'
+
+        try:
+            session = self.client.session
+            state = create_initial_game_state()
+            state['screen'] = 'library'
+            party = Party.from_dict(state['party'])
+            party.inventory = [test_card_name]
+            state['party'] = party.to_dict()
+            session['game_state'] = state
+            session.save()
+
+            response = self.client.post(reverse('handle_action'), {
+                'action_type': 'donate_card',
+                'card_name': test_card_name
+            })
+            self.assertEqual(response.status_code, 302)
+
+            updated_state = self.client.session['game_state']
+            self.assertIn(test_card_name, updated_state['library_cards'])
+            updated_party = Party.from_dict(updated_state['party'])
+            self.assertNotIn(test_card_name, updated_party.inventory)
+
+            response2 = self.client.post(reverse('handle_action'), {
+                'action_type': 'donate_card',
+                'card_name': test_card_name
+            })
+            self.assertEqual(response2.status_code, 302)
+            self.assertEqual(len(self.client.session['game_state']['library_cards']), 1)
+
+            index_res = self.client.get(reverse('game_index'))
+            self.assertEqual(index_res.status_code, 200)
+            self.assertEqual(index_res.context['catalogued_count'], 1)
+            self.assertContains(index_res, test_card_name)
+            self.assertContains(index_res, 'An ancient text detailing potion brewing.')
+
+        finally:
+            if original_lib_text is None:
+                CARDS[test_card_name].pop('library_text', None)
+            else:
+                CARDS[test_card_name]['library_text'] = original_lib_text
+
+    def test_donate_card_without_library_text_fails(self):
+        """Test donating a card without library_text is rejected."""
+        session = self.client.session
+        state = create_initial_game_state()
+        state['screen'] = 'library'
+        party = Party.from_dict(state['party'])
+        party.inventory.append('Slash')
+        state['party'] = party.to_dict()
+        session['game_state'] = state
+        session.save()
+
+        response = self.client.post(reverse('handle_action'), {
+            'action_type': 'donate_card',
+            'card_name': 'Slash'
+        })
+        self.assertEqual(response.status_code, 302)
+
+        updated_state = self.client.session['game_state']
+        self.assertEqual(updated_state['library_cards'], [])
+        updated_party = Party.from_dict(updated_state['party'])
+        self.assertIn('Slash', updated_party.inventory)
+
 
 
 

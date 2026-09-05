@@ -10,8 +10,8 @@ from .map import (
     get_tile, get_tile_description, get_map_width, get_map_height,
     get_map_min_x, get_map_min_y, get_map_max_x, get_map_max_y,
     VIEWPORT_MAX_WIDTH, VIEWPORT_MAX_HEIGHT, calculate_map_pan,
-    should_reset_losable_gold, get_shop, get_inn, get_bathhouse, get_inn_id, get_inn_coords,
-    get_nearest_inn_id, get_random_encounter, DEFAULT_START_INN_ID, DEFAULT_BATHHOUSE_ILLUST
+    should_reset_losable_gold, get_shop, get_inn, get_bathhouse, get_library, get_inn_id, get_inn_coords,
+    get_nearest_inn_id, get_random_encounter, DEFAULT_START_INN_ID, DEFAULT_BATHHOUSE_ILLUST, DEFAULT_LIBRARY_ILLUST
 )
 
 from .quests import QUESTS, check_quest_triggers, get_active_quests
@@ -165,12 +165,15 @@ def game_index(request):
                     title = entry.get('title') or step_data.get('title')
                     shop_data = get_shop(party.x, party.y)
                     inn_data = get_inn(party.x, party.y)
+                    library_data = get_library(party.x, party.y)
                     bathhouse_data = get_bathhouse(party.x, party.y)
                     if not title:
                         if shop_data:
                             title = shop_data.get('title')
                         elif inn_data:
                             title = inn_data.get('title')
+                        elif library_data:
+                            title = library_data.get('title')
                         elif bathhouse_data:
                             title = bathhouse_data.get('title')
                         else:
@@ -184,6 +187,8 @@ def game_index(request):
                             illust = shop_data.get('illust', '')
                         elif inn_data:
                             illust = inn_data.get('illust', '')
+                        elif library_data:
+                            illust = library_data.get('illust', '')
                         elif bathhouse_data:
                             illust = bathhouse_data.get('illust', '')
                         else:
@@ -301,6 +306,34 @@ def game_index(request):
         context['speaker'] = speaker
         context['text'] = dialogue
         context['party_members_with_bathe_cost'] = party_members_with_bathe_cost
+
+    elif screen == 'library':
+        library_data = get_library(party.x, party.y)
+        if not library_data:
+            library_data = {
+                'title': 'Village Archives',
+                'illust': DEFAULT_LIBRARY_ILLUST,
+            }
+
+        donated_card_names = state.get('library_cards', [])
+        total_library_cards_count = len([c for c in CARD_DATA if c.get('library_text')])
+        catalogued_count = len(set(donated_card_names))
+
+        donated_cards = [name_to_card(name) for name in donated_card_names if name in CARDS]
+
+        donatable_inventory_cards = []
+        for name, count in list_to_unique_counts(party.inventory):
+            card = CARDS.get(name)
+            if card and card.get('library_text') and name not in donated_card_names:
+                donatable_inventory_cards.append((name_to_card(name), count))
+        donatable_inventory_cards.sort(key=lambda card: CARD_DATA.index(CARDS[card[0]['name']]))
+
+        context['title'] = library_data.get('title', 'The Library')
+        context['illust'] = library_data.get('illust', DEFAULT_LIBRARY_ILLUST)
+        context['total_library_cards_count'] = total_library_cards_count
+        context['catalogued_count'] = catalogued_count
+        context['donated_cards'] = donated_cards
+        context['donatable_inventory_cards'] = donatable_inventory_cards
 
     elif screen == 'combat':
         combat_dict = state.get('combat')
@@ -438,6 +471,10 @@ def handle_action(request):
             state['screen'] = 'bathhouse'
             log.append(Message(1, 'You enter a bathhouse.'))
             check_quest_triggers(state, party)
+        elif current_tile == 'L':
+            state['screen'] = 'library'
+            log.append(Message(1, 'You enter a library.'))
+            check_quest_triggers(state, party)
         else:
             # Chance for wild combat encounter based on terrain
             enemies, is_recruitable, reward_card, reward_gold = get_random_encounter(new_x, new_y)
@@ -456,7 +493,7 @@ def handle_action(request):
 
 
     elif action_type == 'open_menu':
-        if state['screen'] in ['overworld', 'quest_menu', 'shop', 'inn', 'bathhouse']:
+        if state['screen'] in ['overworld', 'quest_menu', 'shop', 'inn', 'bathhouse', 'library']:
             state['screen'] = 'character_menu'
             state['char_index'] = 0
             state['stat_tab'] = True
@@ -467,13 +504,13 @@ def handle_action(request):
             state['char_index'] = -1 
 
     elif action_type == 'open_quest_menu':
-        if state['screen'] in ['overworld', 'shop', 'inn', 'bathhouse']:
+        if state['screen'] in ['overworld', 'shop', 'inn', 'bathhouse', 'library']:
             state['screen'] = 'quest_menu'
         elif state['screen'] == 'quest_menu':
             state['screen'] = 'overworld'
 
     elif action_type == 'close_menu':
-        if state['screen'] in ['character_menu', 'quest_menu', 'shop', 'inn', 'bathhouse']:
+        if state['screen'] in ['character_menu', 'quest_menu', 'shop', 'inn', 'bathhouse', 'library']:
             state['screen'] = 'overworld'
 
     elif action_type == 'select_char':
@@ -581,6 +618,18 @@ def handle_action(request):
                 party.gold -= cost
                 char.equipped_cards = []
                 log.append(Message(1, f"{char.name} relaxed in the warm bath and cleared their mind, forgetting all cards they know."))
+
+    elif action_type == 'donate_card':
+        card_name = request.POST.get('card_name')
+        donated_cards = state.setdefault('library_cards', [])
+        if card_name in party.inventory and CARDS.get(card_name, {}).get('library_text') and card_name not in donated_cards:
+            party.inventory.remove(card_name)
+            donated_cards.append(card_name)
+            log.append(Message(1, f"Donated '{card_name}' to the library!"))
+        elif card_name in donated_cards:
+            log.append(Message(2, f"<span style='color:var(--accent-red)'>The library already has a copy of '{card_name}'.</span>"))
+        else:
+            log.append(Message(2, f"<span style='color:var(--accent-red)'>This card cannot be donated.</span>"))
 
     elif action_type == 'combat_action':
         # Two-phase combat action: card_name + target_id in one request

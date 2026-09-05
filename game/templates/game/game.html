@@ -869,6 +869,75 @@
             {% endfor %}
         </div>
 
+        <!-- SCREEN: LIBRARY -->
+        {% elif screen == 'library' %}
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="color: var(--text-muted);">Library | {{ title }}</h2>
+            <div style="display: flex; gap: 16px; align-items: center;">
+                <form method="POST" action="{% url 'handle_action' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action_type" value="close_menu">
+                    {% include "game/button.html" with key="X" label="Exit Library" %}
+                </form>
+            </div>
+        </div>
+
+        <div class="dialogue-box">
+            {% if illust %}
+            <p class="card-illust" style="color: var(--text-muted)">{{ illust|illust }}</p>
+            {% endif %}
+
+            <p style="color:var(--text-muted); margin-top: 10px;">
+                <span style="color:var(--text-color)">{{ catalogued_count }} / {{ total_library_cards_count }}</span> Cards Catalogued
+            </p>
+            <div style="margin-top: 6px; position: relative; max-height: 160px; overflow-y: hidden; display: flex; flex-direction: column; justify-content: center;">
+                <div class="y-scrollable library-donated-scroll" style="display: flex; flex-direction: column; gap: 20px;">
+                    {% for card in donated_cards %}
+                    <div class="donated-card-item" style="padding-bottom: 12px;">
+                        <h4 style="font-size: 1.05rem; margin-bottom: 6px;">{{ card.name }}</h4>
+                        <div style="display: flex; gap: 16px; align-items: flex-start;">
+                            {% if card.illust %}
+                            <pre class="card-illust" style="margin: 0; color: var(--text-muted); line-height: 1.2; font-size: 0.78rem; flex-shrink: 0;">{{ card.illust|illust }}</pre>
+                            {% endif %}
+                            <div style="flex: 1; font-size: 0.9rem; color: var(--text-color); line-height: 1.4;">
+                                <p style="margin: 0; white-space: pre-wrap;">{{ card.library_text }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">No cards have been donated to the library yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- DONATION INVENTORY SCROLL -->
+        <div style="margin-top: 10px;">
+            <h4 style="font-size: 0.95rem; color:var(--accent-amber)">
+                Donate from Inventory:
+            </h4>
+            <div class="cards-row">
+                <div class="x-scrollable">
+                    {% for card, count in donatable_inventory_cards %}
+                    <div class="card-and-button-rect">
+                        {% include "game/card.html" with card=card %}
+                        <div class="btn-group" style="margin-top: 6px;">
+                            <h4 style="font-size: 1.5rem; color: var(--text-muted);">×{{ count }}</h4>
+                            <form method="POST" action="{% url 'handle_action' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action_type" value="donate_card">
+                                <input type="hidden" name="card_name" value="{{ card.name }}">
+                                {% include "game/button.html" with label="+ Donate" %}
+                            </form>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p style="font-size: 0.85rem; color: var(--text-muted); width: max-content;">No donatable cards currently in your inventory.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
         <!-- SCREEN: COMBAT -->
         {% elif screen == 'combat' %}
         <div class="combat-section">
@@ -1092,7 +1161,7 @@
                     event.preventDefault();
                     submitAction('close_menu');
                 }
-            } else if (screen === 'character_menu' || screen === 'shop' || screen === 'inn') {
+            } else if (screen === 'character_menu' || screen === 'shop' || screen === 'inn' || screen === 'bathhouse' || screen === 'library') {
                 if (event.key.toLowerCase() === 'x') {
                     event.preventDefault();
                     submitAction('close_menu');
@@ -1154,6 +1223,20 @@
             return false;
 
         }, true);
+
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".library-donated-scroll").forEach(function (element) {
+                if (element.getBoundingClientRect().height <= element.parentNode.getBoundingClientRect().height) {
+                    return;
+                }
+                var visiblePercent = element.parentNode.getBoundingClientRect().height / element.getBoundingClientRect().height;
+                var overflowPercent = 1 - visiblePercent;
+                overflowPercent += visiblePercent * 0.1;
+                var bottomVal = -100 * overflowPercent / 2;
+                element.style.transform = "translateY(" + bottomVal + "%)";
+                element.dataset.yscroll = bottomVal;
+            });
+        });
 
         function submitMove(direction) {
             const form = document.createElement('form');

@@ -16,6 +16,7 @@ MAP_CHARACTERS_TO_SYMBOLS = {
     'S': "⌂",
     'B': "⌂",
     'I': "☗",
+    'L': "☖",
     ' ': "&nbsp;",
 }
 

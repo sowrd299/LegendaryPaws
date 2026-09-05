@@ -58,6 +58,7 @@ CARD_DATA = [
         'description': 'Heals an ally. Consumed on use.',
         'stat_boosts': {},
         'is_consumable': True,
+        'library_text': 'Potionmaking is as much a culinary art as a magical one. Potionmakers will swear a good potion is about keeping the soul happy as well as the body healthy.',
         'illust': """
 +------\---/------+
 |      |   |      |
@@ -122,6 +123,10 @@ CARD_DATA = [
         'description': 'Rot that repels even death. Consumed on use.',
         'stat_boosts': {},
         'is_consumable': True,
+        'library_text': 'The "Death Rot" is still very new and very poorly understood. ' + 
+                        'Increasinlgy many people who should be dead are instead wandering the wilderness, seemingly mindless and addled with Rot. ' +
+                        'Whatever it is, forcing a critically injured companion to eat ' +
+                        'an egg infected with it appears to bring them back from the brink.',
         'illust': """
 +-----------------+
 |      ,/`\,      |
@@ -148,6 +153,8 @@ CARD_DATA = [
         'status_effect_duration': 15,
         'description': 'Shields the user from harm.',
         'stat_boosts': {'brute_resistance': 0.3},
+        'library_text': 'Since the Death Rot appeared a few months ago, almost no one has dared leave the safety of their village. ' + 
+                        'For all citizens of the Strange Lands, except for a few brave brigands, they have found their wanderlust put on pause.',
         'illust': """
 +-----------------+
 |      ------     |
@@ -432,7 +439,8 @@ CARD_DATA = [
                 'status_effect_power': 2,
                 'status_effect_duration': 15,
             },
-        ],
+        ], 
+        'library_text': 'The Flowering Stab is the key piece of swordplay one must learn to become a fencer.',
         'illust': """
 +-----------------+
 |       \  \      |
@@ -542,6 +550,11 @@ CARD_DATA = [
                 'damage_power': 2.0,
             }
         ],
+        'library_text': 'Dragonlings are unique among inhabitants of the Strange Lands in that almost every member of their species is technically a youth. ' +
+                        'Only a few live the long, long years necessary to become full-fledged dragons, at which point they typically foresake the civilization they outgrew and ' +
+                        'dispense cryptic life advice from a mountaintop.' +
+                        'Since the Death Rot, however, the number of dragons has been steadily growing, and almost all of them are infected with the Rot. ' +
+                        'The exemplary brigands who learn to wield dragonsbane to push but these bringers of Rot are called Dragonslayers',
         'illust': """
 +-----------------+
 |    - - -~S_.    |
@@ -1311,6 +1324,7 @@ CARD_DATA = [
         'damage_power': 1.0,
         'description': 'Magic spell dealing damage.',
         'stat_boosts': {'moon_intensity': 0.2, 'moon_resistance': 0.3, 'star_vulnerability': 0.3},
+        'library_text': 'Moon Magic is the magic of balance, life, and substance. Students who learn fundamental Moon Magic eventually go on to become Night Mages with enough experience.',
         'illust': """
 +-----------------+
 | *       \  O \  |
@@ -1331,6 +1345,8 @@ CARD_DATA = [
         'heal_stat': 'moon_intensity',
         'description': 'Magic spell healing an ally.',
         'stat_boosts': {'moon_intensity': 0.2, 'moon_resistance': 0.3, 'star_vulnerability': 0.3},
+        'library_text': '\"Blackcloaks\" wield Moon Magic to survive deep in the wilds. ' +
+                        'They begin their training as scouts, then learn fundamental Moon Magic to better connect with, hide in, and heal the living world they explore.',
         'illust': """
 +-----------------+
 | *       \  O \  |
@@ -1416,7 +1432,8 @@ CARD_DATA = [
         'damage_type': 'star_intensity',
         'damage_power': 2.0,
         'description': 'Magic spell dealing damage.',
-        'stat_boosts': {'star_intensity': 0.2, 'star_resistance': 0.3, 'void_vulnerability': 0.3}
+        'stat_boosts': {'star_intensity': 0.2, 'star_resistance': 0.3, 'void_vulnerability': 0.3},
+        'library_text': 'Star Magic is the magic of light, energy, and destruction. Students who learn fundamental StarMagic eventually go on to become Day Mages with enough experience.',
     },
     {
         'name': 'Singe Breath',
@@ -1475,6 +1492,7 @@ CARD_DATA = [
         'damage_power': 2.0,
         'description': 'Magic spell dealing damage.',
         'stat_boosts': {'void_intensity': 0.2, 'void_resistance': 0.3, 'moon_vulnerability': 0.3},
+        'library_text': 'Void Magic is the magic of darkness, boundaries, and nothingness. Students who learn fundamental Void Magic eventually go on to become Passage Mages with enough experience.',
         'illust': """
 +-----------------+
 | ~~~~~ ~~~~~ ~~~ |

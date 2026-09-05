@@ -1075,6 +1075,7 @@ def create_initial_game_state():
         'inns': {},
         'current_inn_id': DEFAULT_START_INN_ID,
         'respawn_inn_id': DEFAULT_START_INN_ID,
+        'library_cards': [],
         'active_menu': None,  # None, 'character_menu', 'shop', 'inn', 'combat'
         'combat': None,
         'log': [Message(1, "...").to_dict()],

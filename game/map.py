@@ -59,6 +59,7 @@ DEFAULT_TILE_DESCRIPTIONS = {
     'S': ('Shop', 'A bustling roadside merchant shop selling valuable items and move cards.'),
     'I': ('Inn', 'A cozy inn offering a place to rest, fully restore party HP, and organize companions.'),
     'B': ('Bathhouse', 'A serene bathhouse where tired travelers can soothe their muscles and clear their minds.'),
+    'L': ('Library', 'A tranquil repository of ancient knowledge, lore, and catalogued spellcraft.'),
     'R': ('Ancient Ruins', 'Dangerous crumbling stone ruins. Hostile forces and rare artifacts await!'),
     '^': ('Mountain Pass', 'Rugged, high-altitude mountain terrain filled with treacherous wild beasts.'),
     'f': ('Dense Forest', 'Dark whispering woods where monsters stalk from the shadows.'),
@@ -68,7 +69,6 @@ DEFAULT_TILE_DESCRIPTIONS = {
 DEFAULT_BATHHOUSE_ILLUST = """
 +--------------------------------------------------------------------------------------------------+
 |         | |   | |                                                              | |   | |         | 
-|         | |   | |                                                              | |   | |         | 
 |_______  | |   | |   ________________________________________________________   | |   | |  _______| 
 |        (         )                         / $ $\                             (         )        |
 |       ____________________________________/.cccc,\________________________________________       |
@@ -77,6 +77,20 @@ DEFAULT_BATHHOUSE_ILLUST = """
 |    / /~~≈~~ ~~~ ~≈~ ~≈~~~~≈~  ~~~~~ ~~ ~~   ~ ~   ~~~ ~~~ ~≈~~~~   ~~ ~~~~~~≈~ ~~ ~~~  ~~~\ \    |
 |   / /≈~~~≈~  ~~~ ~~~ ~≈~~~~≈ ~~~~~ ~~~~ ~~~~~  ~~ ~~ ~~~ ~~~≈~~~~~~~ ~~~~~~ ~≈~~  ~~  ~~~~~\ \   |
 |  / / ~~~~~~ ~~~~~~  ~~~~~~~ ~~~~~~~ ~~~~~   ~~~ ~~~~~~~~~  ~~~~~~~~~~~~~~~  ~~~~~~~~~ ~~~~~~\ \  |
++--------------------------------------------------------------------------------------------------+
+"""
+
+DEFAULT_LIBRARY_ILLUST = """
++--------------------------------------------------------------------------------------------------+
+||| || | | ||U||U||U||U||U||U||U||U||U||U|| || || || || || || || || || || || ||U||U||U||U||U||U||U||
+|||u||u| | |==============================| ||U||U||U||U||U||U||U||U||U||U|| |=====================|
+|========| |                              | |==============================| |                     |
+|        | ||n||n||n||n||n||n||n||n||n||n|| |                              | ||n||n||n||n||n||n||n||
+|||n||n| | || || || || || || || || || || || ||n||n||n||n||n||n||n||n||n||n|| || || || || || || || ||
+||| || | | || ||&|| ||%||^|| || ||&|| ||!|| || || || || || || || || || || || || ||^|| || || || || ||
+||| || | | ||U||U||U||U||U||U||U||U||U||U|| || || ||&||&||&|| || ||*|| || || ||U||U||U||U||U||U||U||
+|||U||U| | |==============================| ||U||U||U||U||U||U||U||U||U||U|| |=====================|
+|========| |                              | |==============================| |                     |
 +--------------------------------------------------------------------------------------------------+
 """
 
@@ -205,13 +219,14 @@ DEFAULT_SHOP_ILLUST = """
 
 
 class MapZone:
-    def __init__(self, grid, offset_x=0, offset_y=0, shop_data=None, inn_data=None, bathhouse_data=None, encounter_data=None, tile_descriptions=None):
+    def __init__(self, grid, offset_x=0, offset_y=0, shop_data=None, inn_data=None, bathhouse_data=None, library_data=None, encounter_data=None, tile_descriptions=None):
         self.grid = grid
         self.offset_x = offset_x
         self.offset_y = offset_y
         self.shop_data = shop_data if shop_data is not None else []
         self.inn_data = inn_data if inn_data is not None else []
         self.bathhouse_data = bathhouse_data if bathhouse_data is not None else []
+        self.library_data = library_data if library_data is not None else []
         self.encounter_data = encounter_data if encounter_data is not None else {}
         self.tile_descriptions = tile_descriptions if tile_descriptions is not None else {}
 
@@ -249,6 +264,9 @@ class MapZone:
             return True
         inn = self.get_inn(x, y)
         if inn and inn.get('should_reset_losable_gold', False):
+            return True
+        library = self.get_library(x, y)
+        if library and library.get('should_reset_losable_gold', False):
             return True
         return False
 
@@ -292,6 +310,20 @@ class MapZone:
                     if gx == bathhouse_x and gy == bathhouse_y:
                         if self.bathhouse_data:
                             return self.bathhouse_data[min(idx, len(self.bathhouse_data) - 1)]
+                        return None
+                    idx += 1
+        return None
+
+    def get_library(self, library_x, library_y):
+        idx = 0
+        for ly in range(len(self.grid)):
+            for lx in range(len(self.grid[ly])):
+                if self.grid[ly][lx] == 'L':
+                    gx = lx + self.offset_x
+                    gy = ly + self.offset_y
+                    if gx == library_x and gy == library_y:
+                        if self.library_data:
+                            return self.library_data[min(idx, len(self.library_data) - 1)]
                         return None
                     idx += 1
         return None
@@ -360,7 +392,7 @@ MAP_ZONES = [
             "^^^^...........ffff",
             "^^^.....___....ffff",
             "^^^.....S_I....ffff",
-            "^^^.....___.....fff",
+            "^^^.....L__.....fff",
             "^^^^...........ffff",
             "^.^^^........Rfffff",
             "^..^^^.......fRffff",
@@ -440,6 +472,13 @@ MAP_ZONES = [
                 ], 
                 'should_reset_losable_gold': True,
             },
+        ],
+        library_data=[
+            {
+                'title': 'Dunton Village Library',
+                'illust': DEFAULT_LIBRARY_ILLUST,
+                'should_reset_losable_gold': True
+            }
         ],
         encounter_data= {
             '.': [
@@ -568,11 +607,11 @@ MAP_ZONES = [
     MapZone(
         grid=[
                 "..................^",
-                ".........______....",
+                "........_______....",
                 ".......~~_S_SI_...^",
                 "......~~~B_____...^",
-                ".......~~___.......",
-                ".........___......^",
+                ".......~~_L_.......",
+                "........____......^",
                 "...............R.^^",
                 "..............R.^^^",
                 "................^^^",
@@ -644,6 +683,13 @@ MAP_ZONES = [
                 ], 
                 'should_reset_losable_gold': True,
             },
+        ],
+        library_data=[
+            {
+                'title': 'The Lesser Archives of Yonder',
+                'illust': DEFAULT_LIBRARY_ILLUST,
+                'should_reset_losable_gold': True
+            }
         ],
         encounter_data = {
             '.': default_encounter_data(1),
@@ -833,6 +879,13 @@ def get_bathhouse(bathhouse_x, bathhouse_y):
     zone = get_zone_for_space(bathhouse_x, bathhouse_y)
     if zone:
         return zone.get_bathhouse(bathhouse_x, bathhouse_y)
+    return None
+
+
+def get_library(library_x, library_y):
+    zone = get_zone_for_space(library_x, library_y)
+    if zone:
+        return zone.get_library(library_x, library_y)
     return None
 
 

@@ -116,6 +116,43 @@ QUESTS = {
             }
         ]
     },
+    'library_donations': {
+        'id': 'library_donations',
+        'title': 'Library Donations',
+        'steps': [
+            {
+                'location': 'Library',
+                'reward_cards': [],
+                'reward_gold': 0,
+                'dialogue': [
+                    {
+                        'speaker': 'Librarian',
+                        'text': "It's a shame the Strange Lands Library System isn't the premier piece of transport infrastructure it was before the Rot. "
+                                "We can't have librarians running from library to library anymore, obviously, but we still pay "
+                                "enough brigands to get the important bits from one library to the next. ",
+                        'responses': [
+                            "Can I help?",
+                            "That's impressive for a library.",
+                        ]
+                    },
+                    {
+                        'speaker': 'Librarian',
+                        'text': "Most of our old collection, however, was lost in the chaos that followed the Rot. I hope you'll benefit as much from helping us rebuild it as we will.",
+                        'responses': [
+                            "I'd love to help with the library!",
+                            "Could I convince you to pay me?",
+                            "Fine, if I wind up with spare findings I'll bring them back...",
+                        ]
+                    }
+                ],
+                'completion_log': "Accepted the library's request to donate books."
+            },
+            {
+                'location': 'An imaginary place that doesn\'t exist, nah nah you\'ll never finish this quest',
+                'menu_description': "Donate cards Yew finds on their journey to the Library to uncover lost texts.",
+            }
+        ]
+    },
     'badgys_errand': {
         'id': 'badgys_errand',
         'title': "Badgy's Favor",
