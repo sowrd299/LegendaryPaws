@@ -2,57 +2,6 @@ import random
 from .engine import Character, CLASS_DATA
 
 
-VIEWPORT_MAX_WIDTH = 15
-VIEWPORT_MAX_HEIGHT = 15
-
-
-def calculate_map_pan(party_x, party_y, current_pan_x=None, current_pan_y=None):
-    """Calculates viewport pan_x and pan_y keeping player within a 5x5 center deadzone of the viewport."""
-    min_x = get_map_min_x()
-    max_x = get_map_max_x()
-    min_y = get_map_min_y()
-    max_y = get_map_max_y()
-    map_w = max_x - min_x
-    map_h = max_y - min_y
-
-    vw = min(VIEWPORT_MAX_WIDTH, map_w)
-    vh = min(VIEWPORT_MAX_HEIGHT, map_h)
-
-    max_pan_x = max(min_x, max_x - vw)
-    max_pan_y = max(min_y, max_y - vh)
-
-    # Center box definition (5 wide x 5 high centered inside viewport)
-    center_x = vw // 2
-    min_cx = center_x - 2
-    max_cx = center_x + 2
-
-    center_y = vh // 2
-    min_cy = center_y - 2
-    max_cy = center_y + 2
-
-    # Calculate pan_x
-    if current_pan_x is None:
-        pan_x = max(min_x, min(max_pan_x, party_x - center_x))
-    else:
-        pan_x = current_pan_x
-        local_x = party_x - pan_x
-        if local_x < min_cx:
-            pan_x = max(min_x, party_x - min_cx)
-        elif local_x > max_cx:
-            pan_x = min(max_pan_x, party_x - max_cx)
-
-    # Calculate pan_y
-    if current_pan_y is None:
-        pan_y = max(min_y, min(max_pan_y, party_y - center_y))
-    else:
-        pan_y = current_pan_y
-        local_y = party_y - pan_y
-        if local_y < min_cy:
-            pan_y = max(min_y, party_y - min_cy)
-        elif local_y > max_cy:
-            pan_y = min(max_pan_y, party_y - max_cy)
-
-    return pan_x, pan_y
 
 
 DEFAULT_TILE_DESCRIPTIONS = {
@@ -1115,8 +1064,12 @@ def generate_random_enemies(encounter_data):
                 enemy.give_card(chosen_card)
 
         if target_lvl is not None:
-            while enemy.get_scaled_stats().get('level') < target_lvl:
-                enemy.give_card('Potion')
+            num_potions = int(target_lvl**2 * 5 / enemy.get_raw_stats().get('level')) + 1
+            for i in range(num_potions):
+                enemy.give_card('Potion', i == num_potions-1)
+
+            if enemy.get_scaled_stats().get('level') != target_lvl:
+                print(f"[XP!] {enemy.name} is level {enemy.get_scaled_stats().get('level')}, not {target_lvl}!")
 
         enemy.current_hp = enemy.max_hp
         enemies.append(enemy)

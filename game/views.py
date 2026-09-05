@@ -9,7 +9,6 @@ from .cards import *
 from .map import (
     get_tile, get_tile_description, get_map_width, get_map_height,
     get_map_min_x, get_map_min_y, get_map_max_x, get_map_max_y,
-    VIEWPORT_MAX_WIDTH, VIEWPORT_MAX_HEIGHT, calculate_map_pan,
     should_reset_losable_gold, get_shop, get_inn, get_bathhouse, get_library, get_inn_id, get_inn_coords,
     get_nearest_inn_id, get_random_encounter, DEFAULT_START_INN_ID, DEFAULT_BATHHOUSE_ILLUST, DEFAULT_LIBRARY_ILLUST
 )
@@ -66,6 +65,9 @@ INN_SIGN_ILLUST = """
   +------/  
 """
 
+VIEWPORT_MAX_WIDTH = 15
+VIEWPORT_MAX_HEIGHT = 15
+
 def name_to_card(card_name):
     card = dict(CARDS[card_name])
     return card
@@ -91,6 +93,146 @@ def save_game_state(request, state):
     """Saves game state to session."""
     request.session['game_state'] = state
     request.session.modified = True
+
+
+def is_column_empty_in_range(c, min_y, max_y):
+    """Returns True if every tile in column c from min_y to max_y (inclusive) is empty (None or space)."""
+    for y in range(min_y, max_y + 1):
+        tile = get_tile(c, y)
+        if tile and tile != ' ':
+            return False
+    return True
+
+
+def is_row_empty_in_range(r, min_x, max_x):
+    """Returns True if every tile in row r from min_x to max_x (inclusive) is empty (None or space)."""
+    for x in range(min_x, max_x + 1):
+        tile = get_tile(x, r)
+        if tile and tile != ' ':
+            return False
+    return True
+
+
+def get_map_bounds_at(party_x, party_y):
+    """Determines local map boundaries (min_x, max_x, min_y, max_y) around (party_x, party_y)
+    by searching for full-empty columns/rows."""
+    global_min_x = get_map_min_x()
+    global_max_x = get_map_max_x()
+    global_min_y = get_map_min_y()
+    global_max_y = get_map_max_y()
+
+    v_search_min = party_y - VIEWPORT_MAX_HEIGHT
+    v_search_max = party_y + VIEWPORT_MAX_HEIGHT
+
+    c_left = global_min_x - 1
+    for c in range(party_x - 1, global_min_x - VIEWPORT_MAX_WIDTH - 1, -1):
+        if is_column_empty_in_range(c, v_search_min, v_search_max):
+            c_left = c
+            break
+
+    c_right = global_max_x
+    for c in range(party_x + 1, global_max_x + VIEWPORT_MAX_WIDTH + 1):
+        if is_column_empty_in_range(c, v_search_min, v_search_max):
+            c_right = c
+            break
+
+    h_search_min = party_x - VIEWPORT_MAX_WIDTH
+    h_search_max = party_x + VIEWPORT_MAX_WIDTH
+
+    r_top = global_min_y - 1
+    for r in range(party_y - 1, global_min_y - VIEWPORT_MAX_HEIGHT - 1, -1):
+        if is_row_empty_in_range(r, h_search_min, h_search_max):
+            r_top = r
+            break
+
+    r_bottom = global_max_y
+    for r in range(party_y + 1, global_max_y + VIEWPORT_MAX_HEIGHT + 1):
+        if is_row_empty_in_range(r, h_search_min, h_search_max):
+            r_bottom = r
+            break
+
+    min_x = c_left + 1
+    max_x = c_right
+    min_y = r_top + 1
+    max_y = r_bottom
+
+    return min_x, max_x, min_y, max_y
+
+
+def calculate_map_pan(party_x, party_y, current_pan_x=None, current_pan_y=None, max_x_pan_move=None, max_y_pan_move=None):
+    """Calculates viewport pan_x and pan_y keeping player within a 5x5 center deadzone of the viewport,
+    treating any row or column that is all empty for the displayed width/height as the edge of the map."""
+    min_x, max_x, min_y, max_y = get_map_bounds_at(party_x, party_y)
+    map_w = max(1, max_x - min_x)
+    map_h = max(1, max_y - min_y)
+
+    vw = min(VIEWPORT_MAX_WIDTH, map_w)
+    vh = min(VIEWPORT_MAX_HEIGHT, map_h)
+
+    max_pan_x = max(min_x, max_x - vw)
+    max_pan_y = max(min_y, max_y - vh)
+
+    # Center box definition (5 wide x 5 high centered inside viewport)
+    center_x = vw // 2
+    min_cx = center_x - 2
+    max_cx = center_x + 2
+
+    center_y = vh // 2
+    min_cy = center_y - 2
+    max_cy = center_y + 2
+
+    # Calculate pan_x, assuming infnite map
+    if current_pan_x is None:
+        pan_x = max(min_x, min(max_pan_x, party_x - center_x))
+    else:
+        pan_x = current_pan_x
+        local_x = party_x - pan_x
+        if local_x < min_cx:
+            pan_x = max(min_x, party_x - min_cx)
+        elif local_x > max_cx:
+            pan_x = min(max_pan_x, party_x - max_cx)
+
+    # Calculate pan_y, assuming infnite map
+    if current_pan_y is None:
+        pan_y = max(min_y, min(max_pan_y, party_y - center_y))
+    else:
+        pan_y = current_pan_y
+        local_y = party_y - pan_y
+        if local_y < min_cy:
+            pan_y = max(min_y, party_y - min_cy)
+        elif local_y > max_cy:
+            pan_y = min(max_pan_y, party_y - max_cy)
+
+    # Bound the map to the map
+    pan_x = max(min_x, min(max_pan_x, pan_x))
+    pan_y = max(min_y, min(max_pan_y, pan_y))
+
+    # Adjust pan if showing an edge row/column that is all empty for the displayed viewport
+    while pan_x < max_pan_x and is_column_empty_in_range(pan_x, pan_y, pan_y + vh - 1):
+        pan_x += 1
+
+    while pan_x > min_x and is_column_empty_in_range(pan_x + vw - 1, pan_y, pan_y + vh - 1):
+        pan_x -= 1
+
+    while pan_y < max_pan_y and is_row_empty_in_range(pan_y, pan_x, pan_x + vw - 1):
+        pan_y += 1
+
+    while pan_y > min_y and is_row_empty_in_range(pan_y + vh - 1, pan_x, pan_x + vw - 1):
+        pan_y -= 1
+
+    # Bound the VELOCITY OF THE PAN to the max pan movement (id est, make sure the pan isn't moving faster than the party)
+    pan_x_move = pan_x - current_pan_x
+    pan_y_move = pan_y - current_pan_y
+    if max_x_pan_move != None and not (min(0, max_x_pan_move) <= pan_x_move <= max(0, max_x_pan_move)):
+        pan_x = current_pan_x + max(min(pan_x_move, 0), min(max(pan_x_move, 0), max_x_pan_move))
+    if max_y_pan_move != None and not (min(0, max_y_pan_move) <= pan_y_move <= max(0, max_y_pan_move)):
+        pan_y = current_pan_y + max(min(pan_y_move, 0), min(max(pan_y_move, 0), max_y_pan_move))
+
+    # Make sure that the party is always visible
+    pan_x = max(party_x - vw + 1, min(party_x, pan_x))
+    pan_y = max(party_y - vh + 1, min(party_y, pan_y))
+
+    return pan_x, pan_y
 
 
 def advance_enemy_turns(engine):
@@ -208,7 +350,14 @@ def game_index(request):
         current_tile = get_tile(x, y)
         tile_info = get_tile_description(x, y)
 
-        pan_x, pan_y = calculate_map_pan(x, y, state.get('pan_x'), state.get('pan_y'))
+        max_pan_move_x = None
+        if 'prev_x' in state:
+            max_pan_move_x = (x - state['prev_x']) * 2
+        max_pan_move_y = None
+        if 'prev_y' in state:
+            max_pan_move_y = (y - state['prev_y']) * 2
+
+        pan_x, pan_y = calculate_map_pan(x, y, state.get('pan_x'), state.get('pan_y'), max_pan_move_x, max_pan_move_y)
         state['pan_x'] = pan_x
         state['pan_y'] = pan_y
         save_game_state(request, state)
@@ -434,6 +583,7 @@ def handle_action(request):
 
     elif action_type == 'move':
         direction = request.POST.get('direction')
+        state['prev_x'], state['prev_y'] = party.x, party.y
         new_x, new_y = party.x, party.y
 
         if direction == 'up' and party.y > get_map_min_y():

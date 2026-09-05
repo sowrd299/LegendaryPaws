@@ -273,9 +273,6 @@ class Character:
 
         if level_up_cards is not None:
             self.level_up_cards = list(level_up_cards)
-        elif level > 1:
-            needed_cards = (level * level + level) // 2 - 1
-            self.level_up_cards = ['Slash'] * needed_cards
         else:
             self.level_up_cards = []
         
@@ -405,13 +402,18 @@ class Character:
         for status_effect in status_effects_to_remove:
             self.status_effects.remove(status_effect)
 
-    def give_card(self, card_name):
+    def give_card(self, card_name, update = True):
         """Gives a card to character to boost stats and raw level."""
         if self.level >= 20:
             return False, "Character is already at maximum level."
         if card_name not in CARDS:
             return False, f"Unknown card '{card_name}'."
-        
+
+        self.level_up_cards.append(card_name)
+
+        if not update:
+            return True, "Card added."
+
         card = CARDS[card_name]
 
         can_equip, replaced_card_name = self.can_equip_card(card)
@@ -419,8 +421,6 @@ class Character:
             if replaced_card_name:
                 self.equipped_cards.remove(replaced_card_name)
             self.equipped_cards.append(card_name)
-
-        self.level_up_cards.append(card_name)
 
         # Re-evaluate class
         self.update_class()
@@ -480,6 +480,7 @@ class Character:
             level_req = not has_level_req or self.get_scaled_stats().get('level', 1) >= cl.get('req_level')
             species_req = not has_species_req or self.species in cl.get('req_species')
 
+            """
             if (has_class_req and class_req) or (has_card_req and card_req) or  (has_level_req and level_req) or (has_species_req and species_req):
                 print(f"[XP!] Considering {self.name} for {class_name}: "
                     f"class_req={class_req}, "
@@ -487,6 +488,7 @@ class Character:
                     f"level_req={level_req}, "
                     f"species_req={species_req}, "
                     f"newly eligible={class_name not in self.unlocked_classes}")
+            """
 
             if class_req and card_req and level_req and species_req:
                 eligible_classes.append(class_name)
