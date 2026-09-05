@@ -636,16 +636,23 @@ class CombatEngine:
         self.advance_action_timers()
 
         # Build party shared deck
+        self.draw_pile = self.get_deck_pool()
+        self.discard_pile = []
+        self.hand = []
+        self.draw_hand()
+
+    def get_deck_pool(self):
         deck_pool = list(self.shared_deck)
         while len(deck_pool) < DECK_MINIMUM_SIZE:
             deck_pool.append("Wallow")
         for a in self.allies:
             deck_pool.extend(a.get_known_cards())
-        random.shuffle(deck_pool)
-        self.draw_pile = deck_pool
-        self.discard_pile = []
-        self.hand = []
-        self.draw_hand()
+
+        for card in getattr(self, 'hand', []):
+            if card in deck_pool:
+                deck_pool.remove(card)
+
+        return deck_pool
 
     def draw_hand(self):
         """Draws up to 3 cards for the player turn hand."""
@@ -661,15 +668,14 @@ class CombatEngine:
         needed = 3 - len(self.hand)
         for _ in range(needed):
 
-            draw_req = self.draw_reqs[0] if self.draw_reqs else None
+            draw_req = self.draw_reqs.pop(0) if self.draw_reqs else None
 
             if not self.draw_pile or (draw_req and not any(meets_draw_req(c, draw_req) for c in self.draw_pile)):
-                if self.discard_pile:
-                    self.draw_pile = self.discard_pile
-                    self.discard_pile = []
-                    random.shuffle(self.draw_pile)
-                else:
-                    break
+                self.draw_pile = self.get_deck_pool()
+                self.discard_pile = []
+                random.shuffle(self.draw_pile)
+                print(f"[Combat!] Reshuffling deck. {self.draw_pile}")
+
             if self.draw_pile:
                 if draw_req:
                    idx = 0 
@@ -865,8 +871,9 @@ class CombatEngine:
             # discard cards
             discard_cards = card.get('discard_cards', 0)
             for _ in range(discard_cards):
-                self.hand.remove(self.hand[0])
-                effect_logs.append(f" Discarded {discard_cards} cards")
+                if self.hand:
+                    self.hand.remove(self.hand[0])
+                    effect_logs.append(f" Discarded {discard_cards} cards")
 
             # draw reqs
             draw_req = card.get('draw_req', [])
