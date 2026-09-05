@@ -1026,7 +1026,7 @@ CARD_DATA = [
         'status_effect_duration': 10,
         'status_effect_duration_stat': 'survival_intensity',
         'discard_cards': 2,
-        'description': 'Boost the user\'s archery, and redraw your hand.',
+        'description': 'Boost archery. Redraw your hand.',
         'illust': """
 +-----------------+
 |                 |
@@ -1048,7 +1048,7 @@ CARD_DATA = [
         'status_effect_duration': 10,
         'status_effect_duration_stat': 'survival_intensity',
         'discard_cards': 2,
-        'description': 'Boost the user\'s resistance, and redraw your hand.',
+        'description': 'Boost defenses. Redraw your hand.',
         'illust': """
 +-----------------+
 |                 |
