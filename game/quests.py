@@ -285,8 +285,8 @@ QUESTS = {
                         'speaker': 'Imora, Husk of a Cat Assassin',
                         'text': "I... oh... PAIN... such pain... everything,",
                         'responses': [
-                            "Hello?"
-                            "Imora?"
+                            "Hello?",
+                            "Imora?",
                             "...",
                         ]
                     },
@@ -294,7 +294,7 @@ QUESTS = {
                         'speaker': 'Imora, Husk of a Cat Assassin',
                         'text': "burns. so. cold...",
                         'responses': [
-                            "Can I help?"
+                            "Can I help?",
                             "...",
                         ]
                     },

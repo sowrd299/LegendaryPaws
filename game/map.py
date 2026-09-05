@@ -627,12 +627,12 @@ MAP_ZONES = [
     # The zone across the mountains from Dunton
     MapZone(
         grid=[
-                "..................^",
-                "........_______....",
-                ".......~~_S_SI_...^",
-                "......~~~B_____...^",
-                ".......~~_L_.......",
-                "........____......^",
+                "              ....^",
+                "   ....________....",
+                "   ...~~_S__SI_...^",
+                "   ..~~~B______...^",
+                "......~~_L_........",
+                ".......____.......^",
                 "...............R.^^",
                 "..............R.^^^",
                 "................^^^",
@@ -800,7 +800,7 @@ MAP_ZONES = [
             }
         ],
         encounter_data={
-            '.': [
+            'f': [
                 {
                     'chance': .2,
                     'min_enemies': 1,
@@ -852,6 +852,94 @@ MAP_ZONES = [
         },
         tile_descriptions=dict(DEFAULT_TILE_DESCRIPTIONS, **{
             'f': ('The Hamlet of the Sprites', 'An eclectic home in the forest; both a testament to their magical craft, and a study in their lack of understanding of mortal needs or mortal fear. Many spites welcome outsiders into the hamlet, but many do not.'),
+        }),
+    ),
+
+    # Yonder Pondlands
+    # Pseudo-wall encounters
+    MapZone(
+        grid=[
+                "                   ",
+                "  ...              ",
+                "                   ",
+                "               ..  ",
+                "                   ",
+                "           .  ..   ",
+        ],
+        offset_x=-19,
+        offset_y=-7,
+        encounter_data = {
+            '.': [
+                dict(default_encounter_data(8)[1], **{'chance': 1}),
+            ]
+        },
+        tile_descriptions=dict(DEFAULT_TILE_DESCRIPTIONS, **{
+            '.': ('Yonder Pondlands', 'An idyllic and green stretch of plateau, covered with cool breezes and tall grasses.'),
+            '~': ('Pondland Pond', 'a springfed pond - tempting to swim in if Yew didn\'t know better')
+        }),
+    ),
+    # Imora's Resting Place
+    MapZone(
+        grid=[
+                "                   ",
+                "                   ",
+                "                   ",
+                "                   ",
+                "   .               ",
+        ],
+        offset_x=-19,
+        offset_y=-7,
+        encounter_data = {
+            '.': []
+        },
+        tile_descriptions=dict(DEFAULT_TILE_DESCRIPTIONS, **{
+            '.': ("Imora's Resting Place", 'The last known location of the great brigand Imora, protector of Yonder. The Death Rot makes "resting" a more hopeful name than an accurate one.'),
+            '~': ('Pondland Pond', 'a springfed pond - tempting to swim in if Yew didn\'t know better')
+        }),
+    ),
+    MapZone(
+        grid=[
+                "S..................^^",
+                "~~!!!.......~~~....^",
+                "~~...~~....~~~~~...^",
+                "..~~.~~...~~...!!..^",
+                "..~?............~..^",
+                "..~~..~.~~~!.~!!~~.^",
+                "....~~~..~..~~..~..",
+                "...~..........     ",
+                "...                ",
+                ".~~                ",
+                "..~                ",
+        ],
+        offset_x=-19,
+        offset_y=-7,
+        shop_data=[
+            {
+                'title': 'Maggy\'s Hut',
+                'items': [
+                    ('Syrupy Potion', 20),
+                    ('Flowering Stab', 50),
+                    ('Crescent Shot', 5),
+                    ('Burning Shot', 5),
+                ],
+                'illust': DEFAULT_SHOP_ILLUST,
+                'dialogues': [
+                    ("Maggy", "The weather? I haven't seen the Sky in MONTHS! Did you know you CAN live on potions?"),
+                    ("Maggy", "Would you like some arrows? How about this sword a passing brigand left me? They're not much use to me in I just. keep. staying. here. like. I. should."),
+                    ("Maggy", "When I first moved here, it was LOVELY! Pond views, a reasonable walk to Yonder. And THEN a few months? Maybe a year? What day is it? ago I went to go buy some "
+                              "eggs and I saw a giant with his ear falling off and. that. was. the. end. of. that."
+                    ),
+                ],
+                'should_reset_losable_gold': False,
+            },
+        ],
+        encounter_data = {
+            '.': default_encounter_data(3),
+            '^': default_encounter_data(4)
+        },
+        tile_descriptions=dict(DEFAULT_TILE_DESCRIPTIONS, **{
+            '.': ('Yonder Pondlands', 'An idyllic and green stretch of plateau, covered with cool breezes and tall grasses.'),
+            '~': ('a Pondland Pond', 'springfed and tempting to swim in if Yew didn\'t know better')
         }),
     ),
 ]
