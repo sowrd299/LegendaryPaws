@@ -143,6 +143,13 @@ CLASS_DATA = {
         'req_class': ['Scout', 'Burglar'],
         'req_card': ['Wain', 'Wax'],
     },
+    'Assassin': {
+        'bonus_stats': ['melee_damage', 'ranged_damage', 'survival_intensity', 'star_vulnerability'],
+        'stat_mods': {'level': 3, 'melee_damage': 6.0, 'ranged_damage': 6.0, 'survival_intensity': 6.0, 'star_vulnerability': 1.0},
+        'default_cards': ['Assassinate', 'Snipe'],
+        'req_class': ['Ranger', 'Burglar'],
+        'req_card': ['Assassinate', 'Snipe'],
+    },
 
     # MELEE CLASSES
     'Squire': {

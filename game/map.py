@@ -656,7 +656,7 @@ MAP_ZONES = [
                 'illust': DEFAULT_SHOP_ILLUST,
                 'dialogues': [
                     ("Old Man Hemlock", "Oh, you came from Dunton you say? Not many people cross the little mountains now that they're all covered in Rot. " +
-                    "Just brigands that mad tortoise by my count."),
+                    "Just brigands and that mad tortoise by my count."),
                 ],
                 'should_reset_losable_gold': True
             }

@@ -17,6 +17,7 @@ from .map import (
 from .quests import QUESTS, check_quest_triggers, get_active_quests
 
 DEBUG_COMBAT_ENABLED = True
+DEBUG_EVERYTHING_STORE = False
 
 INVENTORY_MAX_SIZE = 20
 
@@ -256,7 +257,13 @@ def game_index(request):
             context['illust'] = shop_data.get('illust', '')
             context['speaker'] = speaker
             context['text'] = dialogue
-            context['shop_items'] = [(name_to_card(name), cost) for name,cost in shop_data.get('items', dict())]
+
+            shop_items = list(shop_data.get('items', []))
+            if DEBUG_EVERYTHING_STORE:
+                for card in CARDS:
+                    shop_items.append((card, 1))
+
+            context['shop_items'] = [(name_to_card(name), cost) for name,cost in shop_items]
 
     elif screen == 'inn':
         inn_id = state.get('current_inn_id') or get_inn_id(party.x, party.y) or 'inn_0'

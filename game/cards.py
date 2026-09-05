@@ -137,6 +137,41 @@ CARD_DATA = [
 +-----------------+
 """
     },
+    {
+        'name': 'Rot Remains',
+        'type': 'trinket',
+        'rarity': 'mundane',
+        'target': 'all_allies',
+        'description': 'A peculiar bit of flesh with a peculiar effect.',
+        'stat_boosts': {},
+        'is_consumable': True,
+        'effects': [
+            {
+                'recovery_cost': 5,
+                'heal_power': 1,
+                'revive': True,
+            },
+            {
+                'target': 'all_enemies',
+                'recovery_cost': 5,
+                'heal_power': 1,
+                'revive': True,
+            }
+        ],
+        'library_text': 'Samples of the Death Rot are difficult to analyze. The Rot is both clearly an infection, but also '
+                        'it behaves unlike any infection in the medical records. Most scholars agree that the inhabbitants of the '
+                        'Strange Lands proably aren\'t its primary host. Analysis is further complicated by the mismathed states of decay '
+                        'that always accompany it.',
+        'illust': """
++-----------------+
+|    _()_# -|@&@/\|
+| __()__- # /@&|  |
+|(_)_/&@/_- |&/#  |
+|   ()__#__   # / |
+|        (@ #  /  |
++-----------------+
+"""
+    },
 
 # ==================================================================================================
 # ARMOR
@@ -609,6 +644,52 @@ CARD_DATA = [
 +-----------------+
 """
     },
+    {
+        'name': 'Assassinate',
+        'type': 'weapon',
+        'rarity': 'exceptional',
+        'target': 'enemy',
+        'recovery_cost': 70,
+        'damage_type': 'melee_damage',
+        'damage_power': 6.0,
+        'description': 'End undeath, escape plan included.',
+        'stat_boosts': {'melee_damage': 0.8, 'survival_intensity': 0.8},
+        'effects': [
+            {
+                'status_effect_target_stat': 'brute_resistance',
+                'status_effect_power': 2,
+                'status_effect_stat': 'survival_intensity',
+                'status_effect_duration': 50, 
+            },
+            {
+                'status_effect_target_stat': 'moon_resistance',
+                'status_effect_power': 2,
+                'status_effect_stat': 'survival_intensity',
+                'status_effect_duration': 50, 
+            },
+            {
+                'status_effect_target_stat': 'star_resistance',
+                'status_effect_power': 2,
+                'status_effect_stat': 'survival_intensity',
+                'status_effect_duration': 50, 
+            },
+            {
+                'status_effect_target_stat': 'void_resistance',
+                'status_effect_power': 2,
+                'status_effect_stat': 'survival_intensity',
+                'status_effect_duration': 50, 
+            },
+        ],
+        'illust': """
++-----------------+
+|       ||        |
+|     =<__>=      |
+|       \ \       |
+|       \ )       |
+|       )/        |
++-----------------+
+"""
+    },
 
 
 # ==================================================================================================
@@ -969,6 +1050,47 @@ CARD_DATA = [
 +-----------------+
 """
     },
+    {
+        'name': 'Snipe',
+        'type': 'weapon',
+        'rarity': 'exceptional',
+        'target': 'enemy',
+        'recovery_cost': 70,
+        'damage_type': 'ranged_damage',
+        'damage_power': 6.0,
+        'description': 'End undeath, escape plan included.',
+        'stat_boosts': {'ranged_damage': 0.8, 'survival_intensity': 0.8},
+        'effects': [
+            {
+                'status_effect_target_stat': 'brute_resistance',
+                'status_effect_power': 2,
+                'status_effect_stat': 'survival_intensity',
+                'status_effect_duration': 50, 
+            },
+            {
+                'status_effect_target_stat': 'moon_resistance',
+                'status_effect_power': 2,
+                'status_effect_stat': 'survival_intensity',
+                'status_effect_duration': 50, 
+            },
+            {
+                'status_effect_target_stat': 'void_resistance',
+                'status_effect_power': 2,
+                'status_effect_stat': 'survival_intensity',
+                'status_effect_duration': 50, 
+            },
+        ],
+        'illust': """
++-----------------+
+|                 |
+|  \`\        .   |
+| ===N========>-> |
+|  ///        `   |
+|                 |
++-----------------+
+"""
+    },
+
 
 # ==================================================================================================
 # SURVIVAL INTENSITY
