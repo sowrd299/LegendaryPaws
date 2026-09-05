@@ -183,6 +183,9 @@ CARD_DATA = [
                 'status_effect_duration': 15,
             },
         ],
+        'library_text': 'The art to making Clockworks is long forgotten - it was a rare fluke of magically inspired genious sometime around the '
+                        'great Raven-Dragon War to begin with. Luckily, between their innate sturdiness - their practically made of shields and armor to begin with - '
+                        'and intuitive ability to perpetually make new Clockworks from their dead, they\'ve kept their population up over the centuries.',
         'illust': """
 +-----------------+
 |      ------     |
@@ -412,6 +415,7 @@ CARD_DATA = [
         'damage_power': 3,
         'description': 'Powerful attack.',
         'stat_boosts': {'melee_damage': 0.5},
+        'library_text': 'Every squire hopes to one day, with enough experience, become a knight.',
         'illust': """
 +-----------------+
 \     - -   _.    |
@@ -440,7 +444,7 @@ CARD_DATA = [
                 'status_effect_duration': 15,
             },
         ], 
-        'library_text': 'The Flowering Stab is the key piece of swordplay one must learn to become a fencer.',
+        'library_text': 'The "flowering stab" is the key piece of swordplay one must learn to become a fencer.',
         'illust': """
 +-----------------+
 |       \  \      |
@@ -823,6 +827,9 @@ CARD_DATA = [
         'discard_cards': 2,
         'description': 'A skilled ranged attack. Redraws your hand.',
         'stat_boosts': {'ranged_damage': 0.4, 'nimbleness': 0.4},
+        'library_text': 'Many brigands practice archery. "Scouts" are the most common, and particularly experienced '
+                        'scouts become rangers; relying even more on their bows and survival skills. '
+                        'A few rangers and burgalars who learn sepcific and exceptionally advanced skills at destroying the Rot sell their skills as assassins. ',
         'illust': """
 +-----------------+
 |<((`)>           |
@@ -977,6 +984,7 @@ CARD_DATA = [
         'damage_power': 1.0,
         'description': 'A scout\'s first attack.',
         'stat_boosts': {'survival_intensity': 0.2, 'ranged_damage': 0.2, 'nimbleness': 0.2},
+        'library_text': 'Learning basic survival craft, such as making a simple trap, is the first step to becoming a scout.',
         'illust': """
 +-----------------+
 |  "  / .   ` /_//|
@@ -1304,6 +1312,9 @@ CARD_DATA = [
         'damage_power': 3.0,
         'description': 'Magic spell dealing damage.',
         'stat_boosts': {'moon_intensity': 0.2, 'moon_resistance': 0.3, 'star_vulnerability': 0.3},
+        'library_text': 'Moon Magic channels the powers of life and water and balance, and by extension, sadness. '
+                        'The great Night Sage Luna once said "I dread the next day I morn, but I dread the day I don\'t have to morn more '
+                        'for what tettible power could have possibly done that to the Strange Lands."',
         'illust': """
 +-----------------+
 | `'        (  )  |
@@ -1367,6 +1378,10 @@ CARD_DATA = [
         'heal_stat': 'moon_intensity',
         'description': 'Magic spell healing all allies.',
         'stat_boosts': {'moon_intensity': 0.4, 'moon_resistance': 0.3, 'star_vulnerability': 0.3},
+        'library_text': 'Sprites often find themselves in conflict with other inhabbitants of the Strange Lands. '
+                        'They aren\'t mean or antagonistic, but being beings of pure magic they can struggle to understand '
+                        'the needs of living inhabbitants. Many Dew Sprites, whose magic pulls them to the life force and substance '
+                        'and tears of living inhabbitants try to bridge that gap.',
         'illust': """
 +-----------------+
 | *       \  O \  |
@@ -1456,6 +1471,8 @@ CARD_DATA = [
         'damage_power': 2.0,
         'description': 'Deals damage to all enemies.',
         'stat_boosts': {'star_intensity': 0.4, 'star_resistance': 0.3, 'void_vulnerability': 0.3},
+        'library_text': 'Under the belief system Strange Lands their are three fundamental forces, both in magic and the world. '
+                        'Inhabbitants of the Strange Lands use metaphors of the sky to refer to them: the moon, the star, and the void.',
         'illust': """
 +-----------------+
 |--             --|
@@ -1543,7 +1560,20 @@ CARD_DATA = [
                 'status_effect_stat': 'void_intensity',
                 'status_effect_duration': 10,
             },
-        ]
+        ],
+        'library_text': 'The most rarely seen inhabbitants of the Strange Lands, much rarer even than sprites or clockworks or full grown dragons, '
+                        'go by many names: the Guides, the Ferrymen, the Reapers, the White Beetles. As myths go, everyone will see one exactly once in their life. '
+                        'They are powerful with all magics, rivalling even the most sage sprites, but they are best known for their connection to '
+                        'the void: the passage into nothingness.',
+        'illust': """
++-----------------+
+|                 |
+|                 |
+|   `         '   |
+|  \           /  |
+| \ \ ` ` ' ' / / |
++-----------------+
+"""
     },
     {
         'name': 'Step in Shadow',
@@ -1606,7 +1636,8 @@ CARD_DATA = [
                 'status_effect_power': 2,
                 'status_effect_duration': 30,
             },
-        ]
+        ],
+        'library_text': 'Every mage must start as a student; and most students start by knowing how to study.',
     },
     {
         'name': 'Student\'s Robes',
@@ -1659,6 +1690,7 @@ CARD_DATA = [
                 'status_effect_duration': 40,
             },
         ],
+        'library_text': 'Every knight must start as a squire; and most squires start by knowing how to train.',
     },
     {
         'name': 'Quiver Quickdraw',
@@ -1706,6 +1738,9 @@ CARD_DATA = [
                 'status_effect_duration': 15,
             },
         ],
+        'library_text': 'Throughout recent history, until the Death Rot, the Strange Lands had been at peace. Institutions like Capital Diplomacy and the '
+                        'Strange Lands Library System kept the villages and cities more united than separate. Brigands were more a nusance than a threat. '
+                        'Wars like the great Raven-Dragon War that leveled Old Dunton were ancient history.'
     },
 
 # ==================================================================================================

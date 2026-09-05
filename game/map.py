@@ -169,6 +169,7 @@ DEFAULT_ODD_REWARD_CARDS = [
     'Singeing Sunlight',
     'Call to the Void',
     'Battlesong',
+    'Honed Slash',
 ]
 
 
