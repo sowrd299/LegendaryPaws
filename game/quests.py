@@ -76,7 +76,7 @@ QUESTS = {
                         'text': 'Oh, I see... it\'s almost like what\'s "rotting" here is Death itself... these poor people really should be long dead, they\'re just, not?',
                         'responses': [
                             'Ah, so you are still watching over me, old friend',
-                            'Are you going to just leave here to deal with this by myself?',
+                            'Are you going to just leave me here to deal with this by myself?',
                         ]
                     },
                     {
@@ -252,7 +252,7 @@ QUESTS = {
             }, 
             {
                 'location': "Hemlock\'s Miscellany",
-                'menu_description': "Discovery the technique of Imora's Snipe in the pondlands north of Yonder, and give it to Hemlock in his shop.",
+                'menu_description': "Discover the technique of Imora's Snipe in the pondlands north of Yonder, and give it to Hemlock in his shop.",
                 'menu_illust': 'Snipe',
                 'required_cards_give': ['Snipe'],
                 'reward_gold': 400,
@@ -325,6 +325,120 @@ QUESTS = {
                 'completion_log': "As Imora succumbs to the Rot, she gifts you with her skills."
             }
         ]
+    },
+    'sallys_curiosity': {
+        'id': 'sallys_curiosity',
+        'title': "Sally's Curiosity",
+        'steps': [
+            {
+                'location': "Sally's School Supplies",
+                'dialogue': [
+                    {
+                        'speaker': 'Sally',
+                        'text': "Hello there Brigand. Have you ever considered broadening your horizons? Becoming a whole new class of brigand? "
+                                "It is my mission here to help wanderers like you learn to do just that.",
+                        'responses': [
+                            "You know, I've been considering studying Star Magic",
+                            "I suppose I'll take a look",
+                            "We are quite happy with the classes we fill, please and thank you",
+                        ]
+                    },
+                    {
+                        'speaker': 'Sally',
+                        'text': "Even I don't know all the specialities you can learn of course, just the basics really. I've heard there are brigands "
+                                "out there who wield a blend of Moon Magic and survival craft to totally desolve into the wilds. They call themselves \"Blackcloaks\" "
+                                "I think. I'd love to meet one one day and chat about their craft. I imagine the spell Wax must be very important to them.",
+                        'responses': [
+                            "If I come across one I'll bring them your way",
+                            "Sound like weirdos with nothing to contribute to my party",
+                        ]
+                    }
+                ],
+                'completion_log': "Accepted Sally's request to help her meet a Blackcloak."
+            },
+            {
+                'menu_description': "Bring a Blackcloak to meet Sally at her shop in Yonder. Blackcloaks specialize in Moon Magic and survival craft. "
+                                    "The card Wax might have a clue on how to become one.",
+                'menu_illust': "Cover of Night",
+                'location': "Sally's School Supplies",
+                'required_classes': ['Blackcloak'],
+                'reward_cards': ["New Moon"],
+                'dialogue': [
+                    {
+                        'speaker': 'Sally',
+                        'text': "Oh, a Blackcloak! Splendid, splendid! Do come in, do come in! I found this scroll that I was hoping a Blackcloak would like. Please, take it.",
+                        'responses': [
+                            "It was quite the adventure getting here",
+                            "It was nothing",
+                            "You sure have interesting curiosities",
+                        ]
+                    },
+                    {
+                        'speaker': 'Sally',
+                        'text': "Well, I've got another favor if you're up for it. I was reading about \"fencers\". Apparently they have quite some unique techniques in combat "
+                                "from what I've read the hard part of becoming one is getting an opportunity to learn the basic weapon at all. "
+                                "Some of the books mention a \"flowering stab\". Most of the mentions I've heard of fencer come from the east, so maybe that's a good place to look.",
+                        'responses': [
+                            "If I come across one I'll bring them your way",
+                            "Sound like more weirdos with nothing to contribute to my party",
+                        ]
+                    }
+                ],
+                'completion_log': "Sally met a Blackcloak. Received a New Moon card. Accepted Sally's request to help her meet a Fencer."
+            },
+            {
+                'menu_description': "Bring a Fencer to meet Sally at her shop in Yonder. "
+                                    "Apparently Fencers are common in the east, and the card Flowering Stab might have a clue on how to become one.",
+                'menu_illust': "Flowering Stab",
+                'location': "Sally's School Supplies",
+                'required_classes': ['Fencer'],
+                'reward_cards': ["Flowering Stab"],
+                'dialogue': [
+                    {
+                        'speaker': 'Sally',
+                        'text': "Oh, a Fencer! A joy to meet you! Do come in, do come in! I want to learn what you do. Maybe I can replicate it!",
+                        'responses': [
+                            "It was quite the adventure getting here",
+                            "It was nothing",
+                            "You sure have interesting curiosities",
+                        ]
+                    },
+                    {
+                        'speaker': 'Sally',
+                        'text': "I do have a third favor if you're up for it. I was talking to Hemlock about a wizard me met. "
+                                "I love the idea of a mage who stays devouted to well rounded study, even past their student days. "
+                                "According to Hemlock, every wizard he's ever met is an owl. I'm not sure if there's a reason for that.",
+                        'responses': [
+                            "If I come across one I'll bring them your way",
+                            "Seriously, they can't just specialize like a normal mage?",
+                        ]
+                    }
+                ],
+                'completion_log': "Sally met a Fencer. Received a Flowering Stab card. Accepted Sally's request to help her meet a Wizard."
+            },
+            {
+                'menu_description': "Bring a Wizard to meet Sally at her shop in Yonder. "
+                                    "The card something might have a clue on how to become one.",
+                'menu_illust': "Magical Opus",
+                'location': "Sally's School Supplies",
+                'required_classes': ['Wizard'],
+                'reward_cards': ["Chimeric Wand"],
+                'dialogue': [
+                    {
+                        'speaker': 'Sally',
+                        'text': "And who would you be. Oh, a Wizard! Stupendous! Do come in, do come in! "
+                                "You know, a brigand brought this wand back from the south a couple weeks ago. "
+                                "She said it was very rare. Seems to me like something a wizard would like.",
+                        'responses': [
+                            "It was quite the adventure getting here",
+                            "It was nothing",
+                            "You sure have interesting curiosities",
+                        ]
+                    },
+                ],
+                'completion_log': "Sally met a Wizard. Received a Chimeric Wand card."
+            },
+        ]
     }
 }
 
@@ -366,6 +480,17 @@ def has_required_cards(required_cards, inventory):
             return False
     return True
 
+def has_required_classes(required_classes, party):
+    """Checks if party contains any of the required_classes."""
+
+    for class_name in required_classes:
+        for member in party.members:
+            if class_name == member.current_class:
+                break 
+        else:
+            return False
+
+    return True
 
 def check_quest_triggers(state, party):
     """Evaluates all quests in state and triggers dialogue screen if conditions for a step are met."""
@@ -387,7 +512,11 @@ def check_quest_triggers(state, party):
             req_cards_have = step_data.get('required_cards_have', [])
             req_cards_give = step_data.get('required_cards_give', [])
 
-            if is_location_match(req_loc, party.x, party.y) and has_required_cards(req_cards_have + req_cards_give, party.inventory):
+            meets_req_loc = is_location_match(req_loc, party.x, party.y)
+            meets_req_cards = has_required_cards(req_cards_have + req_cards_give, party.inventory)
+            meets_req_classes = has_required_classes(step_data.get('required_classes', []), party)
+
+            if meets_req_loc and meets_req_cards and meets_req_classes:
                 # Deduct required cards
                 for card in req_cards_give:
                     if card in party.inventory:

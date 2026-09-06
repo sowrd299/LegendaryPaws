@@ -575,8 +575,10 @@ def handle_action(request):
                     state['screen'] = 'overworld'
 
                     completion_log = step_data.get('completion_log')
+                    reward_cards = step_data.get('reward_cards', [])
+                    
                     if completion_log:
-                        log.append(Message(1, completion_log))
+                        log.append(Message(1, completion_log, reward_cards[0] if reward_cards else None))
 
                     # Re-check quest triggers
                     check_quest_triggers(state, party)
