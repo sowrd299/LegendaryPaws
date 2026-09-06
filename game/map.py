@@ -122,11 +122,12 @@ DEFAULT_ODD_REWARD_CARDS = [
 ]
 
 
-def default_encounter_data(target_level): 
+def default_encounter_data(target_level, reward_cards = None): 
 
-    reward_cards = list(DEFAULT_REWARD_CARDS)
-    if target_level >= 4:
-        reward_cards += DEFAULT_ODD_REWARD_CARDS
+    if reward_cards is None:
+        reward_cards = list(DEFAULT_REWARD_CARDS)
+        if target_level >= 4:
+            reward_cards += DEFAULT_ODD_REWARD_CARDS
 
     min_reward_gold = target_level * 5
     max_reward_gold = target_level * 7
@@ -819,7 +820,7 @@ MAP_ZONES = [
         offset_y=-7,
         encounter_data = {
             '.': [
-                dict(default_encounter_data(8)[1], **{'chance': 1}),
+                dict(default_encounter_data(8, reward_cards=DEFAULT_ODD_REWARD_CARDS + ["Assassinate", "Snipe"] )[1], **{'chance': 1}),
             ]
         },
         tile_descriptions=dict(DEFAULT_TILE_DESCRIPTIONS, **{
@@ -883,7 +884,7 @@ MAP_ZONES = [
             },
         ],
         encounter_data = {
-            '.': default_encounter_data(3),
+            '.': default_encounter_data(3, reward_cards=DEFAULT_REWARD_CARDS + DEFAULT_ODD_REWARD_CARDS + ["Assassinate", "Snipe"]),
             '^': default_encounter_data(4)
         },
         tile_descriptions=dict(DEFAULT_TILE_DESCRIPTIONS, **{
