@@ -13,11 +13,13 @@ def count_pips(num_pips):
 
 MAP_CHARACTERS_TO_SYMBOLS = {
     'f': "↟",
+    'R': "⏘",
     'S': "⌂",
-    'B': "⌂",
+    'B': "♨",
     'I': "☗",
     'L': "☖",
     ' ': "&nbsp;",
+    '~': "≈",
 }
 
 @register.filter
@@ -58,7 +60,7 @@ STAT_NAME_REPLACEMENTS = {
         "melee": "M",
         "ranged": "R",
         "survival": "S",
-        "moon": "☾",
+        "moon": "⏾",
         "star": "☀︎",
         "void": "∅",
         "brute": "B",
