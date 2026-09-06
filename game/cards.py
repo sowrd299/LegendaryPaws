@@ -607,7 +607,7 @@ CARD_DATA = [
     {
         'name': 'Backstab',
         'type': 'weapon',
-        'rarity': 'interesting',
+        'rarity': 'peerless',
         'target': 'enemy',
         'recovery_cost': 10,
         'damage_type': 'melee_damage',
@@ -884,6 +884,10 @@ CARD_DATA = [
         'discard_cards': 1,
         'description': 'A ranged attack. Redraws a card.',
         'stat_boosts': {'ranged_damage': 0.4, 'nimbleness': 0.4},
+        'library_text': "Brigandry was not a common practice in the Strange Lands before the Death Rot. "
+                        "It was only when most of the inhabbitants hunkered down and sealed themeselves in their villages "
+                        "that the idea of arming oneself and roving the world, earning gold however possible "
+                        "took hold.",
         'illust': """
 +-----------------+
 |<((`)>           |
@@ -1017,6 +1021,8 @@ CARD_DATA = [
                 'status_effect_duration_stat': 'survival_intensity',
             }
         ],
+        'library_text': "In combat, a nimble foe is a dangerous one. Each action they take will cost them less time, "
+                        "and they'll get to take more actions over the course of the battle.",
         'illust': """
 +-----------------+
 |                 |
@@ -1171,6 +1177,10 @@ CARD_DATA = [
         'status_effect_duration_stat': 'survival_intensity',
         'discard_cards': 2,
         'description': 'Boost defenses. Redraw your hand.',
+        'library_text': "In the years of yore, giants where fierce warlords. In recent history, they've instead mostly to live "
+                        "in hermitage, each giant fending for the needs that come with their massive statutre, and acting a "
+                        "one-person village in the broader economy of the Strange Lands. They were the first species to succumb almost "
+                        "entirely to the Death Rot.",
         'illust': """
 +-----------------+
 |                 |
@@ -1418,6 +1428,43 @@ CARD_DATA = [
 +-----------------+
 """
     },
+    {
+        'name': 'Chimeric Wand',
+        'type': 'weapon',
+        'rarity': 'peerless',
+        'target': 'enemy',
+        'damage_type': 'moon_intensity',
+        'damage_power': 1.0,
+        'recovery_cost': 15,
+        'description': 'Boosts the user\'s star and void magic.',
+        'stat_boosts': {'moon_intensity': 0.5, 'star_intensity': 0.5, 'void_intensity': 0.5},
+        'effects': [
+            {
+                'target': 'self',
+                'status_effect_target_stat': 'star_intensity',
+                'status_effect_power': 2,
+                'status_effect_duration': 10,
+                'status_effect_duration_stat': 'moon_intensity',
+            },
+            {
+                'target': 'self',
+                'status_effect_target_stat': 'void_intensity',
+                'status_effect_power': 2,
+                'status_effect_duration': 10,
+                'status_effect_duration_stat': 'moon_intensity',
+            },
+        ],
+        'illust': """
++-----------------+
+|(C    /(0)\   ' '|
+| `    \Z|Q/ *  * |
+|`  *   /|\      -|
+|  *  *  )[  *    |
+| ,  ,  ||    ,   |
++-----------------+
+"""
+    },
+
 
 
 # ==================================================================================================
@@ -1581,7 +1628,10 @@ CARD_DATA = [
         'damage_type': 'star_intensity',
         'damage_power': 1,
         'description': 'Magic spell dealing damage to all enemies.',
-        'stat_boosts': {'star_intensity': 0.2, 'star_resistance': 0.3, 'void_vulnerability': 0.3}
+        'stat_boosts': {'star_intensity': 0.2, 'star_resistance': 0.3, 'void_vulnerability': 0.3},
+        'library_text': "Going back to the end of the Raven-Owl Congress, Owl culture has preserved a unique form of magical study that emphasizes learning "
+                        "and understanding all three Sky forces, instead of building a connection with just one. These learned mages are called Wizards. "
+                        "Most owls studying magic at least dable with wizardry along the course of their studies.",
     },
     {   
         'name': 'Singeing Sunlight',
@@ -1593,7 +1643,7 @@ CARD_DATA = [
         'damage_power': 2.0,
         'description': 'Deals damage to all enemies.',
         'stat_boosts': {'star_intensity': 0.4, 'star_resistance': 0.3, 'void_vulnerability': 0.3},
-        'library_text': 'Under the belief system Strange Lands their are three fundamental forces, both in magic and the world. '
+        'library_text': 'Under the belief system of the Strange Lands, there are three fundamental forces, both in magic and the world. '
                         'Inhabbitants of the Strange Lands use metaphors of the sky to refer to them: the moon, the star, and the void.',
         'illust': """
 +-----------------+
