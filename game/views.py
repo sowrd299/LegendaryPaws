@@ -221,12 +221,15 @@ def calculate_map_pan(party_x, party_y, current_pan_x=None, current_pan_y=None, 
         pan_y -= 1
 
     # Bound the VELOCITY OF THE PAN to the max pan movement (id est, make sure the pan isn't moving faster than the party)
-    pan_x_move = pan_x - current_pan_x
-    pan_y_move = pan_y - current_pan_y
-    if max_x_pan_move != None and not (min(0, max_x_pan_move) <= pan_x_move <= max(0, max_x_pan_move)):
-        pan_x = current_pan_x + max(min(pan_x_move, 0), min(max(pan_x_move, 0), max_x_pan_move))
-    if max_y_pan_move != None and not (min(0, max_y_pan_move) <= pan_y_move <= max(0, max_y_pan_move)):
-        pan_y = current_pan_y + max(min(pan_y_move, 0), min(max(pan_y_move, 0), max_y_pan_move))
+    if current_pan_x != None and max_x_pan_move != None:
+        pan_x_move = pan_x - current_pan_x
+        if max_x_pan_move != None and not (min(0, max_x_pan_move) <= pan_x_move <= max(0, max_x_pan_move)):
+            pan_x = current_pan_x + max(min(pan_x_move, 0), min(max(pan_x_move, 0), max_x_pan_move))
+    
+    if current_pan_y != None and max_y_pan_move != None:
+        pan_y_move = pan_y - current_pan_y
+        if max_y_pan_move != None and not (min(0, max_y_pan_move) <= pan_y_move <= max(0, max_y_pan_move)):
+            pan_y = current_pan_y + max(min(pan_y_move, 0), min(max(pan_y_move, 0), max_y_pan_move))
 
     # Make sure that the party is always visible
     pan_x = max(party_x - vw + 1, min(party_x, pan_x))
