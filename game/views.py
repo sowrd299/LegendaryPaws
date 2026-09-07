@@ -380,6 +380,17 @@ def game_index(request):
         context['tile_desc'] = tile_info[1]
         context['current_tile'] = current_tile
 
+        if current_tile == 'S':
+            context['interact_button_label'] = 'Shop'
+        elif current_tile == 'I':
+            context['interact_button_label'] = 'Visit'
+        elif current_tile == 'B':
+            context['interact_button_label'] = 'Bathe'
+        elif current_tile == 'L':
+            context['interact_button_label'] = 'Visit'
+        else: 
+            context['interact_button_label'] = '...'
+
     elif screen == 'quest_menu':
         context['active_quests'] = get_active_quests(state)
 
