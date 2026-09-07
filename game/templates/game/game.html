@@ -435,6 +435,12 @@
                     <input type="hidden" name="action_type" value="open_quest_menu">
                     {% include "game/button.html" with key="Q" label="Quest Menu" %}
                 </form>
+                <form method="POST" action="{% url 'handle_action' %}" inline style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action_type" value="move">
+                    <input type="hidden" name="direction" value="none">
+                    {% include "game/button.html" with key="_" label=interact_button_label %}
+                </form>
             </div>
         </div>
 
@@ -960,7 +966,7 @@
                     {% if combat_engine.victory %}
                     {% include "game/button.html" with key="X" label="Leave" %}
                     {% else %}
-                    {% include "game/button.html" with key="X" label="Flea" %}
+                    {% include "game/button.html" with key="X" label="Flee" %}
                     {% endif %}
                 </form>
                 {% endif %}
@@ -1151,6 +1157,9 @@
                         'KeyD': 'right'
                     };
                     submitMove(dirMap[event.code]);
+                } else if (event.code === 'Space' || event.key === ' ') {
+                    event.preventDefault();
+                    submitMove('none');
                 } else if (event.key.toLowerCase() === 'c') {
                     event.preventDefault();
                     submitAction('open_menu');
