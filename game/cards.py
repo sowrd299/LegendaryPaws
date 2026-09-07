@@ -25,6 +25,26 @@ CARD_DATA = [
 """
     },
     {
+        'name': 'Leisurely Wait',
+        'type': 'nothingness',
+        'rarity': '',
+        'target': 'self',
+        'recovery_cost': 30,
+        'description': 'Do nothing for a while.',
+        'stat_boosts': {},
+        'is_consumable': False,
+        'is_wait': True,
+        'illust': """
++                 +
+    \  \ |   /     
+        \          
+    -    X    -    
+        /          
+    /    |   \     
++                 +
+"""
+    },
+    {
         'name': 'Wallow',
         'type': 'nothingness',
         'rarity': '',

@@ -789,9 +789,6 @@ class CombatEngine:
         actor_stats = actor.get_scaled_stats()
         card_name = card['name']
 
-        if card.get('is_wait'):
-            self.combat_log.append(CombatMessage(0, f"{actor.name} waited."))
-
         targets = []
         if card.get('target') == 'all_enemies':
             targets = [e for e in (self.enemies if actor in self.allies else self.allies)]
@@ -901,9 +898,14 @@ class CombatEngine:
 
         # Using "description as a proxy for cards vs. card effects"
         if not is_effect:
-            effect_logs_text = ";".join(effect_logs)
-            log_text = f"{actor.name} used {card_name}{effect_logs_text}!"
-            self.combat_log.append(CombatMessage(0, log_text, card_name))
+
+            if card.get('is_wait'):
+                self.combat_log.append(CombatMessage(0, f"{actor.name} waited."))
+            else:
+                effect_logs_text = ";".join(effect_logs)
+                log_text = f"{actor.name} used {card_name}{effect_logs_text}!"
+                self.combat_log.append(CombatMessage(0, log_text, card_name))
+
             def get_tick_info_string(character):
                 status_effect_string = ', '.join([f'{s.action_timer}' for s in character.status_effects])
                 return f'{character.name}: {character.action_timer} ticks ({status_effect_string})'
@@ -913,14 +915,13 @@ class CombatEngine:
     def execute_player_turn(self, actor, card_name, target_id):
         """Processes player character turn using card_name and target_id."""
         self.combat_log.append(CombatMessage(3, f"<span style='color:var(--accent-cyan)'>{actor.name}\'s Turn!</span>"))
-        if card_name == 'Wait':
-            card = CARDS['Wait']
+        card = CARDS[card_name]
+        if card.get('is_wait', False):
             target = actor
         else:
             if card_name in self.hand:
                 self.hand.remove(card_name)
                 self.discard_pile.append(card_name)
-            card = CARDS.get(card_name, CARDS['Slash'])
             
             # Find target
             all_chars = self.allies + self.enemies

@@ -510,8 +510,9 @@ def game_index(request):
         if combat_dict:
             engine = CombatEngine.from_dict(combat_dict)
             turn_char = engine.advance_action_timers()
+            hand_card_names = ['Leisurely Wait' if engine.victory else 'Wait'] + engine.hand
             context['combat_engine'] = engine
-            context['combat_engine_hand_cards'] = [ name_to_card(name) for name in ['Wait'] + engine.hand ]
+            context['combat_engine_hand_cards'] = [ name_to_card(name) for name in hand_card_names ]
             context['turn_char'] = turn_char
             context['is_player_turn'] = (turn_char in engine.allies) if turn_char else False
             context['log'] += engine.combat_log
@@ -530,7 +531,6 @@ def game_index(request):
 
             hypothetical_turns = []
             if context['is_player_turn'] and turn_char:
-                hand_card_names = ['Wait'] + engine.hand
                 seen_cards = set()
                 for card_name in hand_card_names:
                     if card_name in seen_cards:
