@@ -418,7 +418,7 @@ QUESTS = {
             },
             {
                 'menu_description': "Bring a Wizard to meet Sally at her shop in Yonder. "
-                                    "The card something might have a clue on how to become one.",
+                                    "Every Wizard Sally has heart of has been an owl.",
                 'menu_illust': "Magical Opus",
                 'location': "Sally's School Supplies",
                 'required_classes': ['Wizard'],
