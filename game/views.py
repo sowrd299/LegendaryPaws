@@ -36,6 +36,36 @@ def calculate_bathe_cost(char):
         cost += BATH_CARD_COSTS.get(rarity, 0)
     return cost
 
+GAME_LOGO = """ 
+                                      (  )
+                                      /||\ 
+                                   ( ( || ) )
+                                   /\ \||/ /\ 
+                                  (  | ,, |  )
+                                   \//'  '\ / 
+                                    (______)
+                           __           __,
+  ___,      __,    .      /, \      ,  / /          _,  
+ /_ (   __ / _(  ,/(__   _\/ |,___ /(__| |_   _ ___| (_,
+ ' \ \ / // / _`/( '_ \ / _` |/ _ | '__| | | | / __| __/
+    \ V  V | (_| | | | | (_| |  __| |  | | |_| \__ | |_,
+    /__(\__(\__| |_____|\__,\(\___|_|  | |\__, |___/\__/
+               )//_  _ \ __  ,_   _ ___/_/__ |/         
+               '  | |_) / _`/( | | / __|/ _ \            
+                  |  __| (_| | |_| \__ |  __/           
+                  | (   \__| |\__, |___/\___/
+                  | /      )/    )/
+                  |/       '     '
+                 '
+                     (  )
+                     /||\ 
+                  ( ( || ) )
+                  /\ \||/ /\ 
+                 (  | ,, |  )
+                  \//'  '\ / 
+                   (______)
+"""
+
 DEAD_ILLUST = """
     _____    
    /  (  \   
@@ -287,6 +317,7 @@ def game_index(request):
         'inn_sign_illust': INN_SIGN_ILLUST,
         'party_len': len(party.members),
         'max_party_size': 4,
+        'scroll': state.get('scroll', 0),
     }
 
     if screen == 'dialog':
@@ -562,6 +593,7 @@ def handle_action(request):
     party = Party.from_dict(state['party'])
     log = [Message.from_dict(d) for d in state['log']]
     action_type = request.POST.get('action_type')
+    prev_screen = state['screen']
 
     if action_type == 'dialog_advance':
         active_dialogue = state.get('active_dialogue')
@@ -901,6 +933,9 @@ def handle_action(request):
                 # Update character's previous combat class
                 for m in party.members:
                     m.previous_combat_class = m.current_class
+
+    if state['screen'] == prev_screen:
+        state['scroll'] = request.POST.get('scroll')
 
     state['party'] = party.to_dict()
     state['log'] = [m.to_dict() for m in log]

@@ -1083,6 +1083,7 @@
     <!-- JS INTERCEPTOR & TWO-PHASE COMBAT SELECTION -->
     <script>
         let selectedCardName = null;
+        let prevTotalScrol = parseFloat('{{scroll|default:0}}');
 
         function showCardTurnPreview(cardName) {
             hideCardTurnPreview();
@@ -1183,9 +1184,12 @@
         // SET UP SCROLLING
         // Based on: https://stackoverflow.com/questions/30892830/detect-scrolling-on-pages-without-a-scroll-bar
         document.addEventListener("wheel", function (e) {
-
             // to make it work on IE or Chrome
-            var variation = 5 * parseInt(e.deltaY) / 114;
+            doScroll(5 * parseInt(e.deltaY) / 114);
+        }, true);
+
+        function doScroll(variation) {
+            var maxVal = 0;
 
             document.querySelectorAll(".x-scrollable").forEach(function (element) {
 
@@ -1208,6 +1212,7 @@
                 // update the body translation to simulate a scroll
                 element.style.transform = "translate(" + val + "%)";
                 element.dataset.xscroll = val
+                maxVal = Math.abs(val) > Math.abs(maxVal) ? val : maxVal;
             });
 
             document.querySelectorAll(".y-scrollable").forEach(function (element) {
@@ -1229,13 +1234,29 @@
 
                 element.style.transform = "translateY(" + val + "%)";
                 element.dataset.yscroll = val;
+                maxVal = Math.abs(val) > Math.abs(maxVal) ? val : maxVal;
+            });
+
+            // Update the total scroll tracker
+            document.querySelectorAll("form").forEach(function (form) {
+                var scrollInput = form.querySelector("#scroll-input");
+                if (!scrollInput) {
+                    scrollInput = document.createElement('input');
+                    form.appendChild(scrollInput);
+                    scrollInput.id = 'scroll-input';
+                    scrollInput.type = 'hidden';
+                }
+                scrollInput.name = 'scroll';
+                scrollInput.value = maxVal;
             });
 
             return false;
 
-        }, true);
+        }
 
         document.addEventListener("DOMContentLoaded", function () {
+            doScroll(-prevTotalScrol);
+
             document.querySelectorAll(".library-donated-scroll").forEach(function (element) {
                 if (element.getBoundingClientRect().height <= element.parentNode.getBoundingClientRect().height) {
                     return;
