@@ -239,7 +239,7 @@ CARD_DATA = [
             },
         ],
         'library_text': 'The art to making Clockworks is long forgotten - it was a rare fluke of magically inspired genious sometime around the '
-                        'great Raven-Dragon War to begin with. Luckily, between their innate sturdiness - their practically made of shields and armor to begin with - '
+                        'great Raven-Dragon War to begin with. Luckily, between their innate sturdiness - their practically made of shields and armor - '
                         'and intuitive ability to perpetually make new Clockworks from their dead, they\'ve kept their population up over the centuries.',
         'illust': """
 +-----------------+
@@ -1197,7 +1197,7 @@ CARD_DATA = [
         'status_effect_duration_stat': 'survival_intensity',
         'discard_cards': 2,
         'description': 'Boost defenses. Redraw your hand.',
-        'library_text': "In the years of yore, giants where fierce warlords. In recent history, they've instead mostly to live "
+        'library_text': "In the years of yore, giants where fierce warlords. In recent history, they mostly live "
                         "in hermitage, each giant fending for the needs that come with their massive statutre, and acting a "
                         "one-person village in the broader economy of the Strange Lands. They were the first species to succumb almost "
                         "entirely to the Death Rot.",
@@ -1830,6 +1830,15 @@ CARD_DATA = [
             },
         ],
         'library_text': 'Every mage must start as a student; and most students start by knowing how to study.',
+        'illust': """
++-----------------+
+||n||n||n||n||n||n|
+|| || || || || || |
+||&|| ||%||^|| || |
+||U||U||U||U||U||U|
+|=================|
++-----------------+
+"""
     },
     {
         'name': 'Student\'s Robes',
