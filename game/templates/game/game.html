@@ -338,10 +338,48 @@
                 background-position: -200% 0;
             }
         }
+
+        .account-viewport-indicator {
+            position: fixed;
+            top: 12px;
+            left: 16px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            z-index: 1000;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            box-shadow: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .account-viewport-indicator a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .account-viewport-indicator a:hover {
+            color: var(--text-color);
+        }
     </style>
 </head>
 
 <body>
+    <!-- UPPER LEFT VIEWPORT ACCOUNT INDICATOR -->
+    <div class="account-viewport-indicator">
+        {% if request.user.is_authenticated %}
+        <a href="{% url 'logout' %}" title="Log Out"> [&lt;-]</a>
+        {% else %}
+        <a href="{% url 'login' %}" title="Log In / Account">[Log In]</a>
+        {% endif %}
+        <span>{{ request.user.username }}</span>
+    </div>
+
     <div class="terminal-container">
         <!-- SCREEN: DIALOG -->
         {% if screen == 'dialog' %}

@@ -1,6 +1,10 @@
 import random
+import re
 from django.shortcuts import render, redirect
 from django.http import HttpResponseBadRequest
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
+from .models import SaveState
 from .engine import (
     create_initial_game_state, Party, Character, CombatEngine, Message,
     CORE_STATS, DECK_MINIMUM_SIZE, CLASS_DATA
@@ -19,6 +23,41 @@ DEBUG_COMBAT_ENABLED = True
 DEBUG_EVERYTHING_STORE = False
 
 INVENTORY_MAX_SIZE = 20
+
+ACCOUNT_STATE_BLACKLIST = {'pan_x', 'pan_y', 'prev_x', 'prev_y', 'log', 'scroll'}
+
+def filter_state_for_account(state):
+    """Filters out transient/blacklisted state not saved to the user's account."""
+    return {k: v for k, v in state.items() if k not in ACCOUNT_STATE_BLACKLIST}
+
+def restore_state_from_account(account_state):
+    """Restores a session game state from the account's persisted state."""
+    state = dict(account_state)
+    party_dict = state.get('party', {})
+    px = party_dict.get('x', 0)
+    py = party_dict.get('y', 0)
+    pan_x, pan_y = calculate_map_pan(px, py)
+    state.setdefault('pan_x', pan_x)
+    state.setdefault('pan_y', pan_y)
+    state.setdefault('log', [Message(1, "...").to_dict()])
+    state.setdefault('scroll', 0)
+    return state
+
+def migrate_session_state_to_user(request, user):
+    """Links existing guest session game state to the newly created user account if present."""
+    session_state = request.session.get('game_state')
+    if session_state and isinstance(session_state, dict):
+        filtered = filter_state_for_account(session_state)
+        save_obj, _ = SaveState.objects.get_or_create(user=user)
+        save_obj.state = filtered
+        save_obj.save()
+        request.session['game_state'] = session_state
+        request.session.modified = True
+    else:
+        initial = create_initial_game_state()
+        SaveState.objects.update_or_create(user=user, defaults={'state': filter_state_for_account(initial)})
+        request.session['game_state'] = initial
+        request.session.modified = True
 
 BATH_CARD_COSTS = {
     'mundane': 0,
@@ -112,17 +151,40 @@ def list_to_unique_counts(l):
     return [(i, d[i]) for i in d]
 
 def get_game_state(request):
-    """Loads game state from session or initializes a new one."""
+    """Loads game state from session, or from authenticated user's SaveState, or initializes new."""
     if 'game_state' not in request.session:
-        request.session['game_state'] = create_initial_game_state()
+        if request.user.is_authenticated:
+            try:
+                save_obj = request.user.save_state
+                if save_obj.state:
+                    request.session['game_state'] = restore_state_from_account(save_obj.state)
+                else:
+                    new_state = create_initial_game_state()
+                    save_obj.state = filter_state_for_account(new_state)
+                    save_obj.save()
+                    request.session['game_state'] = new_state
+            except SaveState.DoesNotExist:
+                new_state = create_initial_game_state()
+                SaveState.objects.create(user=request.user, state=filter_state_for_account(new_state))
+                request.session['game_state'] = new_state
+        else:
+            request.session['game_state'] = create_initial_game_state()
         request.session.modified = True
     return request.session['game_state']
 
 
 def save_game_state(request, state):
-    """Saves game state to session."""
+    """Saves game state to session, and additionally saves to user's account if authenticated."""
     request.session['game_state'] = state
     request.session.modified = True
+    if request.user.is_authenticated:
+        filtered = filter_state_for_account(state)
+        save_obj, _ = SaveState.objects.get_or_create(user=request.user)
+        save_obj.state = filtered
+        save_obj.save()
+
+VIEWPORT_MAX_WIDTH = 15
+VIEWPORT_MAX_HEIGHT = 15
 
 
 def is_column_empty_in_range(c, min_y, max_y):
@@ -211,7 +273,7 @@ def calculate_map_pan(party_x, party_y, current_pan_x=None, current_pan_y=None, 
     min_cy = center_y - 2
     max_cy = center_y + 2
 
-    # Calculate pan_x, assuming infnite map
+    # Calculate pan_x, assuming infinite map
     if current_pan_x is None:
         pan_x = max(min_x, min(max_pan_x, party_x - center_x))
     else:
@@ -222,7 +284,7 @@ def calculate_map_pan(party_x, party_y, current_pan_x=None, current_pan_y=None, 
         elif local_x > max_cx:
             pan_x = min(max_pan_x, party_x - max_cx)
 
-    # Calculate pan_y, assuming infnite map
+    # Calculate pan_y, assuming infinite map
     if current_pan_y is None:
         pan_y = max(min_y, min(max_pan_y, party_y - center_y))
     else:
@@ -946,7 +1008,95 @@ def handle_action(request):
 def reset_session(request):
     """Hidden debug view to reset the user's session and clear game progress."""
     request.session.flush()
+    if request.user.is_authenticated:
+        try:
+            save_obj = request.user.save_state
+            save_obj.state = {}
+            save_obj.save()
+        except SaveState.DoesNotExist:
+            pass
     return render(request, 'game/reset.html', {
         'message': 'Debug mode: Game session has been reset successfully.'
     })
+
+
+def login_view(request):
+    """Handles the login / title screen with Continue Game (Log In) and New Game (Create Account)."""
+    error = None
+    username_val = ''
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        username_val = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '')
+        confirm_password = request.POST.get('confirm_password', '')
+
+        if action == 'continue':
+            # "Continue Game" is the stylized name for Log In
+            if not username_val or not password:
+                error = "Please enter both username and password to continue."
+            else:
+                user = authenticate(request, username=username_val, password=password)
+                if user is not None:
+                    login(request, user)
+                    try:
+                        save_obj = user.save_state
+                        if save_obj.state:
+                            request.session['game_state'] = restore_state_from_account(save_obj.state)
+                        elif 'game_state' in request.session:
+                            migrate_session_state_to_user(request, user)
+                        else:
+                            initial = create_initial_game_state()
+                            save_obj.state = filter_state_for_account(initial)
+                            save_obj.save()
+                            request.session['game_state'] = initial
+                    except SaveState.DoesNotExist:
+                        if 'game_state' in request.session:
+                            migrate_session_state_to_user(request, user)
+                        else:
+                            initial = create_initial_game_state()
+                            SaveState.objects.create(user=user, state=filter_state_for_account(initial))
+                            request.session['game_state'] = initial
+                    request.session.modified = True
+                    return redirect('game_index')
+                else:
+                    error = "Username does not exist or password is incorrect."
+
+        elif action == 'new_game':
+            # "New Game" is the stylized name for Create Account
+            if not username_val:
+                error = "Please enter a username."
+            elif len(username_val) < 3 or len(username_val) > 30:
+                error = "Username must be between 3 and 30 characters."
+            elif not re.match(r'^[a-zA-Z0-9_.-]+$', username_val):
+                error = "Username contains invalid characters (letters, numbers, underscores, and hyphens only)."
+            elif not password:
+                error = "Please enter a password."
+            elif password != confirm_password:
+                error = "Passwords do not match. Please enter the password a second time to confirm."
+            elif User.objects.filter(username=username_val).exists():
+                error = f"The username '{username_val}' is already taken."
+            else:
+                user = User.objects.create_user(username=username_val, password=password)
+                login(request, user)
+                migrate_session_state_to_user(request, user)
+                return redirect('game_index')
+
+    return render(request, 'game/login.html', {
+        'game_logo': GAME_LOGO,
+        'error': error,
+        'username': username_val,
+    })
+
+
+def logout_view(request):
+    """Logs out the user, saves their state to their account, and redirects to login."""
+    if request.user.is_authenticated:
+        if 'game_state' in request.session:
+            save_game_state(request, request.session['game_state'])
+        logout(request)
+    request.session.pop('game_state', None)
+    request.session.modified = True
+    return redirect('login')
+
 

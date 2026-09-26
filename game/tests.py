@@ -5,6 +5,8 @@
 
 from django.test import TestCase, Client
 from django.urls import reverse
+from django.contrib.auth.models import User
+from game.models import SaveState
 from game.engine import (
     raw_to_scaled, Character, Party, CombatEngine, CARDS, create_initial_game_state
 )
@@ -988,6 +990,203 @@ class BathhouseTests(TestCase):
         self.assertEqual(updated_state['library_cards'], [])
         updated_party = Party.from_dict(updated_state['party'])
         self.assertIn('Slash', updated_party.inventory)
+
+
+class AccountManagementTests(TestCase):
+    def test_login_page_renders_elements(self):
+        """Test login view renders game logo, input fields, and stylized Continue/New Game buttons."""
+        response = self.client.get(reverse('login'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Wanderlust Pause')
+        self.assertContains(response, 'username')
+        self.assertContains(response, 'password')
+        self.assertContains(response, 'confirm_password')
+        self.assertContains(response, 'Continue Game')
+        self.assertContains(response, 'New Game')
+
+    def test_account_registration_validation(self):
+        """Test username and password validations when registering (New Game)."""
+        # Empty username
+        res = self.client.post(reverse('login'), {'action': 'new_game', 'username': '', 'password': 'password123', 'confirm_password': 'password123'})
+        self.assertContains(res, 'Please enter a username')
+
+        # Short username (< 3 chars)
+        res = self.client.post(reverse('login'), {'action': 'new_game', 'username': 'ab', 'password': 'password123', 'confirm_password': 'password123'})
+        self.assertContains(res, 'between 3 and 30 characters')
+
+        # Invalid characters in username
+        res = self.client.post(reverse('login'), {'action': 'new_game', 'username': 'bad name!', 'password': 'password123', 'confirm_password': 'password123'})
+        self.assertContains(res, 'invalid characters')
+
+        # Short password (< 6 chars)
+        res = self.client.post(reverse('login'), {'action': 'new_game', 'username': 'validuser', 'password': '123', 'confirm_password': '123'})
+        self.assertContains(res, 'at least 6 characters')
+
+        # Password confirmation mismatch
+        res = self.client.post(reverse('login'), {'action': 'new_game', 'username': 'validuser', 'password': 'password123', 'confirm_password': 'password456'})
+        self.assertContains(res, 'Passwords do not match')
+
+    def test_account_creation_stores_salted_hash_and_authenticates(self):
+        """Test valid registration creates user with salted password hash and logs in."""
+        res = self.client.post(reverse('login'), {
+            'action': 'new_game',
+            'username': 'adventurer',
+            'password': 'secretpassword',
+            'confirm_password': 'secretpassword'
+        })
+        self.assertEqual(res.status_code, 302)
+        self.assertEqual(res.url, reverse('game_index'))
+
+        user = User.objects.get(username='adventurer')
+        # Check salted hash (Django PBKDF2 default)
+        self.assertNotEqual(user.password, 'secretpassword')
+        self.assertTrue(user.check_password('secretpassword'))
+        self.assertTrue(user.password.startswith('pbkdf2_sha256$'))
+
+        # Check authenticated
+        index_res = self.client.get(reverse('game_index'))
+        self.assertEqual(index_res.status_code, 200)
+        self.assertContains(index_res, 'adventurer')
+
+    def test_guest_session_migration_to_new_account(self):
+        """Test that active guest session game state is migrated to newly created account."""
+        session = self.client.session
+        state = create_initial_game_state()
+        party = Party.from_dict(state['party'])
+        party.gold = 750
+        party.inventory.append('RareCard')
+        state['party'] = party.to_dict()
+        state['pan_x'] = 12
+        state['pan_y'] = 14
+        state['log'] = [{'speaker_type': 1, 'text': 'Guest progress', 'card': None}]
+        session['game_state'] = state
+        session.save()
+
+        # Register new account
+        res = self.client.post(reverse('login'), {
+            'action': 'new_game',
+            'username': 'migrated_hero',
+            'password': 'password123',
+            'confirm_password': 'password123'
+        })
+        self.assertEqual(res.status_code, 302)
+
+        user = User.objects.get(username='migrated_hero')
+        save_obj = user.save_state
+        self.assertIsNotNone(save_obj)
+        # Verify party gold and inventory migrated
+        self.assertEqual(save_obj.state['party']['gold'], 750)
+        self.assertIn('RareCard', save_obj.state['party']['inventory'])
+
+        # Verify blacklist: pan and log not saved in account state
+        self.assertNotIn('pan_x', save_obj.state)
+        self.assertNotIn('pan_y', save_obj.state)
+        self.assertNotIn('log', save_obj.state)
+
+    def test_authenticated_state_saving_persists_to_account_with_blacklist(self):
+        """Test in-game actions update user's SaveState in DB and respect blacklist."""
+        user = User.objects.create_user(username='player1', password='password123')
+        self.client.login(username='player1', password='password123')
+
+        # Trigger get_game_state via game_index
+        res = self.client.get(reverse('game_index'))
+        self.assertEqual(res.status_code, 200)
+
+        # Move action
+        move_res = self.client.post(reverse('handle_action'), {
+            'action_type': 'move',
+            'direction': 'left'
+        })
+        self.assertEqual(move_res.status_code, 302)
+
+        user.refresh_from_db()
+        save_obj = user.save_state
+        self.assertIsNotNone(save_obj)
+        self.assertIn('party', save_obj.state)
+        # Blacklist fields must NOT be in account save
+        self.assertNotIn('pan_x', save_obj.state)
+        self.assertNotIn('pan_y', save_obj.state)
+        self.assertNotIn('prev_x', save_obj.state)
+        self.assertNotIn('prev_y', save_obj.state)
+        self.assertNotIn('log', save_obj.state)
+
+    def test_continue_game_loads_account_state(self):
+        """Test Continue Game logs in returning user and restores account state into session."""
+        user = User.objects.create_user(username='returning_player', password='password123')
+        initial_state = create_initial_game_state()
+        party = Party.from_dict(initial_state['party'])
+        party.gold = 999
+        initial_state['party'] = party.to_dict()
+        SaveState.objects.create(user=user, state=initial_state)
+
+        # Log in via Continue Game
+        res = self.client.post(reverse('login'), {
+            'action': 'continue',
+            'username': 'returning_player',
+            'password': 'password123'
+        })
+        self.assertEqual(res.status_code, 302)
+        self.assertEqual(res.url, reverse('game_index'))
+
+        session_state = self.client.session.get('game_state')
+        self.assertIsNotNone(session_state)
+        self.assertEqual(session_state['party']['gold'], 999)
+        # Non-blacklisted / restored fields exist in session
+        self.assertIn('pan_x', session_state)
+        self.assertIn('pan_y', session_state)
+        self.assertIn('log', session_state)
+
+    def test_login_invalid_credentials(self):
+        """Test Continue Game with bad password displays error."""
+        User.objects.create_user(username='existing_user', password='correct_password')
+        res = self.client.post(reverse('login'), {
+            'action': 'continue',
+            'username': 'existing_user',
+            'password': 'wrong_password'
+        })
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, 'Invalid username or password')
+
+    def test_logout_saves_state_and_clears_session(self):
+        """Test logout saves progress to account and flushes session."""
+        user = User.objects.create_user(username='logout_user', password='password123')
+        self.client.login(username='logout_user', password='password123')
+
+        session = self.client.session
+        state = create_initial_game_state()
+        party = Party.from_dict(state['party'])
+        party.gold = 333
+        state['party'] = party.to_dict()
+        session['game_state'] = state
+        session.save()
+
+        res = self.client.get(reverse('logout'))
+        self.assertEqual(res.status_code, 302)
+        self.assertEqual(res.url, reverse('login'))
+
+        # Check DB was updated before logout
+        user.refresh_from_db()
+        self.assertEqual(user.save_state.state['party']['gold'], 333)
+
+        # Check session game_state cleared
+        self.assertNotIn('game_state', self.client.session)
+
+    def test_in_game_account_viewport_indicator(self):
+        """Test in-game viewport shows username and logout link when logged in, or [Log In] when guest."""
+        # Guest
+        guest_res = self.client.get(reverse('game_index'))
+        self.assertContains(guest_res, 'account-viewport-indicator')
+        self.assertContains(guest_res, reverse('login'))
+
+        # Logged in
+        User.objects.create_user(username='display_user', password='password123')
+        self.client.login(username='display_user', password='password123')
+        auth_res = self.client.get(reverse('game_index'))
+        self.assertContains(auth_res, 'account-viewport-indicator')
+        self.assertContains(auth_res, 'display_user')
+        self.assertContains(auth_res, reverse('logout'))
+        self.assertContains(auth_res, '[->]')
+
 
 
 

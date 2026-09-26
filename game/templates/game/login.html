@@ -1,0 +1,213 @@
+{% load static %}
+{% load utils %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wanderlust Pause</title>
+    <link rel="icon" href="{% static 'game/fox.png' %}">
+    <style>
+        :root {
+            --bg-color: #141a24;
+            --panel-bg: #1c2432;
+            --text-color: #f0e6d2;
+            --text-muted: #a09888;
+            --accent-amber: #e5b168;
+            --accent-green: #98c379;
+            --accent-red: #e06c75;
+            --border-color: #2c384e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .terminal-container {
+            width: 860px;
+            background-color: var(--panel-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .card-illust {
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.1;
+            white-space: pre;
+            color: var(--accent-amber);
+            font-size: 0.72rem;
+            user-select: none;
+            overflow-x: auto;
+            max-width: 100%;
+            text-align: center;
+        }
+
+        .login-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            max-width: 380px;
+            margin-top: 8px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
+        }
+
+        .input-group label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .terminal-input {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            font-family: inherit;
+            font-size: 0.95rem;
+            padding: 8px 12px;
+            border-radius: 4px;
+            outline: none;
+            width: 100%;
+            transition: border-color 0.2s;
+        }
+
+        .terminal-input:focus {
+            border-color: var(--accent-amber);
+        }
+
+        .btn {
+            background: none;
+            color: var(--accent-amber);
+            border: none;
+            font-family: inherit;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+            padding: 0px 0px;
+        }
+
+        .btn:hover {
+            color: var(--text-color);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .error-banner {
+            color: var(--accent-red);
+            font-size: 0.85rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        .help-text {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: center;
+            line-height: 1.4;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="terminal-container">
+        <!-- GAME TITLE TREATMENT -->
+        <pre class="card-illust" style="text-align: left;">{{ game_logo|illust }}</pre>
+
+        {% if error %}
+        <div class="error-banner">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        {% if request.user.is_authenticated %}
+        <div style="font-size: 0.85rem; color: var(--text-muted); text-align: center;">
+            Active account: <span style="color: var(--accent-green);">{{ request.user.username }}</span>
+            &nbsp;|&nbsp;
+            <a href="{% url 'logout' %}" style="color: var(--text-muted); text-decoration: underline;">Log Out</a>
+        </div>
+        {% endif %}
+
+        <!-- ACCOUNT CREDENTIALS FORM -->
+        <form method="POST" action="{% url 'login' %}" class="login-box" id="loginForm">
+            {% csrf_token %}
+            <div class="input-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" class="terminal-input" value="{{ username|default:'' }}" autocomplete="username" required autofocus>
+            </div>
+
+            <div class="input-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" class="terminal-input" autocomplete="current-password" required>
+            </div>
+
+            <div class="input-group">
+                <label for="confirm_password">Confirm Password (for New Game):</label>
+                <input type="password" id="confirm_password" name="confirm_password" class="terminal-input" autocomplete="new-password">
+            </div>
+
+            <!-- STYLIZED ACTION BUTTONS -->
+            <div class="btn-group">
+                <button type="submit" name="action" value="continue" class="btn" id="btn-continue">
+                    [⟨ C ⟩ Continue Game]
+                </button>
+                <button type="submit" name="action" value="new_game" class="btn" id="btn-new-game">
+                    [⟨ N ⟩ New Game]
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('keydown', function (e) {
+            const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+            if (activeTag === 'input' || activeTag === 'textarea') {
+                return;
+            }
+
+            const key = e.key.toLowerCase();
+            if (key === 'c') {
+                e.preventDefault();
+                document.getElementById('btn-continue').click();
+            } else if (key === 'n') {
+                e.preventDefault();
+                document.getElementById('btn-new-game').click();
+            }
+        });
+    </script>
+</body>
+
+</html>

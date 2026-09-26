@@ -283,3 +283,23 @@ When a character bathes (if they can afford it all of their equipped cards are r
 Like in the combat or character menu, a subheader above the party says "Choose a party member to relax in the bath and clear their mind, <b>forgetting all cards they know</b>:".
 
 The cost for a party member to bathe is 10g per interesting card they have equipped, 40g per odd card they have equipped, 160g per exceptional card they have equipped, and 640g per peerless card they have equipped.
+
+
+== Account Management ==
+
+When saving state, the state is additionally saved to the user's account. 
+
+The logic screen has the game title treatement (standard "card illust" pattern used elsewhere), 
+two buttons to either coninue gane or new game (see pattern used elsewhere) 
+the option to enter a user name (checked for length and valid characters), enter a password (likewise checked), and 
+if creating an account, enter the password a second time. Then there is a Log In/Create Account submit button. 
+
+While in game, in the upper left hand corner of the viewport there is the user's username and an ascii art log out icon. this has no panel, 
+and is muted grey by default. 
+
+We should make sure to follow good practices for sending passwords back to the server, and storing them, as salted hashes. 
+
+We should also include some minimal migration logic to detect if the current session has game state not associated with any account, 
+and if not link that to the account created instead of starting from the beginning of the game. 
+
+We should also maintain a blacklist of state NOT saved to the account, such as pan, previous x/y, and the adventure log
