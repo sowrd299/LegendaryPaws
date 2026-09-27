@@ -29,8 +29,8 @@
     [{% if key %}⟨ {{key}} ⟩ {% endif %} <span class="selected-mark">● </span>{{label}}
     {% if cost %}{{cost}}Ꞡ {% endif %}
     {% if count and min_count %}
-    <span {% if count < min_count %} style="color: var(--accent-red);" {% else %} style="color: var(--text-muted);" {% endif %}>
-        {{count}} / {{min_count}} {{count_label}}
+    <span {% if count|add:second_count < min_count %} style="color: var(--accent-red);" {% else %} style="color: var(--text-muted);" {% endif %}>
+        {{count}} {% if second_count %} + {{ second_count }} {{ second_count_label }} {% endif %} / {{min_count}} {{count_label}}
     </span>
     {% endif %}]
 </button>

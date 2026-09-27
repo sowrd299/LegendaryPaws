@@ -24,7 +24,7 @@ ALL_STATS = CORE_STATS + MAGIC_STATS + [
 
 RARITIES = ['mundane', 'interesting', 'odd', 'exceptional', 'peerless']
 
-DECK_MINIMUM_SIZE = 10
+DECK_MINIMUM_SIZE = 20
 
 def raw_to_scaled(raw_val):
 
@@ -652,10 +652,10 @@ class CombatEngine:
 
     def get_deck_pool(self):
         deck_pool = list(self.shared_deck)
-        while len(deck_pool) < DECK_MINIMUM_SIZE:
-            deck_pool.append("Wallow")
         for a in self.allies:
             deck_pool.extend(a.get_known_cards())
+        while len(deck_pool) < DECK_MINIMUM_SIZE:
+            deck_pool.append("Wallow")
 
         for card in getattr(self, 'hand', []):
             if card in deck_pool:
@@ -1074,10 +1074,10 @@ def create_initial_game_state():
     )
     party.inventory = starting_inventory
     party.shared_deck = ( 
-        ['Bargain'] +
-        ['Slash'] * 4 +
-        ['Potion'] * 2 +
-        ['Woe'] * 3
+        ['Bargain'] * 3 +
+        ['Slash'] * 8 +
+        ['Potion'] * 4 +
+        ['Woe'] * 5
     )
 
     state = {

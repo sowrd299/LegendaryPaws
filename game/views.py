@@ -361,6 +361,9 @@ def game_index(request):
     party_deck_cards = [ (name_to_card(name), count) for name,count in list_to_unique_counts(party.shared_deck) ]
     party_deck_cards.sort(key = lambda card : CARD_DATA.index(CARDS[card[0]['name']]))
 
+    party_known_cards = []
+    for member in party.members:
+        party_known_cards.extend(member.get_known_cards())
 
     # Prepare context data
     context = {
@@ -373,6 +376,7 @@ def game_index(request):
         'inventory_max_size': INVENTORY_MAX_SIZE,
         'party_deck_cards': party_deck_cards,
         'party_deck_len': len(party.shared_deck),
+        'party_known_cards_len': len(party_known_cards),
         'deck_minimum_size': DECK_MINIMUM_SIZE,
         'dead_illust': DEAD_ILLUST,
         'signed_scroll_illust': SIGNED_SCROLL_ILLUST,

@@ -535,7 +535,7 @@
             <form method="POST" action="{% url 'handle_action' %}" style="display:inline;">
                 {% csrf_token %}
                 <input type="hidden" name="action_type" value="select_deck">
-                {% include "game/button.html" with label="DECK" selected=selected_char|negate count=party_deck_len min_count=deck_minimum_size count_label="Cards" %}
+                {% include "game/button.html" with label="DECK" selected=selected_char|negate count=party_deck_len min_count=deck_minimum_size count_label="Cards" second_count=party_known_cards_len second_count_label="Known Cards" %}
             </form>
             <!-- PARTY TABS -->
             {% for member in party.members %}
