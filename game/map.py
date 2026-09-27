@@ -580,7 +580,7 @@ MAP_ZONES = [
                 "              ....^",
                 "   ....________....",
                 "   ...~~_S__SI_...^",
-                "   ..~~~B______...^",
+                "   ..~~~~______...^",
                 "......~~_L_........",
                 ".......____.......^",
                 "...............R.^^",
@@ -706,14 +706,14 @@ MAP_ZONES = [
         },
         tile_descriptions=dict(DEFAULT_TILE_DESCRIPTIONS, **{
             '_': ('The Village of Yonder', 'A quiet village in the shadow of the little mountains.'),
-            '~': ('Yonder Springs', 'a warm, softly rippling pool in the plains')
+            '~': ('Yonder Springs', 'a cool, softly rippling pool in the plains')
         }),
     ),
 
     # The Sprite Village
     MapZone(
         grid=[
-                "Sff",
+                "SfB",
                 "fff",
                 "ffS",
         ],
