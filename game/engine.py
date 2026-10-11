@@ -646,6 +646,7 @@ class CombatEngine:
 
         # Build party shared deck
         self.draw_pile = self.get_deck_pool()
+        random.shuffle(self.draw_pile)
         self.discard_pile = []
         self.hand = []
         self.draw_hand()
